@@ -1,0 +1,974 @@
+# QuickJobs Monorepo - Cursor AI Rules
+
+## Tech Stack
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript (strict mode)
+- **UI**: React 18, Tailwind CSS, shadcn/ui
+- **Build**: Turbo (monorepo)
+- **Package Manager**: yarn
+- **Localization**: Czech (UI text)
+
+## Project Architecture
+
+### Monorepo Structure
+```
+quickjobs/
+├── apps/
+│   ├── web-app/          # Main Next.js dashboard application
+│   │   ├── app/          # App Router pages
+│   │   ├── components/   # App-specific components
+│   │   └── lib/          # App utilities
+│   └── job-portal/       # Public job portal application
+│       ├── app/          # App Router pages
+│       ├── components/   # Portal-specific components
+│       └── lib/          # Portal utilities
+└── packages/
+    ├── ui/               # Shared component library
+    │   ├── src/components/  # Reusable UI components
+    │   ├── src/hooks/       # Shared hooks
+    │   └── src/lib/         # Shared utilities
+    ├── eslint-config/    # Shared ESLint config
+    └── typescript-config/ # Shared TS config
+```
+
+### Import Patterns
+- **Within package**: Use relative imports (`./`, `../`)
+- **Cross-package**: Use absolute imports (`@ui/components`, `@ui/hooks`)
+- **Import order**: 
+  1. React/Next.js imports
+  2. Third-party libraries
+  3. Local imports (components, hooks, utils)
+  4. Type imports (use `import type { ... }` when possible)
+- **Path aliases**: Configured in `tsconfig.json` (e.g., `@ui/*` → `packages/ui/src/*`)
+
+## TypeScript Guidelines
+
+### Type Safety
+- **Never use `any`** - use `unknown` if type is truly unknown, then narrow with type guards
+- **Explicit return types** - Always define return types for functions (except simple arrow functions where inference is obvious)
+- **Interfaces vs Types**: 
+  - Use `interface` for object shapes and component props
+  - Use `type` for unions, intersections, and computed types
+- **Utility types**: Leverage `Partial<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, V>`, etc.
+- **Type imports**: Use `import type { ... }` for type-only imports
+
+### Examples
+```typescript
+// ✅ Good
+interface UserProps {
+  name: string;
+  age: number;
+  onUpdate: (data: Partial<UserProps>) => void;
+}
+
+function processUser(data: unknown): UserProps {
+  if (typeof data === 'object' && data !== null) {
+    // Type guard
+    return data as UserProps;
+  }
+  throw new Error('Invalid user data');
+}
+
+// ✅ Type-only import
+import type { User } from './types';
+
+// ❌ Avoid
+const handleData = (data: any) => { }
+function getValue() { return fetch(...) } // Missing return type
+```
+
+## Component Patterns
+
+### Component Structure
+```typescript
+"use client"; // Only if client component needed
+
+import { useState } from "react";
+import type { ComponentNameProps } from "./types";
+
+export const ComponentName = ({ 
+  title, 
+  onAction 
+}: ComponentNameProps) => {
+  const [state, setState] = useState("");
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h2>{title}</h2>
+    </div>
+  );
+};
+```
+
+### Component Guidelines
+- **Default**: Server Components (no "use client" directive)
+- **Client Components**: Only add `"use client"` when:
+  - Using React hooks (`useState`, `useEffect`, etc.)
+  - Using browser APIs (`window`, `document`, `localStorage`, etc.)
+  - Handling events (`onClick`, `onChange`, etc.)
+  - Using context providers/consumers
+- **Naming**: 
+  - PascalCase for components (`JobCard`, `UserProfile`)
+  - camelCase for utilities and hooks (`formatDate`, `useAuth`)
+  - kebab-case for file names (`job-card.tsx`, `user-profile.tsx`)
+- **Exports**: Always use named exports (`export const Header = () => {}`)
+- **No FC/React.FC**: Type props inline in function parameters, not with `React.FC`
+- **Props destructuring**: Destructure props in function signature
+- **Optimization**: 
+  - Use `React.memo()` for expensive renders
+  - Use `useMemo()` for expensive calculations
+  - Use `useCallback()` for stable function references passed to memoized children
+
+### File Naming
+- Components: `ComponentName.tsx` (PascalCase)
+- Utilities: `utility-name.ts` (kebab-case)
+- Hooks: `use-hook-name.ts` (kebab-case with `use-` prefix)
+- Types: `types.ts` or `component-name.types.ts`
+
+## Next.js App Router
+
+### File Conventions
+- `page.tsx` - Route page component (required for route)
+- `layout.tsx` - Shared layout wrapper (persists across navigation)
+- `loading.tsx` - Loading UI with Suspense (automatic)
+- `error.tsx` - Error boundary (catches errors in route segment)
+- `not-found.tsx` - 404 page (custom not found UI)
+- `route.ts` - API endpoint handler
+- `template.tsx` - Template component (re-renders on navigation)
+
+### Dynamic Routes
+- `[id]/` - Single dynamic segment
+- `[id]/[slug]/` - Multiple dynamic segments
+- `[...slug]/` - Catch-all segment (matches all paths)
+- `[[...slug]]/` - Optional catch-all (matches including root)
+
+### Route Handlers (API Routes)
+```typescript
+// app/api/jobs/route.ts
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const id = searchParams.get("id");
+  
+  // Fetch data
+  const data = await fetchJobs(id);
+  
+  return NextResponse.json({ data });
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    
+    // Validate and process
+    const result = await createJob(body);
+    
+    return NextResponse.json({ success: true, data: result }, { status: 201 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Nepodařilo se vytvořit nabídku" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Middleware
+```typescript
+// middleware.ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+export function middleware(request: NextRequest) {
+  // Auth check, redirects, headers, etc.
+  const token = request.cookies.get("token");
+  
+  if (!token && request.nextUrl.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/api/protected/:path*"],
+};
+```
+
+### Environment Variables
+- Use `NEXT_PUBLIC_` prefix for client-side variables
+- Access via `process.env.NEXT_PUBLIC_API_URL`
+- Server-only variables: `process.env.API_SECRET` (no prefix)
+- Type safety: Create `env.d.ts` for type definitions
+
+## Styling with Tailwind
+
+### Best Practices
+- **Utility Classes**: Use Tailwind utilities, avoid inline styles
+- **shadcn/ui**: Leverage component patterns and variants
+- **Theming**: Use CSS variables for theming (`bg-background`, `text-foreground`)
+- **Responsive**: Mobile-first approach (`sm:`, `md:`, `lg:`, `xl:`)
+- **Utility Order**: Group logically - layout → spacing → typography → colors → effects
+- **Conditional Classes**: Use `cn()` utility for conditional classes
+  ```typescript
+  import { cn } from "@ui/lib/utils";
+  
+  <div className={cn(
+    "flex flex-col gap-4",
+    isActive && "bg-primary",
+    className // Allow override
+  )}>
+  ```
+
+### Example
+```typescript
+<div className="flex flex-col gap-4 p-6 rounded-lg bg-background border border-border">
+  <h2 className="text-2xl font-semibold text-foreground">
+    Nadpis
+  </h2>
+  <p className="text-sm text-muted-foreground">
+    Popis
+  </p>
+</div>
+```
+
+### Common Patterns
+```typescript
+// Container with max-width
+<div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+// Flex layouts
+<div className="flex items-center justify-between gap-4">
+
+// Grid layouts
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+// Responsive text
+<h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+
+// Hover states
+<button className="hover:bg-accent hover:text-accent-foreground transition-colors">
+```
+
+## Shared UI Package
+
+### Usage
+```typescript
+// Import shared components from core or specific folders
+import { Button } from "@ui/components/core/button";
+import { Dialog } from "@ui/components/core/dialog";
+import { Input } from "@ui/components/core/input";
+import { useToast } from "@ui/hooks/use-toast";
+import { cn } from "@ui/lib/utils"; // className utility
+```
+
+### Creating Shared Components
+- **Atomic Design**: Keep components small and focused
+- **Reusability**: Accept common HTML attributes via spread props
+  ```typescript
+  interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: "default" | "destructive" | "outline";
+    size?: "sm" | "md" | "lg";
+  }
+  ```
+- **TypeScript Generics**: Use for flexible component APIs
+  ```typescript
+  interface SelectProps<T> {
+    value: T;
+    onChange: (value: T) => void;
+    options: Array<{ label: string; value: T }>;
+  }
+  ```
+- **shadcn/ui Patterns**: Follow established patterns (variants, compound components)
+- **Composition**: Prefer composition over configuration
+- **Accessibility**: Include proper ARIA attributes and keyboard navigation
+
+## Czech Localization
+
+### Guidelines
+- **UI Text**: All user-facing text in Czech
+- **Code**: Variables, functions, comments in English
+- **Error Messages**: User-visible errors in Czech
+- **Types/Interfaces**: English names
+
+### Example
+```typescript
+interface JobFormProps {
+  onSubmit: (data: JobData) => void;
+}
+
+export const JobForm = ({ onSubmit }: JobFormProps) => {
+  return (
+    <form>
+      <label>Název pozice</label>
+      <button type="submit">Uložit nabídku</button>
+    </form>
+  );
+};
+```
+
+## State Management
+
+### Local State
+- **Simple State**: Use `useState` for primitive values and simple objects
+  ```typescript
+  const [count, setCount] = useState(0);
+  const [user, setUser] = useState<User | null>(null);
+  ```
+- **Complex State**: Use `useReducer` for state machines or complex logic
+  ```typescript
+  type State = { count: number; step: number };
+  type Action = { type: "increment" } | { type: "decrement" } | { type: "reset" };
+  
+  const reducer = (state: State, action: Action): State => {
+    switch (action.type) {
+      case "increment": return { ...state, count: state.count + state.step };
+      case "decrement": return { ...state, count: state.count - state.step };
+      case "reset": return { ...state, count: 0 };
+    }
+  };
+  
+  const [state, dispatch] = useReducer(reducer, { count: 0, step: 1 });
+  ```
+- **State Lifting**: Lift state only when multiple components need it
+- **Context**: Use React Context for deeply nested prop drilling (avoid overuse)
+
+### Server State
+- **Prefer Server Components**: Fetch data in Server Components when possible
+- **Caching**: Use `fetch` with Next.js automatic caching
+- **Revalidation**: 
+  - `revalidatePath("/jobs")` - Revalidate specific path
+  - `revalidateTag("jobs")` - Revalidate by tag
+  - `revalidateTime` - Time-based revalidation
+
+### Custom Hooks
+```typescript
+// hooks/use-jobs.ts
+import { useState, useEffect } from "react";
+
+export function useJobs() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/jobs");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setJobs(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchJobs();
+  }, []);
+
+  return { jobs, loading, error, refetch: fetchJobs };
+}
+```
+
+## Error Handling
+
+### Error Boundaries (Client)
+```typescript
+// app/error.tsx
+"use client";
+
+import { useEffect } from "react";
+import { Button } from "@ui/components/core/button";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    // Log to error reporting service
+    console.error("Error:", error);
+  }, [error]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+      <h2 className="text-2xl font-semibold">Něco se pokazilo</h2>
+      <p className="text-muted-foreground">
+        {error.message || "Došlo k neočekávané chybě"}
+      </p>
+      <Button onClick={reset}>Zkusit znovu</Button>
+    </div>
+  );
+}
+```
+
+### Server-Side Error Handling
+```typescript
+// app/api/jobs/route.ts
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+    const data = await fetchJobs();
+    return NextResponse.json({ data });
+  } catch (error) {
+    console.error("API Error:", error);
+    return NextResponse.json(
+      { error: "Nepodařilo se načíst nabídky" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Async Component Error Handling
+```typescript
+// app/jobs/page.tsx
+export default async function JobsPage() {
+  try {
+    const jobs = await getJobs();
+    return <JobList jobs={jobs} />;
+  } catch (error) {
+    // This will trigger error.tsx
+    throw new Error("Nepodařilo se načíst nabídky");
+  }
+}
+```
+
+### Form Error Handling
+```typescript
+"use client";
+
+import { useState } from "react";
+
+export const JobForm = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    
+    try {
+      await createJob(formData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Chyba při ukládání");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <div className="text-destructive">{error}</div>}
+      {/* form fields */}
+    </form>
+  );
+};
+```
+
+## Performance
+
+### Optimization Checklist
+- **Server Components**: Use by default (no client JS unless needed)
+- **Code Splitting**: Use dynamic imports for heavy components
+  ```typescript
+  const HeavyComponent = dynamic(() => import("./HeavyComponent"), {
+    loading: () => <LoadingIndicator />,
+    ssr: false, // Only if component requires browser APIs
+  });
+  ```
+- **Images**: Always use `next/image` with proper sizing
+  ```typescript
+  <Image
+    src="/logo.png"
+    alt="Logo"
+    width={200}
+    height={100}
+    priority // For above-the-fold images
+  />
+  ```
+- **Loading States**: Use `loading.tsx` for instant loading UI
+- **Error Boundaries**: Implement at route level with `error.tsx`
+- **Memoization**: 
+  - `useMemo()` for expensive calculations
+  - `useCallback()` for stable function references
+  - `React.memo()` for component memoization
+- **Debouncing**: Use for search inputs, form validation
+  ```typescript
+  import { useDebouncedValue } from "@ui/hooks/use-debounce";
+  
+  const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
+  ```
+- **Streaming**: Use Suspense boundaries for progressive loading
+  ```typescript
+  <Suspense fallback={<LoadingIndicator />}>
+    <AsyncComponent />
+  </Suspense>
+  ```
+- **Bundle Size**: 
+  - Import only what you need (`import { Button }` not `import *`)
+  - Use tree-shaking friendly imports
+  - Analyze bundle with `@next/bundle-analyzer`
+
+## Git Commit Convention
+
+### Format
+```
+type(scope): description
+
+[optional body]
+
+[optional footer]
+```
+
+### Types
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation changes
+- `style` - Code style (formatting, semicolons)
+- `refactor` - Code refactoring
+- `perf` - Performance improvements
+- `test` - Adding/updating tests
+- `chore` - Maintenance tasks
+- `ci` - CI/CD changes
+
+### Examples
+```bash
+feat(dialog): přidání auto-save do formulářů nabídek
+fix(auth): oprava refreshe tokenu při expiraci
+refactor(ui): zjednodušení props u Button komponenty
+perf(jobs): optimalizace načítání seznamu nabídek
+chore(deps): aktualizace Next.js na verzi 14.1
+docs(readme): doplnění deployment instrukce
+```
+
+### Scope Guidelines
+- `ui` - UI package changes
+- `auth` - Authentication
+- `api` - API routes
+- `dialog` - Dialog components
+- `form` - Form components
+- Component/feature name
+
+### Breaking Changes
+```bash
+feat!: odstranění deprecated API endpointu
+
+BREAKING CHANGE: API endpoint /api/old byl odstraněn, 
+použijte /api/v2/new
+```
+
+## Code Generation Preferences
+
+### When Generating Code
+1. **TypeScript**: Always use explicit types, avoid `any`
+2. **Server First**: Prefer Server Components unless interactivity needed
+3. **Error Handling**: Always include try/catch for async operations
+4. **Localization**: Czech for UI text, English for code/comments
+5. **File Naming**: Follow conventions strictly (kebab-case for files, PascalCase for components)
+6. **Loading States**: Always implement loading states for async operations
+7. **Documentation**: Add JSDoc comments for complex functions and public APIs
+8. **Styling**: Use Tailwind utilities, avoid inline styles and custom CSS
+9. **Accessibility**: Include proper ARIA labels and semantic HTML
+10. **Performance**: Consider memoization, code splitting, and bundle size
+
+### Code Quality Checklist
+- ✅ TypeScript strict mode compliance
+- ✅ Proper error boundaries and error handling
+- ✅ Loading and empty states
+- ✅ Responsive design (mobile-first)
+- ✅ Accessibility (keyboard navigation, ARIA)
+- ✅ Performance optimizations (memo, dynamic imports)
+- ✅ Czech localization for user-facing text
+- ✅ Consistent code style and formatting
+
+## Async/Await Patterns
+
+### Error Handling
+```typescript
+// ✅ Good - Explicit error handling
+async function fetchData(): Promise<Data> {
+  try {
+    const res = await fetch("/api/data");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    throw error; // Re-throw or handle appropriately
+  }
+}
+
+// ❌ Avoid - Silent failures
+async function fetchData() {
+  const res = await fetch("/api/data");
+  return res.json(); // No error handling
+}
+```
+
+### Parallel Requests
+```typescript
+// ✅ Good - Parallel fetching
+const [jobs, users, stats] = await Promise.all([
+  fetchJobs(),
+  fetchUsers(),
+  fetchStats(),
+]);
+
+// ✅ Good - With error handling
+const results = await Promise.allSettled([
+  fetchJobs(),
+  fetchUsers(),
+  fetchStats(),
+]);
+```
+
+### Sequential with Dependencies
+```typescript
+// ✅ Good - Sequential when dependent
+const user = await fetchUser(id);
+const jobs = await fetchUserJobs(user.id);
+```
+
+## Testing
+
+### Testing Stack (Future)
+- **Unit Tests**: Vitest
+- **E2E Tests**: Playwright
+- **Component Tests**: Testing Library
+- **Test Location**: `__tests__/` or `*.test.tsx` files
+
+## API Client Patterns
+
+### API Client Setup
+```typescript
+// lib/api.ts
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
+
+async function apiRequest<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: "Request failed" }));
+    throw new Error(error.message || `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export const api = {
+  get: <T>(endpoint: string) => apiRequest<T>(endpoint, { method: "GET" }),
+  post: <T>(endpoint: string, data: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  put: <T>(endpoint: string, data: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  delete: <T>(endpoint: string) =>
+    apiRequest<T>(endpoint, { method: "DELETE" }),
+};
+```
+
+### Usage
+```typescript
+// In Server Component
+const jobs = await api.get<Job[]>("/jobs");
+
+// In Client Component
+const handleCreate = async (data: JobFormData) => {
+  const job = await api.post<Job>("/jobs", data);
+  return job;
+};
+```
+
+## Common Patterns
+
+### Form Handling
+```typescript
+"use client";
+
+import { useState } from "react";
+import { Button } from "@ui/components/core/button";
+import { Input } from "@ui/components/core/input";
+import { useToast } from "@ui/hooks/use-toast";
+
+interface JobFormData {
+  title: string;
+  description: string;
+}
+
+export const JobForm = () => {
+  const [formData, setFormData] = useState<JobFormData>({
+    title: "",
+    description: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof JobFormData, string>>>({});
+  const { toast } = useToast();
+
+  const validate = (): boolean => {
+    const newErrors: Partial<Record<keyof JobFormData, string>> = {};
+    
+    if (!formData.title.trim()) {
+      newErrors.title = "Název je povinný";
+    }
+    
+    if (!formData.description.trim()) {
+      newErrors.description = "Popis je povinný";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!validate()) return;
+    
+    setLoading(true);
+    
+    try {
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      
+      if (!res.ok) throw new Error("Chyba při ukládání");
+      
+      toast({
+        title: "Úspěch",
+        description: "Nabídka byla úspěšně vytvořena",
+      });
+      
+      // Reset form or redirect
+      setFormData({ title: "", description: "" });
+    } catch (error) {
+      toast({
+        title: "Chyba",
+        description: error instanceof Error ? error.message : "Nepodařilo se uložit nabídku",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (field: keyof JobFormData) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div>
+        <Input
+          value={formData.title}
+          onChange={handleChange("title")}
+          placeholder="Název pozice"
+          aria-invalid={!!errors.title}
+        />
+        {errors.title && (
+          <p className="text-sm text-destructive mt-1">{errors.title}</p>
+        )}
+      </div>
+      
+      <div>
+        <textarea
+          value={formData.description}
+          onChange={handleChange("description")}
+          placeholder="Popis pozice"
+          className="w-full min-h-[100px] p-2 border rounded"
+          aria-invalid={!!errors.description}
+        />
+        {errors.description && (
+          <p className="text-sm text-destructive mt-1">{errors.description}</p>
+        )}
+      </div>
+      
+      <Button type="submit" disabled={loading}>
+        {loading ? "Ukládám..." : "Uložit"}
+      </Button>
+    </form>
+  );
+};
+```
+
+### Data Fetching Patterns
+
+#### Server Component Fetching
+```typescript
+// app/jobs/page.tsx
+async function getJobs(): Promise<Job[]> {
+  const res = await fetch("https://api.example.com/jobs", {
+    next: { 
+      revalidate: 3600, // Cache for 1 hour (ISR)
+      tags: ["jobs"], // For on-demand revalidation
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  
+  if (!res.ok) {
+    throw new Error("Nepodařilo se načíst nabídky");
+  }
+  
+  return res.json();
+}
+
+export default async function JobsPage() {
+  const jobs = await getJobs();
+  
+  return <JobList jobs={jobs} />;
+}
+```
+
+## Utilities & Helpers
+
+### Common Utilities
+```typescript
+// lib/utils.ts
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// Date formatting
+export function formatDate(date: Date | string): string {
+  return new Intl.DateTimeFormat("cs-CZ", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(new Date(date));
+}
+
+// Type guards
+export function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+```
+
+### Validation Helpers
+```typescript
+// lib/validation.ts
+export function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function validateRequired(value: string | null | undefined): boolean {
+  return value !== null && value !== undefined && value.trim() !== "";
+}
+```
+
+## Quick Reference
+
+### File Structure
+- `page.tsx` - Route page
+- `layout.tsx` - Layout wrapper
+- `loading.tsx` - Loading UI
+- `error.tsx` - Error boundary
+- `not-found.tsx` - 404 page
+- `route.ts` - API handler
+
+### Component Checklist
+- [ ] Server Component by default
+- [ ] TypeScript types defined
+- [ ] Error handling implemented
+- [ ] Loading states included
+- [ ] Czech UI text, English code
+- [ ] Tailwind utilities used
+- [ ] Accessibility considered
+- [ ] Responsive design
+
+### Import Order
+1. React/Next.js
+2. Third-party
+3. Local components
+4. Local utilities
+5. Types (`import type`)
+
+### Common Commands
+```bash
+# Development
+pnpm dev                    # Start dev server
+pnpm build                 # Build for production
+pnpm lint                  # Run linter
+pnpm type-check            # TypeScript check
+
+# Turbo commands
+turbo build                # Build all packages
+turbo lint                 # Lint all packages
+```
+
+#### Client-Side Fetching
+```typescript
+"use client";
+
+import { useEffect, useState } from "react";
+import { useToast } from "@ui/hooks/use-toast";
+
+export const JobsList = () => {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        const res = await fetch("/api/jobs");
+        if (!res.ok) throw new Error("Chyba při načítání");
+        const data = await res.json();
+        setJobs(data);
+      } catch (error) {
+        toast({
+          title: "Chyba",
+          description: "Nepodařilo se načíst nabídky",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchJobs();
+  }, []);
+
+  if (loading) return <LoadingIndicator />;
+  return <JobList items={jobs} />;
+};
+```
+
+#### Caching Strategies
+- **Static**: `cache: 'force-cache'` (default) - cached indefinitely
+- **Dynamic**: `cache: 'no-store'` - always fetch fresh
+- **ISR**: `next: { revalidate: 3600 }` - revalidate after time
+- **On-demand**: `revalidateTag('jobs')` or `revalidatePath('/jobs')`

@@ -1,0 +1,4 @@
+# Ignore vulnerabilities from private packages
+https://www.npmjs.com/advisories/1095073
+# node-fetch in quickjobs-api-wrapper (private package)
+quickjobs-api-wrapper 

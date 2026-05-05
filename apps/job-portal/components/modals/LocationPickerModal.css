@@ -1,0 +1,53 @@
+/* Radius slider thumb */
+input[type="range"].location-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #5ccd89;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"].location-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #5ccd89;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Google Places autocomplete (gmp-place-autocomplete) – host styling */
+gmp-place-autocomplete.location-autocomplete-input,
+.location-autocomplete-input {
+  display: block !important;
+  height: 2.5rem !important;
+  min-height: 2.5rem !important;
+  width: 100% !important;
+  color-scheme: light;
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  box-sizing: border-box;
+  outline: none !important;
+  --gmp-mat-color-surface: hsl(var(--background, 0 0% 100%));
+  --gmp-mat-color-on-surface: hsl(var(--foreground, 0 0% 9%));
+  /* Use green so internal focus ring (e.g. .focus-ring in shadow DOM) follows */
+  --gmp-mat-color-outline-decorative: #5ccd89;
+  --gmp-mat-color-primary: #5ccd89;
+}
+
+/* No default focus-visible outline; we use focus-within ring instead */
+gmp-place-autocomplete.location-autocomplete-input:focus-visible,
+.location-autocomplete-input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+gmp-place-autocomplete.location-autocomplete-input:focus-within,
+.location-autocomplete-input:focus-within {
+  border-color: #5ccd89 !important;
+  box-shadow: 0 0 0 2px rgba(92, 205, 137, 0.3) !important;
+}

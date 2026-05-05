@@ -1,0 +1,53 @@
+{
+  "name": "quickjob-monorepo",
+  "version": "1.0.1",
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "start": "turbo run start",
+    "start:web-app": "turbo run start --filter=web-app",
+    "start:job-portal": "turbo run start --filter=job-portal",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "jest",
+    "audit-clean": "ts-node scripts/audit-clean.ts",
+    "update-check": "ts-node scripts/audit-clean.ts",
+    "workspace-info": "yarn workspaces info",
+    "check-workspaces": "ts-node scripts/check-workspaces.ts"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@types/minimatch": "3.0.5",
+    "@types/node": "^22.9.0",
+    "eslint": "^9.14.0",
+    "next": "15.5.9",
+    "prettier": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "turbo": "^2.5.4",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "resolutions": {
+    "eslint": "^9.14.0",
+    "next": "^15.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@tanstack/react-query": "^5.62.15",
+    "@next/eslint-plugin-next": "^15.3.4",
+    "typescript": "^5.6.3",
+    "tailwindcss": "^3.4.14",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20"
+  }
+}

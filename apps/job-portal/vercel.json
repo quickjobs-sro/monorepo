@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd ../.. && yarn turbo build --filter=job-portal",
+  "outputDirectory": ".next",
+  "installCommand": "cd ../.. && yarn install",
+  "devCommand": "yarn dev",
+  "framework": "nextjs"
+}
+

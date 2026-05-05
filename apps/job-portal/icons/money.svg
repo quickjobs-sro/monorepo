@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="12px" viewBox="0 0 16 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.4 (67378) - http://www.bohemiancoding.com/sketch -->
+    <title>ic_place</title>
+    <desc>Created with Sketch.</desc>
+    <g id="JB" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1-1-5-Jednorazove-brigady" transform="translate(-262.000000, -185.000000)">
+            <g id="Offer-1" transform="translate(45.000000, 153.000000)">
+                <g id="Money" transform="translate(217.000000, 30.000000)">
+                    <g id="ic_place">
+                        <polygon id="Bounds" points="0 0 16 0 16 16 0 16"></polygon>
+                        <path d="M2.90909091,2.5 L16,2.5 L16,10.75 L2.90909091,10.75 L2.90909091,2.5 Z M9.45454545,4.5625 C10.6595304,4.5625 11.6363636,5.4859127 11.6363636,6.625 C11.6363636,7.7640873 10.6595304,8.6875 9.45454545,8.6875 C8.24956055,8.6875 7.27272727,7.7640873 7.27272727,6.625 C7.27272727,5.4859127 8.24956055,4.5625 9.45454545,4.5625 Z M5.81818182,3.875 C5.81818182,4.63439153 5.16695964,5.25 4.36363636,5.25 L4.36363636,8 C5.16695964,8 5.81818182,8.61560847 5.81818182,9.375 L13.0909091,9.375 C13.0909091,8.61560847 13.7421313,8 14.5454545,8 L14.5454545,5.25 C13.7421313,5.25 13.0909091,4.63439153 13.0909091,3.875 L5.81818182,3.875 Z M0,5.25 L1.45454545,5.25 L1.45454545,12.125 L13.0909091,12.125 L13.0909091,13.5 L0,13.5 L0,5.25 Z" id="Shape" fill="#5BCD89" fill-rule="nonzero"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

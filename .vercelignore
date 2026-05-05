@@ -1,0 +1,10 @@
+node_modules
+.turbo
+.next
+.git
+*.log
+.env*
+.DS_Store
+*.pack
+cache
+diagnostics 
