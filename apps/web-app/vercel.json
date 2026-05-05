@@ -1,8 +1,7 @@
 {
   "buildCommand": "cd ../.. && yarn turbo build --filter=web-app",
   "outputDirectory": ".next",
-  "installCommand": "cd ../.. && yarn install",
+  "installCommand": "cd ../.. && : \"${BITBUCKET_API_JS_TOKEN:?Missing BITBUCKET_API_JS_TOKEN}\" && printf 'machine bitbucket.org\\nlogin x-token-auth\\npassword %s\\n' \"$BITBUCKET_API_JS_TOKEN\" > ~/.netrc && chmod 600 ~/.netrc && yarn install --frozen-lockfile",
   "devCommand": "yarn dev",
   "framework": "nextjs"
 }
-

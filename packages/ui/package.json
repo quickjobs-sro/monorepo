@@ -54,7 +54,7 @@
     "input-otp": "^1.4.2",
     "js-cookie": "^3.0.5",
     "lucide-react": "0.456.0",
-    "quickjobs-api-wrapper": "git+https://viktor_nemcok:ATBBS2rQcXzdamfXHJ2EdW5tzkA965E55EBA@bitbucket.org/quickjobs/api-js.git#c37a4f9e404e53e33dc976ebf7b623165f42b58f",
+    "quickjobs-api-wrapper": "git+https://bitbucket.org/quickjobs/api-js.git#c37a4f9e404e53e33dc976ebf7b623165f42b58f",
     "react-day-picker": "8.10.1",
     "react-hook-form": "^7.54.2",
     "tailwind-merge": "^2.5.4",

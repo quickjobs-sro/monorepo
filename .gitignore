@@ -106,3 +106,4 @@ Thumbs.db
 pnpm-lock.yaml
 .vercel
 .yarn/cache
+.env*.local
