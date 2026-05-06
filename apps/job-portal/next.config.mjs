@@ -23,6 +23,13 @@ const nextConfig = {
     config.resolve.symlinks = false;
     return config;
   },
+  redirects: async () => [
+    {
+      source: "/detail/:id(\\d+)",
+      destination: "/jobs/detail/:id",
+      statusCode: 301,
+    },
+  ],
 };
 
 export default withSentryConfig(nextConfig, {
@@ -31,4 +38,3 @@ export default withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   tunnelRoute: "/monitoring",
 });
-
