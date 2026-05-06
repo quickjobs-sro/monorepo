@@ -1,6 +1,6 @@
 {
-  "buildCommand": "yarn turbo build --filter=job-portal",
+  "buildCommand": "yarn turbo build --filter=admin",
   "installCommand": "bash scripts/vercel-install.sh",
-  "outputDirectory": "apps/job-portal/.next",
+  "outputDirectory": "apps/admin/.next",
   "framework": "nextjs"
 }
