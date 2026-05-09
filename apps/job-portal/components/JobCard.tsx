@@ -25,6 +25,7 @@ interface JobCardProps {
         createdAt?: string;
         starts_at?: string;
         ends_at?: string;
+        stats?: { appliedTotal?: number };
     };
     isInactive?: boolean;
     fromCompanySlug?: string;
@@ -48,6 +49,7 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
     const dateTimeString = formatJobDateTime(job);
     const salaryDisplay = formatJobSalary(job);
     const feedName = (job as any).feedName as string | undefined;
+    const appliedTotal = job.stats?.appliedTotal ?? 0;
 
     return (
         <ConditionalWrapper
@@ -113,6 +115,16 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
                         </div>
                     )}
 
+                    {appliedTotal > 0 && (
+                        <div className="flex items-center gap-2 mb-2 bg-blue-50 rounded-lg px-3 py-2 w-fit">
+                            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-500 text-white text-xs font-bold">
+                                {appliedTotal}
+                            </span>
+                            <span className="text-sm text-gray-700">
+                                {appliedTotal === 1 ? "zájemce se přihlásil" : appliedTotal < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
+                            </span>
+                        </div>
+                    )}
                     {!isInactive && timeLeft && (
                         <>
                             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">

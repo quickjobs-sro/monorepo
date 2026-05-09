@@ -255,8 +255,12 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
         if (debouncedShouldFetch && jobsData?.jobs && jobsData.jobs.length > 0 && !isError) {
             // Process authenticated jobs - calculate time left
             const now = new Date();
+            const statsById = new Map(
+                ((jobsData as any).stats ?? []).map((s: any) => [s.jobId ?? s.job_id, s])
+            );
             processedJobs = jobsData.jobs.map((job: any) => {
                 const expiresAt = new Date(job.offer_expires_at || job.offerExpiresAt);
+                const s = statsById.get(job.id) as any;
                 return {
                     ...job,
                     title: job.title,
@@ -269,6 +273,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
                     salary: job.salary,
                     salary_to: job.salary_to || job.salaryTo,
                     salary_type: job.salary_type || job.salaryType,
+                    stats: s ? { jobId: job.id, appliedTotal: s.appliedTotal ?? s.applied_total ?? 0, updatedAt: s.updatedAt ?? s.updated_at ?? "", jobVisits: s.jobVisits ?? 0 } : undefined,
                 } as JobWithStats;
             });
             processedJobs = processedJobs.sort((a, b) => {
