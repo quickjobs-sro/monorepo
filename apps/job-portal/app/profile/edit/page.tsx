@@ -251,7 +251,6 @@ function EditProfilePageContent() {
                 email: data.email,
                 description: data.description || null,
                 birthDate: data.birthDate ? format(data.birthDate, "yyyy-MM-dd") : null,
-                hide_profile: hideProfile,
             });
             const timeoutPromise = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error("Profile update timeout")), PROFILE_UPDATE_TIMEOUT_MS)
@@ -514,7 +513,7 @@ function EditProfilePageContent() {
         }
     };
 
-    if (!mounted || profileLoading) {
+    if (!mounted || !tokenRestored || profileLoading) {
         return (
             <div className="container mx-auto p-4 lg:p-8 space-y-8">
                 <Skeleton className="h-8 w-48 mb-6" />
