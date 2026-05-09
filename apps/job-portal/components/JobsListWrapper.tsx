@@ -18,6 +18,7 @@ import { differenceInDays, differenceInHours } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useJobs } from "../hooks/useJobs";
 import { useGetProfile } from "../hooks/useGetProfile";
+import { useExternalJobsList } from "../hooks/useExternalJobs";
 import { getSubscribedJobTypes } from "../lib/subscribedJobTypes";
 
 interface JobsListWrapperProps {
@@ -143,6 +144,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
 
     const queryClient = useQueryClient();
     const { data: jobsData, isLoading, isError, error } = useJobs(debouncedShouldFetch);
+    const { data: externalJobsData } = useExternalJobsList(debouncedShouldFetch);
     const hasValidToken = mounted && tokenRestored && !!userToken && isValidToken(userToken);
 
 
@@ -275,9 +277,32 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
             processedJobs = initialPublicJobs;
         }
 
+        // Merge external jobs for logged-in users
+        if (debouncedShouldFetch && externalJobsData?.jobs?.length) {
+            const internalIds = new Set(processedJobs.map((j) => j.id));
+            const externalMapped: JobWithStats[] = (externalJobsData.jobs as any[]).map((job) => ({
+                id: job.id,
+                description: job.description,
+                title: job.title,
+                term: typeof job.term === "string" ? job.term : undefined,
+                status: typeof job.status === "string" ? job.status : "active",
+                place: job.place,
+                url: job.url,
+                created_at: job.createdAt || job.created_at,
+                isExternal: true,
+                feedName: job.feedName || job.feed_name,
+            }));
+            const deduped = externalMapped.filter((j) => !internalIds.has(j.id));
+            processedJobs = [...processedJobs, ...deduped].sort((a, b) => {
+                const dateA = new Date((a as any).created_at || (a as any).createdAt || 0);
+                const dateB = new Date((b as any).created_at || (b as any).createdAt || 0);
+                return dateB.getTime() - dateA.getTime();
+            });
+        }
+
         const active = processedJobs.filter((job) => job.status === "active");
         return { activeJobs: active, allProcessedJobs: processedJobs };
-    }, [debouncedShouldFetch, jobsData, initialPublicJobs, isError, mounted, tokenRestored, userToken, isLoading]);
+    }, [debouncedShouldFetch, jobsData, externalJobsData, initialPublicJobs, isError, mounted, tokenRestored, userToken, isLoading]);
 
     const isLoggedIn = mounted && tokenRestored && !!userToken && isValidToken(userToken);
 
