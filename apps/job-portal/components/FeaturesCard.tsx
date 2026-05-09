@@ -694,17 +694,6 @@ export default function FeaturesCard({
                             </div>
                         )}
 
-                        {stats != null && (
-                            <div className="flex items-center gap-3 mb-3 rounded-xl px-4 py-2.5 w-full" style={{ backgroundColor: '#EEF2FF' }}>
-                                <span className="flex items-center justify-center min-w-9 h-9 rounded-full bg-blue text-white text-sm font-bold">
-                                    {stats.appliedTotal ?? 0}
-                                </span>
-                                <span className="text-sm text-gray-700">
-                                    {(stats.appliedTotal ?? 0) === 1 ? "zájemce se přihlásil" : (stats.appliedTotal ?? 0) < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
-                                </span>
-                            </div>
-                        )}
-
                         <div className="flex flex-col gap-3 mb-3 bg-red">
                             {place?.address && (
                                 <div
@@ -743,6 +732,16 @@ export default function FeaturesCard({
                     </CardContent>
 
                     <CardFooter className="flex flex-col gap-2">
+                        {stats != null && (
+                            <div className="flex items-center gap-3 mb-1 rounded-xl px-4 py-2.5 w-full" style={{ backgroundColor: '#EEF2FF' }}>
+                                <span className="flex items-center justify-center min-w-7 h-7 rounded-full bg-blue text-white text-xs font-bold">
+                                    {stats.appliedTotal ?? 0}
+                                </span>
+                                <span className="text-sm text-gray-700">
+                                    {(stats.appliedTotal ?? 0) === 1 ? "zájemce se přihlásil" : (stats.appliedTotal ?? 0) < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
+                                </span>
+                            </div>
+                        )}
                         {!isInactive && !!expiresAt && (
                             <div className="w-full">
                                 <div className="w-full bg-gray-200 rounded-full mb-2">
