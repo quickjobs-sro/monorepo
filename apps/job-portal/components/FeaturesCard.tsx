@@ -694,10 +694,15 @@ export default function FeaturesCard({
                             </div>
                         )}
 
-                        {isDetail && stats?.appliedTotal != null && stats.appliedTotal > 0 && (
-                            <p className="text-sm text-gray-500 mb-3">
-                                {stats.appliedTotal} {stats.appliedTotal === 1 ? "uchazeč" : stats.appliedTotal < 5 ? "uchazeči" : "uchazečů"}
-                            </p>
+                        {stats?.appliedTotal != null && stats.appliedTotal > 0 && (
+                            <div className="flex items-center gap-2 mb-3 bg-blue-50 rounded-lg px-3 py-2 w-fit">
+                                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-500 text-white text-xs font-bold">
+                                    {stats.appliedTotal}
+                                </span>
+                                <span className="text-sm text-gray-700">
+                                    {stats.appliedTotal === 1 ? "zájemce se přihlásil" : stats.appliedTotal < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
+                                </span>
+                            </div>
                         )}
 
                         <div className="flex flex-col gap-3 mb-3 bg-red">
@@ -738,7 +743,7 @@ export default function FeaturesCard({
                     </CardContent>
 
                     <CardFooter className="flex flex-col gap-2">
-                        {!isInactive && (
+                        {!isInactive && !!expiresAt && (
                             <div className="w-full">
                                 <div className="w-full bg-gray-200 rounded-full mb-2">
                                     <div
@@ -779,30 +784,25 @@ export default function FeaturesCard({
 
                         {!isInactive && (
                             <div className="flex flex-col gap-2 w-full">
-                                <div className="flex  justify-end gap-2 w-full">
-                                    <meta
-                                        itemProp="validThrough"
-                                        content={expiresAt ? format(new Date(expiresAt), "yyyy-MM-dd") : ""}
-                                    />
-                                    <meta
-                                        itemProp="datePosted"
-                                        content={
-                                            expiresAt
-                                                ? format(
-                                                    new Date(
-                                                        new Date(expiresAt).getTime() -
-                                                        JOB_VALIDITY_DAYS * 24 * 60 * 60 * 1000
-                                                    ),
-                                                    "yyyy-MM-dd"
-                                                )
-                                                : ""
-                                        }
-                                    />
-                                    <p className="text-sm sm:text-base text-blue-900 font-medium">
-                                        Nabídka končí za
-                                    </p>
-                                    <p className="text-sm sm:text-base font-bold">{timeLeftText}</p>
-                                </div>
+                                {!!expiresAt && (
+                                    <div className="flex  justify-end gap-2 w-full">
+                                        <meta
+                                            itemProp="validThrough"
+                                            content={format(new Date(expiresAt), "yyyy-MM-dd")}
+                                        />
+                                        <meta
+                                            itemProp="datePosted"
+                                            content={format(
+                                                new Date(new Date(expiresAt).getTime() - JOB_VALIDITY_DAYS * 24 * 60 * 60 * 1000),
+                                                "yyyy-MM-dd"
+                                            )}
+                                        />
+                                        <p className="text-sm sm:text-base text-blue-900 font-medium">
+                                            Nabídka končí za
+                                        </p>
+                                        <p className="text-sm sm:text-base font-bold">{timeLeftText}</p>
+                                    </div>
+                                )}
                                 <div className="flex justify-between gap-4 w-full mt-4">
                                     {isExternal ? (
                                         <a

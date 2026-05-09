@@ -192,12 +192,6 @@ async function getExternalJobDetail(id: string) {
         if (!raw) return null;
         const job = raw as unknown as ExternalJobRuntime;
 
-        // Synthetic 30-day expiry so progress bar works (external jobs have no offer_expires_at)
-        const offerExpiresAt = job.createdAt
-            ? new Date(new Date(job.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
-            : undefined;
-        const { days: timeLeftDays, hours: timeLeftHour } = calculateTimeLeft(offerExpiresAt);
-
         const jobLike: JobLike = {
             id: job.id,
             description: job.description,
@@ -206,17 +200,16 @@ async function getExternalJobDetail(id: string) {
             status: job.status,
             place: job.place as JobLike["place"],
             createdAt: job.createdAt,
-            offerExpiresAt,
             // External author shape differs from internal; mapped in JobDetailNavAndContent
             author: job.author as unknown as JobLike["author"],
         };
 
         return {
             job: jobLike,
-            stats: {},
+            stats: { jobId: job.id, appliedTotal: 0, updatedAt: "", jobVisits: 0 },
             title: job.title,
-            timeLeftDays,
-            timeLeftHour,
+            timeLeftDays: 0,
+            timeLeftHour: 0,
             applicationStatus: null as null,
             isExternal: true,
             externalUrl: job.url,
