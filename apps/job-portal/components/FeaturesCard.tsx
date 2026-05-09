@@ -43,6 +43,17 @@ import type { JobLike } from "../lib/openapi/types";
 
 const JOB_VALIDITY_DAYS = 30;
 
+function sanitizeJobHtml(html: string): string {
+    return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+        .replace(/<iframe\b[^>]*>.*?<\/iframe>/gi, "")
+        .replace(/\s+on\w+="[^"]*"/gi, "")
+        .replace(/\s+on\w+='[^']*'/gi, "")
+        .replace(/href="javascript:[^"]*"/gi, "")
+        .replace(/href='javascript:[^']*'/gi, "");
+}
+
 const INDEFINITE_VALUES = ["indefinite", "neurončité", "neurončitá", "neuroncita", "permanent", "permanentni"];
 const FLEXIBLE_VALUES = ["flexible", "flexibilní", "flexibilni"];
 
@@ -613,19 +624,27 @@ export default function FeaturesCard({
                                 </>
                             )}
 
-                            <p
-                                className={`text-base text-gray-900 whitespace-pre-wrap ${isDetail
-                                    ? ""
-                                    : "line-clamp-8 max-h-[205px] overflow-hidden"
-                                    }`}
-                                itemProp={isDetail ? "description" : undefined}
-                            >
-                                {isDetail
-                                    ? description
-                                    : description.length > 200
-                                        ? description.substring(0, 200) + "..."
-                                        : description}
-                            </p>
+                            {isDetail && description.includes("<") ? (
+                                <div
+                                    className="text-base text-gray-900 break-words [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_strong]:font-semibold"
+                                    dangerouslySetInnerHTML={{ __html: sanitizeJobHtml(description) }}
+                                    itemProp="description"
+                                />
+                            ) : (
+                                <p
+                                    className={`text-base text-gray-900 whitespace-pre-wrap break-words ${isDetail
+                                        ? ""
+                                        : "line-clamp-8 max-h-[205px] overflow-hidden"
+                                        }`}
+                                    itemProp={isDetail ? "description" : undefined}
+                                >
+                                    {isDetail
+                                        ? description
+                                        : description.length > 200
+                                            ? description.substring(0, 200) + "..."
+                                            : description}
+                                </p>
+                            )}
                         </div>
                     </CardHeader>
 
@@ -673,6 +692,12 @@ export default function FeaturesCard({
                                     </p>
                                 ) : null}
                             </div>
+                        )}
+
+                        {isDetail && stats?.appliedTotal != null && stats.appliedTotal > 0 && (
+                            <p className="text-sm text-gray-500 mb-3">
+                                {stats.appliedTotal} {stats.appliedTotal === 1 ? "uchazeč" : stats.appliedTotal < 5 ? "uchazeči" : "uchazečů"}
+                            </p>
                         )}
 
                         <div className="flex flex-col gap-3 mb-3 bg-red">

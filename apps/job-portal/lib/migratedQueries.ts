@@ -217,11 +217,12 @@ export async function fetchExternalIgnoredJobs(
 export async function fetchExternalJobsList(
     options: Pick<FetchOptions, "signal" | "token"> = {}
 ): Promise<ExternalJobsResponse> {
-    return fetchOpenApiJson<ExternalJobsResponse>("/external-jobs", {
+    const raw = await fetchOpenApiJson<{ data: ExternalJob[] }>("/v1/external-jobs", {
         auth: true,
         signal: options.signal,
         token: options.token,
     });
+    return { jobs: raw.data ?? [] };
 }
 
 export async function fetchExternalJobById(
@@ -229,11 +230,12 @@ export async function fetchExternalJobById(
     options: Pick<FetchOptions, "signal" | "token"> = {}
 ): Promise<ExternalJob | null> {
     try {
-        return await fetchOpenApiJson<ExternalJob>(`/external-jobs/${id}`, {
+        const raw = await fetchOpenApiJson<{ data: ExternalJob }>(`/v1/external-jobs/${id}`, {
             auth: true,
             signal: options.signal,
             token: options.token,
         });
+        return raw.data ?? null;
     } catch {
         return null;
     }

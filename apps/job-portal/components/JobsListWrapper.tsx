@@ -21,6 +21,10 @@ import { useGetProfile } from "../hooks/useGetProfile";
 import { useExternalJobsList } from "../hooks/useExternalJobs";
 import { getSubscribedJobTypes } from "../lib/subscribedJobTypes";
 
+function stripHtml(html: string): string {
+    return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 interface JobsListWrapperProps {
     initialPublicJobs: JobWithStats[];
 }
@@ -277,12 +281,12 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
             processedJobs = initialPublicJobs;
         }
 
-        // Merge external jobs for logged-in users
+        // Merge external jobs for logged-in users — appended after internal jobs
         if (debouncedShouldFetch && externalJobsData?.jobs?.length) {
             const internalIds = new Set(processedJobs.map((j) => j.id));
             const externalMapped: JobWithStats[] = (externalJobsData.jobs as any[]).map((job) => ({
                 id: job.id,
-                description: job.description,
+                description: stripHtml(job.description || ""),
                 title: job.title,
                 term: typeof job.term === "string" ? job.term : undefined,
                 status: typeof job.status === "string" ? job.status : "active",
@@ -293,11 +297,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
                 feedName: job.feedName || job.feed_name,
             }));
             const deduped = externalMapped.filter((j) => !internalIds.has(j.id));
-            processedJobs = [...processedJobs, ...deduped].sort((a, b) => {
-                const dateA = new Date((a as any).created_at || (a as any).createdAt || 0);
-                const dateB = new Date((b as any).created_at || (b as any).createdAt || 0);
-                return dateB.getTime() - dateA.getTime();
-            });
+            processedJobs = [...processedJobs, ...deduped];
         }
 
         const active = processedJobs.filter((job) => job.status === "active");

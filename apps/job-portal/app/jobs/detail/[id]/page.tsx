@@ -2,7 +2,15 @@ import dynamic from "next/dynamic";
 import { Header } from "../../../../components/Header";
 import { fetchPublicJobById, fetchPublicJobs } from "../../../../lib/api";
 import { fetchExternalJobById } from "../../../../lib/migratedQueries";
+import type { ExternalJob } from "../../../../lib/openapi/types";
 import { generateAISEO, generateJobSEO } from "../../../../lib/seo";
+
+type ExternalJobRuntime = Omit<ExternalJob, "place" | "term" | "status" | "author"> & {
+    place?: { address?: string; latitude?: number; longitude?: number };
+    term?: string;
+    status?: string;
+    author?: { url?: string; name?: string; avatarImageUrl?: string };
+};
 import { safeJsonLd } from "../../../../lib/utils";
 import Image from "next/image";
 import { NavigationLink } from "@ui/components/core/navigation-link";
@@ -25,7 +33,7 @@ const ShareButtons = dynamic(
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cache, Suspense } from "react";
 import Script from "next/script";
-import { getApplicationStatusForJob, getJobsListCached, withAuthContext } from "../../../../lib/serverApi";
+import { getApplicationStatusForJob, getJobsListCached, withAuthContext, getAuthTokenFromCookies } from "../../../../lib/serverApi";
 import { JobBreadcrumb } from "./JobBreadcrumb";
 import { JobLoadNetworkError } from "../../../../lib/apiErrors";
 import { extractJobTitle, calculateTimeLeft } from "../../../../lib/jobHelpers";
@@ -53,7 +61,10 @@ export async function generateMetadata({
 
     try {
         // Use same cached fetch as page content to avoid duplicate request
-        const jobDetail = await getJobDetailCached(id);
+        let jobDetail = await getJobDetailCached(id);
+        if (!jobDetail?.job) {
+            jobDetail = await getExternalJobDetail(id);
+        }
         if (!jobDetail?.job) {
             return {
                 title: "Nabídka nenalezena | QuickJOBS.cz",
@@ -176,18 +187,40 @@ async function getExternalJobDetail(id: string) {
     const jobId = Number(id);
     if (isNaN(jobId) || jobId <= 0 || !Number.isInteger(jobId)) return null;
     try {
-        const job = await fetchExternalJobById(jobId);
-        if (!job) return null;
+        const token = await getAuthTokenFromCookies();
+        const raw = await fetchExternalJobById(jobId, { token: token ?? undefined });
+        if (!raw) return null;
+        const job = raw as unknown as ExternalJobRuntime;
+
+        // Synthetic 30-day expiry so progress bar works (external jobs have no offer_expires_at)
+        const offerExpiresAt = job.createdAt
+            ? new Date(new Date(job.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
+            : undefined;
+        const { days: timeLeftDays, hours: timeLeftHour } = calculateTimeLeft(offerExpiresAt);
+
+        const jobLike: JobLike = {
+            id: job.id,
+            description: job.description,
+            url: job.url,
+            term: job.term,
+            status: job.status,
+            place: job.place as JobLike["place"],
+            createdAt: job.createdAt,
+            offerExpiresAt,
+            // External author shape differs from internal; mapped in JobDetailNavAndContent
+            author: job.author as unknown as JobLike["author"],
+        };
+
         return {
-            job: job as any,
+            job: jobLike,
             stats: {},
-            title: (job as any).title || "",
-            timeLeftDays: 0,
-            timeLeftHour: 0,
+            title: job.title,
+            timeLeftDays,
+            timeLeftHour,
             applicationStatus: null as null,
             isExternal: true,
-            externalUrl: (job as any).url as string,
-            feedName: ((job as any).feedName || (job as any).feed_name) as string | undefined,
+            externalUrl: job.url,
+            feedName: job.feedName,
         };
     } catch {
         return null;
@@ -342,19 +375,15 @@ async function JobDetailNavAndContent({
                     place={job.place}
                     startsAt={(job as any).starts_at || job.startsAt}
                     endsAt={(job as any).ends_at || job.endsAt}
-                    author={
-                        (job as any).author
-                            ? {
-                                avatarImage: {
-                                    url: (job as any).author.avatarImage?.url || (job as any).author.avatar_image?.url,
-                                },
-                                givenName: (job as any).author.givenName || (job as any).author.given_name,
-                                familyName: (job as any).author.familyName || (job as any).author.family_name,
-                                rating: (job as any).author.rating,
-                                description: (job as any).author.description,
-                            }
-                            : undefined
-                    }
+                    author={(() => {
+                        const a = (job as any).author;
+                        if (!a) return undefined;
+                        const avatarUrl = a.avatarImage?.url || a.avatar_image?.url || a.avatarImageUrl;
+                        const givenName = a.givenName || a.given_name || a.name;
+                        const familyName = a.familyName || a.family_name;
+                        if (!avatarUrl && !givenName && !familyName) return undefined;
+                        return { avatarImage: { url: avatarUrl }, givenName, familyName, rating: a.rating, description: a.description };
+                    })()}
                     stats={{
                         appliedTotal: stats?.applied_total || stats?.applications || 0,
                     }}
@@ -394,9 +423,6 @@ async function JobDetailNavAndContent({
                     applicationStatus={applicationStatus || undefined}
                     applicationStatusResolvedOnServer={applicationStatusResolvedOnServer}
                     employerStatement={employerStatement}
-                    isExternal={isExternal}
-                    externalUrl={externalUrl}
-                    feedName={feedName}
                 />
 
                 <div className="flex flex-col gap-4 w-full mt-6 lg:hidden">
