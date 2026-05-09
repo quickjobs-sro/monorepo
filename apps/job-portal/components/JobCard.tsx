@@ -47,6 +47,7 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
     const { jobTypeLabel, badgeBgColor } = getJobTypeInfo(job.term ?? undefined);
     const dateTimeString = formatJobDateTime(job);
     const salaryDisplay = formatJobSalary(job);
+    const feedName = (job as any).feedName as string | undefined;
 
     return (
         <ConditionalWrapper
@@ -69,13 +70,18 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
                 style={{ minHeight: 500, maxHeight: 500 }}
             >
                 <CardHeader className="pb-4 !px-6 !pt-6">
-                    <div className="mb-6">
+                    <div className="mb-6 flex flex-wrap gap-2 items-center">
                         <Badge
                             className="text-white text-xs font-semibold px-3 py-1.5 rounded-sm uppercase border-0"
                             style={{ backgroundColor: badgeBgColor }}
                         >
                             {jobTypeLabel}
                         </Badge>
+                        {feedName && (
+                            <Badge className="text-xs font-semibold px-3 py-1.5 rounded-sm uppercase border border-gray-300 bg-white text-gray-600">
+                                {feedName}
+                            </Badge>
+                        )}
                     </div>
 
                     {dateTimeString && (
