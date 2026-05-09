@@ -1,9 +1,22 @@
 import dynamic from "next/dynamic";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { cache, Suspense } from "react";
+import Script from "next/script";
+import Image from "next/image";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Header } from "../../../../components/Header";
+import { NavigationLink } from "@ui/components/core/navigation-link";
+import { Button } from "@ui/components/core/button";
 import { fetchPublicJobById, fetchPublicJobs } from "../../../../lib/api";
 import { fetchExternalJobById } from "../../../../lib/migratedQueries";
-import type { ExternalJob } from "../../../../lib/openapi/types";
 import { generateAISEO, generateJobSEO } from "../../../../lib/seo";
+import { safeJsonLd } from "../../../../lib/utils";
+import { getApplicationStatusForJob, getJobsListCached, withAuthContext, getAuthTokenFromCookies } from "../../../../lib/serverApi";
+import { JobBreadcrumb } from "./JobBreadcrumb";
+import { JobLoadNetworkError } from "../../../../lib/apiErrors";
+import { extractJobTitle, calculateTimeLeft } from "../../../../lib/jobHelpers";
+import type { ExternalJob, JobLike } from "../../../../lib/openapi/types";
 
 type ExternalJobRuntime = Omit<ExternalJob, "place" | "term" | "status" | "author"> & {
     place?: { address?: string; latitude?: number; longitude?: number };
@@ -11,13 +24,6 @@ type ExternalJobRuntime = Omit<ExternalJob, "place" | "term" | "status" | "autho
     status?: string;
     author?: { url?: string; name?: string; avatarImageUrl?: string };
 };
-import { safeJsonLd } from "../../../../lib/utils";
-import Image from "next/image";
-import { NavigationLink } from "@ui/components/core/navigation-link";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import { Button } from "@ui/components/core/button";
-import type { JobLike } from "../../../../lib/openapi/types";
 
 const Footer = dynamic(
     () => import("../../../../components/Footer").then((m) => ({ default: m.Footer })),
@@ -30,13 +36,6 @@ const FeaturesCard = dynamic(
 const ShareButtons = dynamic(
     () => import("../../../../components/ShareButtons").then((m) => ({ default: m.ShareButtons }))
 );
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { cache, Suspense } from "react";
-import Script from "next/script";
-import { getApplicationStatusForJob, getJobsListCached, withAuthContext, getAuthTokenFromCookies } from "../../../../lib/serverApi";
-import { JobBreadcrumb } from "./JobBreadcrumb";
-import { JobLoadNetworkError } from "../../../../lib/apiErrors";
-import { extractJobTitle, calculateTimeLeft } from "../../../../lib/jobHelpers";
 
 interface PageProps {
     params: Promise<{ id: string }>;
