@@ -302,11 +302,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
                 initialJobs={activeJobs}
                 allJobs={allProcessedJobs}
                 subscribedJobTypes={effectiveSubsForNotify}
-                onFilterNotify={
-                    hasValidToken
-                        ? handleFilterNotify
-                        : () => router.push(loginUrlWithReturn)
-                }
+                onFilterNotify={hasValidToken ? handleFilterNotify : undefined}
                 onOpenLocationFilter={
                     hasValidToken
                         ? () => router.push("/profile/edit#lokace")
