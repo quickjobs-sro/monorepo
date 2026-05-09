@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { Header } from "../../../../components/Header";
 import { fetchPublicJobById, fetchPublicJobs } from "../../../../lib/api";
+import { fetchExternalJobById } from "../../../../lib/migratedQueries";
 import { generateAISEO, generateJobSEO } from "../../../../lib/seo";
 import { safeJsonLd } from "../../../../lib/utils";
 import Image from "next/image";
@@ -171,6 +172,28 @@ async function getJobDetail(id: string) {
 
 const getJobDetailCached = cache(getJobDetail);
 
+async function getExternalJobDetail(id: string) {
+    const jobId = Number(id);
+    if (isNaN(jobId) || jobId <= 0 || !Number.isInteger(jobId)) return null;
+    try {
+        const job = await fetchExternalJobById(jobId);
+        if (!job) return null;
+        return {
+            job: job as any,
+            stats: {},
+            title: (job as any).title || "",
+            timeLeftDays: 0,
+            timeLeftHour: 0,
+            applicationStatus: null as null,
+            isExternal: true,
+            externalUrl: (job as any).url as string,
+            feedName: ((job as any).feedName || (job as any).feed_name) as string | undefined,
+        };
+    } catch {
+        return null;
+    }
+}
+
 async function getNavigationJobs(currentJobId: number, currentTerm: string) {
     try {
         // When logged in: use jobsAvailable (via getJobsListCached) so prev/next match jobs list. When not: public jobs.
@@ -240,6 +263,9 @@ async function JobDetailNavAndContent({
     titleRes,
     fromCompanySlug,
     fromCompanyName,
+    isExternal,
+    externalUrl,
+    feedName,
 }: {
     job: JobLike;
     stats: any;
@@ -253,6 +279,9 @@ async function JobDetailNavAndContent({
     titleRes: string;
     fromCompanySlug?: string;
     fromCompanyName?: string;
+    isExternal?: boolean;
+    externalUrl?: string;
+    feedName?: string;
 }) {
     const navigation = await getNavigationJobs(job.id, typeof job.term === "string" ? job.term : "one_time");
 
@@ -365,6 +394,9 @@ async function JobDetailNavAndContent({
                     applicationStatus={applicationStatus || undefined}
                     applicationStatusResolvedOnServer={applicationStatusResolvedOnServer}
                     employerStatement={employerStatement}
+                    isExternal={isExternal}
+                    externalUrl={externalUrl}
+                    feedName={feedName}
                 />
 
                 <div className="flex flex-col gap-4 w-full mt-6 lg:hidden">
@@ -483,6 +515,9 @@ export default async function JobDetailPage({ params }: PageProps) {
         const applicationDetailPromise = getApplicationStatusForJob(Number(id));
 
         let jobDetail;
+        let isExternalJob = false;
+        let externalJobExtra: { externalUrl: string; feedName?: string } | null = null;
+
         try {
             jobDetail = await getJobDetailCached(id);
         } catch (e) {
@@ -497,6 +532,18 @@ export default async function JobDetailPage({ params }: PageProps) {
                 );
             }
             throw e;
+        }
+
+        if (!jobDetail) {
+            const externalDetail = await getExternalJobDetail(id);
+            if (externalDetail) {
+                jobDetail = externalDetail;
+                isExternalJob = true;
+                externalJobExtra = {
+                    externalUrl: externalDetail.externalUrl,
+                    feedName: externalDetail.feedName,
+                };
+            }
         }
 
         if (!jobDetail) {
@@ -698,6 +745,9 @@ export default async function JobDetailPage({ params }: PageProps) {
                             applicationStatusResolvedOnServer={applicationStatus !== null}
                             desc={desc}
                             titleRes={titleRes}
+                            isExternal={isExternalJob}
+                            externalUrl={externalJobExtra?.externalUrl}
+                            feedName={externalJobExtra?.feedName}
                         />
                     </Suspense>
                 </main>
