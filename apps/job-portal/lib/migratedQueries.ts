@@ -14,6 +14,7 @@ import type {
     CompaniesResponse,
     CompanyDetailResponse,
     CompanyLookup,
+    ExternalJob,
     ExternalJobsResponse,
     FacultiesResponse,
     FacultyLookup,
@@ -211,6 +212,31 @@ export async function fetchExternalIgnoredJobs(
         token: options.token,
         query: { limit: params.limit },
     });
+}
+
+export async function fetchExternalJobsList(
+    options: Pick<FetchOptions, "signal" | "token"> = {}
+): Promise<ExternalJobsResponse> {
+    return fetchOpenApiJson<ExternalJobsResponse>("/external-jobs", {
+        auth: true,
+        signal: options.signal,
+        token: options.token,
+    });
+}
+
+export async function fetchExternalJobById(
+    id: string | number,
+    options: Pick<FetchOptions, "signal" | "token"> = {}
+): Promise<ExternalJob | null> {
+    try {
+        return await fetchOpenApiJson<ExternalJob>(`/external-jobs/${id}`, {
+            auth: true,
+            signal: options.signal,
+            token: options.token,
+        });
+    } catch {
+        return null;
+    }
 }
 
 export async function fetchMyApplications(
