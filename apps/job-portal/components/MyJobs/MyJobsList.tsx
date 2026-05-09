@@ -17,6 +17,7 @@ interface JobWithStats extends JobLike {
     applicationsStats?: any;
     stats?: any;
     isExternal?: boolean;
+    feedName?: string;
 }
 
 interface MyJobsListProps {
@@ -125,6 +126,7 @@ export const MyJobsList = ({
                     term: typeof job.term === "string" ? job.term : undefined,
                     status: typeof job.status === "string" ? job.status : undefined,
                     isExternal: true,
+                    feedName: (job as any).feedName || (job as any).feed_name,
                     applicationsStats: { status: externalJobApplicationStatus },
                 });
             }
@@ -258,7 +260,7 @@ export const MyJobsList = ({
             <p className="text-center text-gray-600 mb-6">{description}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayedItems.map((job) => (
-                    <JobCard key={job.id} job={job} {...(showInactive && { isInactive: true })} />
+                    <JobCard key={job.isExternal ? `ext-${job.id}` : job.id} job={job} {...(showInactive && { isInactive: true })} />
                 ))}
             </div>
             {hasMoreItems && (
