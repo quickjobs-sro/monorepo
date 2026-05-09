@@ -26,10 +26,14 @@ interface ShareButton {
 export const ShareButtons = ({ jobId, description, className, hideLabel = false }: ShareButtonsProps) => {
     const [copied, setCopied] = useState(false);
     const [canNativeShare, setCanNativeShare] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const url = `https://jobs.quickjobs.cz/jobs/detail/${jobId}`;
     const hashtags = "#brigada #quickjobs";
 
-    useEffect(() => { setCanNativeShare(!!navigator.share); }, []);
+    useEffect(() => {
+        setCanNativeShare(!!navigator.share);
+        setIsMobile(window.innerWidth < 768);
+    }, []);
 
     const handleCopy = async () => {
         try {
@@ -45,7 +49,7 @@ export const ShareButtons = ({ jobId, description, className, hideLabel = false 
         try {
             await navigator.share({
                 title: "QuickJOBS – nabídka práce",
-                text: description,
+                text: "Tahle nabídka by se ti mohla líbit.",
                 url,
             });
         } catch (err) {
@@ -142,7 +146,7 @@ export const ShareButtons = ({ jobId, description, className, hideLabel = false 
                         Sdílet
                     </TrackedButton>
                 )}
-                {shareButtons.map((button) => (
+                {shareButtons.filter(b => !(canNativeShare && isMobile) || b.id === "copy").map((button) => (
                     <TrackedButton
                         key={button.id}
                         type="button"
