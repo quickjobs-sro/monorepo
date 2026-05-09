@@ -98,6 +98,9 @@ interface FeaturesCardProps {
     /** When true, server already resolved status (even if null); client should not fetch. */
     applicationStatusResolvedOnServer?: boolean;
     employerStatement?: "saved" | "rejected" | "waiting_for_response" | "invited_for_next_round" | "employed" | null;
+    isExternal?: boolean;
+    externalUrl?: string;
+    feedName?: string;
 }
 
 export default function FeaturesCard({
@@ -133,6 +136,9 @@ export default function FeaturesCard({
     applicationStatus,
     applicationStatusResolvedOnServer = false,
     employerStatement,
+    isExternal = false,
+    externalUrl,
+    feedName,
 }: FeaturesCardProps) {
     const expiresAt = offerExpiresAt || offer_expires_at || "";
     const createdDate = created_at || createdAt || "";
@@ -773,7 +779,26 @@ export default function FeaturesCard({
                                     <p className="text-sm sm:text-base font-bold">{timeLeftText}</p>
                                 </div>
                                 <div className="flex justify-between gap-4 w-full mt-4">
-                                    {currentApplicationStatus === "applied" ? (
+                                    {isExternal ? (
+                                        <a
+                                            href={externalUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full"
+                                            onClick={() => {
+                                                if (typeof window !== "undefined" && (window as any).gtag) {
+                                                    (window as any).gtag("event", "external_job_click", {
+                                                        job_id: id,
+                                                        feed_name: feedName ?? "external",
+                                                    });
+                                                }
+                                            }}
+                                        >
+                                            <Button variant="default" size="lg" className="uppercase w-full">
+                                                Reagovat na {feedName ?? "externím webu"}
+                                            </Button>
+                                        </a>
+                                    ) : currentApplicationStatus === "applied" ? (
                                         <Button
                                             variant='default'
                                             size='lg'
