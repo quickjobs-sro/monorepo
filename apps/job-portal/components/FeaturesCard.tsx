@@ -738,7 +738,7 @@ export default function FeaturesCard({
                                     {stats.appliedTotal ?? 0}
                                 </span>
                                 <span className="text-sm text-gray-700">
-                                    {(stats.appliedTotal ?? 0) === 1 ? "zájemce se přihlásil" : (stats.appliedTotal ?? 0) < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
+                                    {(stats.appliedTotal ?? 0) === 0 ? "Zatím se nikdo nepřihlásil" : (stats.appliedTotal ?? 0) === 1 ? "zájemce se přihlásil" : (stats.appliedTotal ?? 0) < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
                                 </span>
                             </div>
                         )}

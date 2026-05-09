@@ -50,7 +50,7 @@ const JobsSection = ({ jobs, isInactive = false }: JobsSectionProps) => {
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-center mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch mb-12">
                 {displayedItems.map((job) => (
                     <JobCard key={job.isExternal ? `ext-${job.id}` : job.id} job={job} {...(isInactive && { isInactive: true })} />
                 ))}

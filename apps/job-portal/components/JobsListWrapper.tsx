@@ -300,7 +300,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
                 created_at: job.createdAt || job.created_at,
                 isExternal: true,
                 feedName: job.feedName || job.feed_name,
-                stats: { jobId: job.id, appliedTotal: 0, updatedAt: "", jobVisits: 0 },
+                stats: undefined,
             }));
             const deduped = externalMapped.filter((j) => !internalIds.has(j.id));
             processedJobs = [...processedJobs, ...deduped];

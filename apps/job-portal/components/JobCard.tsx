@@ -69,7 +69,7 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
             <Card
                 className={`h-full flex flex-col transition-shadow hover:shadow-lg border ${isInactive ? "bg-gray-100 opacity-75" : "bg-white cursor-pointer"
                     }`}
-                style={{ minHeight: 560, maxHeight: 560 }}
+                style={feedName ? undefined : { minHeight: 560, maxHeight: 560 }}
             >
                 <CardHeader className="pb-4 !px-6 !pt-6">
                     <div className="mb-6 flex flex-wrap gap-2 items-center">
@@ -96,7 +96,7 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
                 </CardHeader>
 
                 <CardContent className="!px-6 !pt-0 ">
-                    <p className="text-md text-gray-700 whitespace-pre-wrap leading-relaxed h-full truncate max-h-[205px] line-clamp-7 overflow-hidden">
+                    <p className={`text-md text-gray-700 whitespace-pre-wrap leading-relaxed h-full truncate overflow-hidden ${feedName ? "line-clamp-[12] max-h-[320px]" : "max-h-[205px] line-clamp-7"}`}>
                         {job.description}
                     </p>
                 </CardContent>
@@ -121,7 +121,7 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
                                 {appliedTotal}
                             </span>
                             <span className="text-sm text-gray-700">
-                                {appliedTotal === 1 ? "zájemce se přihlásil" : appliedTotal < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
+                                {appliedTotal === 0 ? "Zatím se nikdo nepřihlásil" : appliedTotal === 1 ? "zájemce se přihlásil" : appliedTotal < 5 ? "zájemci se přihlásili" : "zájemců se přihlásilo"}
                             </span>
                         </div>
                     )}
