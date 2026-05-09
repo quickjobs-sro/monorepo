@@ -273,7 +273,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
                     salary: job.salary,
                     salary_to: job.salary_to || job.salaryTo,
                     salary_type: job.salary_type || job.salaryType,
-                    stats: s ? { jobId: job.id, appliedTotal: s.appliedTotal ?? s.applied_total ?? 0, updatedAt: s.updatedAt ?? s.updated_at ?? "", jobVisits: s.jobVisits ?? 0 } : undefined,
+                    stats: { jobId: job.id, appliedTotal: (s?.appliedTotal ?? s?.applied_total ?? 0), updatedAt: s?.updatedAt ?? s?.updated_at ?? "", jobVisits: s?.jobVisits ?? 0 },
                 } as JobWithStats;
             });
             processedJobs = processedJobs.sort((a, b) => {
