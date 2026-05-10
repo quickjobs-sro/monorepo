@@ -28,6 +28,7 @@ export const useExternalJobs = (type: EXTERNAL_JOB_TYPE, enabled: boolean = true
         },
         refetchOnMount: true,
         enabled,
+        retry: false,
     });
 };
 

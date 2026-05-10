@@ -16,6 +16,7 @@ import { getApplicationStatusForJob, getJobsListCached, withAuthContext, getAuth
 import { JobBreadcrumb } from "./JobBreadcrumb";
 import { JobLoadNetworkError } from "../../../../lib/apiErrors";
 import { extractJobTitle, calculateTimeLeft } from "../../../../lib/jobHelpers";
+import { JobVisitTracker } from "../../../../components/JobVisitTracker";
 import type { ExternalJob, JobLike } from "../../../../lib/openapi/types";
 
 type ExternalJobRuntime = Omit<ExternalJob, "place" | "term" | "status" | "author"> & {
@@ -170,7 +171,7 @@ async function getJobDetail(id: string) {
         const { days: timeLeftDays, hours: timeLeftHour } = calculateTimeLeft(expiresAt);
         return { job, stats, title, timeLeftDays, timeLeftHour, applicationStatus };
     } catch (error) {
-        if (process.env.NODE_ENV === "development") {
+        if (process.env.NODE_ENV === "development" && (error as { status?: number })?.status !== 404) {
             console.error("Error fetching job:", error);
         }
         if (isTimeoutOrNetworkError(error)) {
@@ -291,6 +292,7 @@ async function JobDetailNavAndContent({
     isExternal,
     externalUrl,
     feedName,
+    navigationPromise,
 }: {
     job: JobLike;
     stats: any;
@@ -307,8 +309,9 @@ async function JobDetailNavAndContent({
     isExternal?: boolean;
     externalUrl?: string;
     feedName?: string;
+    navigationPromise: Promise<{ prev: number | null; next: number | null; currentJobIndex: number; lastJobIndex: number }>;
 }) {
-    const navigation = await getNavigationJobs(job.id, typeof job.term === "string" ? job.term : "one_time");
+    const navigation = await navigationPromise;
 
     const companyQuery = (() => {
         if (!fromCompanySlug) return "";
@@ -415,6 +418,9 @@ async function JobDetailNavAndContent({
                     applicationStatus={applicationStatus || undefined}
                     applicationStatusResolvedOnServer={applicationStatusResolvedOnServer}
                     employerStatement={employerStatement}
+                    isExternal={isExternal}
+                    externalUrl={externalUrl}
+                    feedName={feedName}
                 />
 
                 <div className="flex flex-col gap-4 w-full mt-6 lg:hidden">
@@ -569,6 +575,12 @@ export default async function JobDetailPage({ params }: PageProps) {
         }
 
         const { job, stats, title, timeLeftDays, timeLeftHour, applicationStatus: applicationStatusFromJob } = jobDetail;
+
+        // Start navigation fetch here (inside withAuthContext) so it runs with the correct auth context,
+        // not inside the Suspense boundary where AsyncLocalStorage may not propagate.
+        const navigationPromise = isExternalJob
+            ? Promise.resolve({ prev: null, next: null, currentJobIndex: 0, lastJobIndex: 0 })
+            : getNavigationJobs(job.id, typeof job.term === "string" ? job.term : "one_time");
 
         const jobTypeLabel =
             job.term === "one_time"
@@ -766,9 +778,11 @@ export default async function JobDetailPage({ params }: PageProps) {
                             isExternal={isExternalJob}
                             externalUrl={externalJobExtra?.externalUrl}
                             feedName={externalJobExtra?.feedName}
+                            navigationPromise={navigationPromise}
                         />
                     </Suspense>
                 </main>
+                {!isExternalJob && <JobVisitTracker />}
                 <Footer />
             </>
         );

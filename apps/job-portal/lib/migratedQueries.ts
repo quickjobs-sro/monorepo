@@ -194,7 +194,7 @@ export async function fetchExternalAppliedJobs(
     params: { limit?: number } = {},
     options: Pick<FetchOptions, "signal" | "token"> = {}
 ): Promise<ExternalJobsResponse> {
-    return fetchOpenApiJson<ExternalJobsResponse>("/jobs/external-applied", {
+    return fetchOpenApiJson<ExternalJobsResponse>("/v2/jobs/external-applied", {
         auth: true,
         signal: options.signal,
         token: options.token,
@@ -206,7 +206,7 @@ export async function fetchExternalIgnoredJobs(
     params: { limit?: number } = {},
     options: Pick<FetchOptions, "signal" | "token"> = {}
 ): Promise<ExternalJobsResponse> {
-    return fetchOpenApiJson<ExternalJobsResponse>("/jobs/external-ignored", {
+    return fetchOpenApiJson<ExternalJobsResponse>("/v2/jobs/external-ignored", {
         auth: true,
         signal: options.signal,
         token: options.token,

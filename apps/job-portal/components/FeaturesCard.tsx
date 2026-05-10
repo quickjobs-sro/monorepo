@@ -39,6 +39,7 @@ import { savePendingJobAction } from "../lib/utils";
 import { ApplicationStatusProvider } from "./ApplicationStatusProvider";
 import { reportError } from "../lib/reportError";
 import { ShareButtons } from "./ShareButtons";
+import { ExternalApplyButton } from "./ExternalApplyButton";
 import type { JobLike } from "../lib/openapi/types";
 
 const JOB_VALIDITY_DAYS = 30;
@@ -804,24 +805,13 @@ export default function FeaturesCard({
                                 )}
                                 <div className="flex justify-between gap-4 w-full mt-4">
                                     {isExternal ? (
-                                        <a
-                                            href={externalUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full"
-                                            onClick={() => {
-                                                if (typeof window !== "undefined" && (window as any).gtag) {
-                                                    (window as any).gtag("event", "external_job_click", {
-                                                        job_id: id,
-                                                        feed_name: feedName ?? "external",
-                                                    });
-                                                }
-                                            }}
-                                        >
-                                            <Button variant="default" size="lg" className="uppercase w-full">
-                                                Reagovat na {feedName ?? "externím webu"}
-                                            </Button>
-                                        </a>
+                                        <div className="w-full">
+                                            <ExternalApplyButton
+                                                jobId={id}
+                                                jobUrl={externalUrl}
+                                                feedName={feedName}
+                                            />
+                                        </div>
                                     ) : currentApplicationStatus === "applied" ? (
                                         <Button
                                             variant='default'
