@@ -193,7 +193,7 @@ export const MyJobsList = ({
         return (
             <div className="flex flex-col items-center justify-center py-12 px-4">
                 <p className="text-center text-red-600 mb-2 font-semibold">
-                    {isServerError ? "Backend není dostupný" : "Chyba při načítání"}
+                    {isServerError ? "Server není dostupný" : "Chyba při načítání"}
                 </p>
                 <p className="text-center text-gray-600 mb-4">
                     {isServerError ? FIVE_XX_USER_MESSAGE : "Nepodařilo se načíst nabídky. Zkus to prosím znovu."}

@@ -5,7 +5,7 @@
 
 /** 5xx = backend crashed; never show BE response body to user (it can be wrong e.g. "CORS"). */
 export const FIVE_XX_USER_MESSAGE =
-    "Backend není dostupný. Zkus to prosím za chvíli znovu.";
+    "Server není dostupný. Zkus to prosím za chvíli znovu.";
 
 export function is5xx(status: number): boolean {
     return status === 500 || status === 502 || status === 503 || status === 504;

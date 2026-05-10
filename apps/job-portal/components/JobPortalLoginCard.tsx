@@ -145,7 +145,7 @@ export const JobPortalLoginCard = ({
             } else {
                 const beCrashed = is5xx(normalized.status);
                 toast({
-                    title: normalized.isTimeout ? "Vypršel limit čekání" : beCrashed ? "Backend není dostupný" : "Chyba při odesílání",
+                    title: normalized.isTimeout ? "Vypršel limit čekání" : beCrashed ? "Server není dostupný" : "Chyba při odesílání",
                     description: normalized.isTimeout
                         ? "Odpověď serveru trvala příliš dlouho. Zkus to prosím znovu."
                         : beCrashed

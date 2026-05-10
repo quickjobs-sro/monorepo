@@ -75,7 +75,7 @@ const ErrorFallback = ({
     return (
         <div className="flex flex-col items-center justify-center py-12 px-4">
             <p className="text-center text-red-600 mb-2 font-semibold text-lg">
-                {normalized.isTimeout ? "Vypršel limit čekání" : isServerError ? "Backend není dostupný" : "Chyba při načítání"}
+                {normalized.isTimeout ? "Vypršel limit čekání" : isServerError ? "Server není dostupný" : "Chyba při načítání"}
             </p>
             <p className="text-center text-gray-600 mb-4">
                 {errorMessage}
