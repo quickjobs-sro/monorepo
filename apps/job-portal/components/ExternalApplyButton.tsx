@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@ui/components/core/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import API from "../lib/legacyApi";
@@ -44,6 +44,13 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
     const [showCheckModal, setShowCheckModal] = useState(false);
     const mutationInProgressRef = useRef(false);
     const pendingPopupRef = useRef<Window | null>(null);
+
+    useEffect(() => () => {
+        if (pendingPopupRef.current) {
+            pendingPopupRef.current.close();
+            pendingPopupRef.current = null;
+        }
+    }, []);
 
     const hasEmptyProfile =
         (!user?.skills || user.skills.length === 0) &&
@@ -91,8 +98,12 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
             setShowCheckModal(false);
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
-            if (pendingPopupRef.current && jobUrl) {
-                pendingPopupRef.current.location.href = jobUrl;
+            if (jobUrl && !isGrafton) {
+                if (pendingPopupRef.current) {
+                    pendingPopupRef.current.location.href = jobUrl;
+                } else {
+                    window.open(jobUrl, "_blank");
+                }
             }
             pendingPopupRef.current = null;
             router.push("/jobs");
@@ -191,7 +202,9 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
                             onClick={() => {
                                 setIsDisabled(true);
                                 if (!isGrafton && jobUrl) {
-                                    pendingPopupRef.current = window.open("about:blank", "_blank", "noopener,noreferrer");
+                                    const popup = window.open("about:blank", "_blank");
+                                    if (popup) popup.opener = null;
+                                    pendingPopupRef.current = popup;
                                 }
                                 applyMutation.mutate();
                             }}
