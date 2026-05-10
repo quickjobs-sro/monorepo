@@ -43,6 +43,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
     const [showFillModal, setShowFillModal] = useState(false);
     const [showCheckModal, setShowCheckModal] = useState(false);
     const mutationInProgressRef = useRef(false);
+    const pendingPopupRef = useRef<Window | null>(null);
 
     const hasEmptyProfile =
         (!user?.skills || user.skills.length === 0) &&
@@ -90,14 +91,20 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
             setShowCheckModal(false);
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
-            if (!isGrafton && jobUrl) {
-                window.open(jobUrl, "_blank", "noopener,noreferrer");
+            if (pendingPopupRef.current && jobUrl) {
+                pendingPopupRef.current.location.href = jobUrl;
             }
+            pendingPopupRef.current = null;
             router.push("/jobs");
         },
         onError: (error: any) => {
             mutationInProgressRef.current = false;
             setIsDisabled(false);
+            if (pendingPopupRef.current) {
+                pendingPopupRef.current.close();
+                pendingPopupRef.current = null;
+            }
+            if (error?.message === "Mutation already in progress") return;
             reportError(error, { location: "ExternalApplyButton.apply", jobId });
             if (error?.message?.includes("timeout")) {
                 toast({ title: "Přihláška se neodeslala - zkus to znovu", variant: "destructive", duration: 3000 });
@@ -181,7 +188,13 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
                             ZKONTROLOVAT PROFIL
                         </Button>
                         <Button
-                            onClick={() => { setIsDisabled(true); applyMutation.mutate(); }}
+                            onClick={() => {
+                                setIsDisabled(true);
+                                if (!isGrafton && jobUrl) {
+                                    pendingPopupRef.current = window.open("about:blank", "_blank", "noopener,noreferrer");
+                                }
+                                applyMutation.mutate();
+                            }}
                             className="bg-primary"
                             disabled={applyMutation.isPending}
                         >
