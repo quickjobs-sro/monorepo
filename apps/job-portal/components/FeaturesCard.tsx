@@ -869,7 +869,7 @@ export default function FeaturesCard({
                                         </Button>
                                     ) : (
                                         <>
-                                            {isLoggedIn && !url && (
+                                            {isLoggedIn && (
                                                 <TrackedButton
                                                     variant='destructive'
                                                     size='lg'
