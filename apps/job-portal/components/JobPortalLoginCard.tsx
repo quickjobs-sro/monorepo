@@ -80,6 +80,25 @@ export const JobPortalLoginCard = ({
     const [selectedUserType, setSelectedUserType] = useState<"employer" | "applicant">(userType);
 
     const executePendingJobAction = async (pendingAction: PendingJobAction, defaultReturnUrl?: string | null): Promise<boolean> => {
+        if (pendingAction.action === "open_url") {
+            clearPendingJobAction();
+            if (pendingAction.url) {
+                window.open(pendingAction.url, "_blank", "noopener,noreferrer");
+            }
+            // Also submit the application so the job is marked as applied
+            try {
+                await API.applications.createApplication(pendingAction.jobId, "apply");
+                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });
+                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+            } catch {
+                // non-fatal — URL already opened
+            }
+            const returnUrl = pendingAction.returnUrl || defaultReturnUrl || "/";
+            router.push(returnUrl);
+            return true;
+        }
+
         try {
             await API.applications.createApplication(pendingAction.jobId, pendingAction.action);
 

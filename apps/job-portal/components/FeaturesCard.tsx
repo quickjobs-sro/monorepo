@@ -113,6 +113,8 @@ interface FeaturesCardProps {
     isExternal?: boolean;
     externalUrl?: string;
     feedName?: string;
+    url?: string | null;
+    ctaText?: string | null;
 }
 
 export default function FeaturesCard({
@@ -151,6 +153,8 @@ export default function FeaturesCard({
     isExternal = false,
     externalUrl,
     feedName,
+    url,
+    ctaText,
 }: FeaturesCardProps) {
     const expiresAt = offerExpiresAt || offer_expires_at || "";
     const createdDate = created_at || createdAt || "";
@@ -333,6 +337,18 @@ export default function FeaturesCard({
     }, [user]);
 
     const handleApply = useCallback(() => {
+        if (url) {
+            if (!isLoggedIn) {
+                savePendingJobAction({ jobId: id, action: "open_url", url, returnUrl: currentUrl });
+                router.push(`/login?returnUrl=${encodeURIComponent(currentUrl)}`);
+                return;
+            }
+            const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+            window.open(fullUrl, "_blank", "noopener,noreferrer");
+            jobMutation.mutate({ status: "apply" });
+            return;
+        }
+
         if (!isLoggedIn) {
             const returnUrl = encodeURIComponent(currentUrl);
             savePendingJobAction({ jobId: id, action: "apply", returnUrl: currentUrl });
@@ -368,7 +384,7 @@ export default function FeaturesCard({
         } else {
             setShowCheckModal(true);
         }
-    }, [isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, user, router, id]);
+    }, [url, isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, user, router, id, currentUrl, jobMutation]);
 
     const handleNotInterested = useCallback(() => {
         if (!isLoggedIn) {
@@ -853,7 +869,7 @@ export default function FeaturesCard({
                                         </Button>
                                     ) : (
                                         <>
-                                            {isLoggedIn && (
+                                            {isLoggedIn && !url && (
                                                 <TrackedButton
                                                     variant='destructive'
                                                     size='lg'
@@ -874,10 +890,10 @@ export default function FeaturesCard({
                                                 onClick={handleApply}
                                                 disabled={isDisabled}
                                                 gaCategory="Job card"
-                                                gaAction="Mám zájem"
+                                                gaAction={url ? (ctaText || "Více info") : "Mám zájem"}
                                                 gaLabel={String(id)}
                                             >
-                                                Mám zájem
+                                                {url ? (ctaText || "Více info") : "Mám zájem"}
                                             </TrackedButton>
                                         </>
                                     )}

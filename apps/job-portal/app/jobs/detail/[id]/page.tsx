@@ -421,6 +421,8 @@ async function JobDetailNavAndContent({
                     isExternal={isExternal}
                     externalUrl={externalUrl}
                     feedName={feedName}
+                    url={job.url}
+                    ctaText={job.ctaText}
                 />
 
                 <div className="flex flex-col gap-4 w-full mt-6 lg:hidden">

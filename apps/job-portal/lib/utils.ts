@@ -19,8 +19,9 @@ const PENDING_JOB_ACTION_KEY = "quickjobs_pending_job_action";
 
 export interface PendingJobAction {
     jobId: number;
-    action: "apply" | "ignore";
+    action: "apply" | "ignore" | "open_url";
     returnUrl?: string;
+    url?: string;
 }
 
 export const savePendingJobAction = (action: PendingJobAction): void => {
