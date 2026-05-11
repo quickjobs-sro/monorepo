@@ -97,7 +97,7 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
 
                 <CardContent className="!px-6 !pt-0 ">
                     <p className={`text-md text-gray-700 whitespace-pre-wrap leading-relaxed h-full truncate overflow-hidden ${feedName ? "line-clamp-[12] max-h-[320px]" : "max-h-[205px] line-clamp-7"}`}>
-                        {job.description}
+                        {job.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()}
                     </p>
                 </CardContent>
 

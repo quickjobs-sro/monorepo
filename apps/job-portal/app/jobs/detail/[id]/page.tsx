@@ -558,6 +558,8 @@ export default async function JobDetailPage({ params }: PageProps) {
             throw e;
         }
 
+        const publicJobNotFound = !jobDetail;
+
         if (!jobDetail) {
             const externalDetail = await getExternalJobDetail(id);
             if (externalDetail) {
@@ -571,6 +573,15 @@ export default async function JobDetailPage({ params }: PageProps) {
         }
 
         if (!jobDetail) {
+            if (publicJobNotFound) {
+                return (
+                    <div className="flex flex-col items-center justify-center min-h-[50vh] px-4">
+                        <p className="text-center text-gray-800 font-semibold mb-2">Nabídka již není dostupná</p>
+                        <p className="text-center text-muted-foreground mb-6">Tato nabídka byla pravděpodobně odstraněna nebo vypršela.</p>
+                        <NavigationLink href="/jobs">Zpět na nabídky</NavigationLink>
+                    </div>
+                );
+            }
             notFound();
         }
 

@@ -10,6 +10,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "static.wixstatic.com", pathname: "/media/**" },
+      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "**" },
     ],
   },
   eslint: {

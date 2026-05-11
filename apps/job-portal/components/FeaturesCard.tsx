@@ -1,7 +1,7 @@
 "use client";
 
 import { ConditionalWrapper } from "@ui/helpers/ConditionalWrapper";
-import { Avatar, AvatarImage } from "@ui/components/core/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@ui/components/core/avatar";
 import { Badge } from "@ui/components/core/badge";
 import { Card, CardContent, CardHeader, CardFooter } from "@ui/components/core/card";
 import { CommentRatings } from "@ui/components/core/rating";
@@ -561,6 +561,9 @@ export default function FeaturesCard({
                                             src={author.avatarImage?.url}
                                             alt={`Foto ${author.givenName || ""} ${author.familyName || ""}`.trim() || "Foto zaměstnavatele"}
                                         />
+                                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                            {(author.givenName?.[0] || author.familyName?.[0] || "?").toUpperCase()}
+                                        </AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col gap-0" itemProp="name">
                                         <span className="font-medium">
