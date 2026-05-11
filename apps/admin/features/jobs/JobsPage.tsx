@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Activity, BriefcaseBusiness, Clock3, MousePointerClick, Percent, Users } from "lucide-react";
+import { Activity, BriefcaseBusiness, MousePointerClick, Percent, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Badge } from "@ui/components/core/badge";
 import { Button } from "@ui/components/core/button";
 import { Card, CardContent } from "@ui/components/core/card";
 import { Input } from "@ui/components/core/input";
@@ -28,14 +29,32 @@ import {
   formatPercent,
   formatRelativeDateTime,
 } from "@/lib/formatting";
-import { JOB_TERMS, type PublicJobStats } from "@/lib/openapi/types";
+import { JOB_TERMS } from "@/lib/openapi/types";
 import { buildJobAnalyticsSnapshot, buildJobPerformanceSummary } from "./analytics";
-import { fetchPublicJobs } from "./api";
+import { fetchCanonicalJobs } from "./api";
 import { jobsQueryKey } from "./queries";
 import type { JobPerformanceSummary, JobsTermFilter, RankedJobMetricRow } from "./types";
 
-function getStatsMap(stats: PublicJobStats[]) {
-  return new Map(stats.map((stat) => [stat.jobId, stat]));
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function formatObjectLabel(value: unknown): string {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (!isRecord(value)) {
+    return "—";
+  }
+
+  const candidate = value.name ?? value.label ?? value.status ?? value.value ?? value.id;
+  if (typeof candidate === "string" || typeof candidate === "number" || typeof candidate === "boolean") {
+    return String(candidate);
+  }
+
+  const keys = Object.keys(value);
+  return keys.length ? keys.join(", ") : "—";
 }
 
 function RankedJobsCard({
@@ -149,19 +168,20 @@ export function JobsPage() {
   const jobsQuery = useQuery({
     queryKey: jobsQueryKey(activeTerms),
     queryFn: () =>
-      fetchPublicJobs({
+      fetchCanonicalJobs({
         term: activeTerms,
       }),
   });
 
-  const statsMap = getStatsMap(jobsQuery.data?.stats ?? []);
-  const filteredJobs = (jobsQuery.data?.jobs ?? []).filter((job) => {
+  const filteredJobs = (jobsQuery.data?.data ?? []).filter((job) => {
     const haystack = [
       job.description,
       job.author?.companyName,
       job.author?.email,
       job.author?.givenName,
       job.author?.familyName,
+      job.place?.address,
+      formatObjectLabel(job.status),
     ]
       .filter(Boolean)
       .join(" ")
@@ -170,20 +190,16 @@ export function JobsPage() {
     return haystack.includes(search.trim().toLowerCase());
   });
   const tableRows = filteredJobs.map((job) => {
-    const stats = statsMap.get(job.id);
     return {
       job,
-      stats,
       performance: buildJobPerformanceSummary({
         job,
-        stats,
       }),
     };
   });
   const analytics = buildJobAnalyticsSnapshot(
     filteredJobs.map((job) => ({
       job,
-      stats: statsMap.get(job.id),
     }))
   );
   const searchLabel = search.trim() ? `Search: “${search.trim()}”` : "Search: bez lokálního filtru";
@@ -193,7 +209,7 @@ export function JobsPage() {
       <PageHeader
         eyebrow="Operations"
         title="Jobs Overview"
-        description="Read-only analytický pohled nad `/jobs/public`. Používáme jen metriky, které dnešní backend opravdu vrací: apply total, visits a freshness."
+        description="Read-only administrátorský pohled nad `/v1/jobs`: canonical stats, expirace, relevance, banned flag a autor bez per-row detail requestů."
         actions={
           <>
             <Input
@@ -237,10 +253,10 @@ export function JobsPage() {
 
           <Card className="border-dashed border-slate-300/80 bg-white/80">
             <CardContent className="space-y-2 p-6 text-sm leading-6 text-slate-600">
-              <p className="font-medium text-slate-900">Analytics jen z nového API.</p>
+              <p className="font-medium text-slate-900">Canonical job analytics z jednoho list requestu.</p>
               <p>
-                Tohle je čistě read-only analytika nad dnešními `stats` z `/jobs/public`. Staré metriky jako reject,
-                ignore nebo saved backend zatím nevystavuje, takže je v adminu záměrně nepředstíráme.
+                Přehled používá stats přímo z `/v1/jobs`: total, applied, accepted, ignored, rejected a visits.
+                Detail každého jobu se nenačítá v cyklu, aby tabulka nevytvářela N+1 zátěž.
               </p>
             </CardContent>
           </Card>
@@ -253,28 +269,28 @@ export function JobsPage() {
               icon={BriefcaseBusiness}
             />
             <MetricCard
-              title="Apply Total"
-              value={formatCompactNumber(analytics.appliedTotal)}
-              hint="Součet všech apply reakcí v aktuálním řezu."
+              title="Reaction Total"
+              value={formatCompactNumber(analytics.total)}
+              hint="Canonical total ze stats v aktuálním řezu."
               icon={Users}
+            />
+            <MetricCard
+              title="Applied"
+              value={formatCompactNumber(analytics.applied)}
+              hint="Počet reakcí ve stavu applied."
+              icon={Users}
+            />
+            <MetricCard
+              title="Accepted"
+              value={formatCompactNumber(analytics.accepted)}
+              hint="Počet accepted reakcí v canonical stats."
+              icon={Activity}
             />
             <MetricCard
               title="Job Visits"
               value={formatCompactNumber(analytics.jobVisits)}
               hint="Součet tracked návštěv detailu nabídky."
               icon={MousePointerClick}
-            />
-            <MetricCard
-              title="Avg Apply / Job"
-              value={formatDecimal(analytics.averageAppliesPerJob)}
-              hint="Průměrný apply total na jednu nabídku."
-              icon={Activity}
-            />
-            <MetricCard
-              title="Avg Visits / Job"
-              value={formatDecimal(analytics.averageVisitsPerJob)}
-              hint="Průměrný počet tracked visits na job."
-              icon={Clock3}
             />
             <MetricCard
               title="Conversion Proxy"
@@ -308,7 +324,10 @@ export function JobsPage() {
                         <p className="text-sm font-semibold text-slate-900">{formatPercent(termRow.conversionRatio)}</p>
                       </div>
                       <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                        <span>Total: {formatCompactNumber(termRow.total)}</span>
                         <span>Apply: {formatCompactNumber(termRow.appliedTotal)}</span>
+                        <span>Accepted: {formatCompactNumber(termRow.accepted)}</span>
+                        <span>Rejected: {formatCompactNumber(termRow.rejected)}</span>
                         <span>Visits: {formatCompactNumber(termRow.jobVisits)}</span>
                         <span>Avg apply/job: {formatDecimal(termRow.averageAppliesPerJob)}</span>
                         <span>Avg visits/job: {formatDecimal(termRow.averageVisitsPerJob)}</span>
@@ -344,13 +363,19 @@ export function JobsPage() {
             emptyMessage="Aktuální výběr nevrátil žádné joby."
             columns={[
               {
-                header: "Pozice",
+                header: "Job",
                 className: "min-w-[300px]",
                 render: (row) => (
                   <div className="space-y-2">
                     <p className="font-medium text-slate-900">{row.job.description}</p>
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{formatJobTerm(row.job.term)}</p>
                     <p className="text-sm text-slate-600">{row.performance.statusSummary}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {row.performance.isBanned ? <Badge className="bg-rose-100 text-rose-900">Banned</Badge> : null}
+                      {row.performance.isRelevant === false ? (
+                        <Badge className="bg-amber-100 text-amber-900">Nerelevantní</Badge>
+                      ) : null}
+                    </div>
                   </div>
                 ),
               },
@@ -376,8 +401,26 @@ export function JobsPage() {
                 ),
               },
               {
-                header: "Přihlášky",
-                render: (row) => <span>{formatCompactNumber(row.performance.appliedTotal)}</span>,
+                header: "Status",
+                render: (row) => (
+                  <div className="space-y-1">
+                    <p className="font-medium text-slate-900">{formatObjectLabel(row.job.status)}</p>
+                    <p className="text-xs text-slate-500">Relevant: {row.performance.isRelevant === false ? "ne" : "ano"}</p>
+                  </div>
+                ),
+              },
+              {
+                header: "Reakce",
+                className: "min-w-[180px]",
+                render: (row) => (
+                  <div className="grid gap-1 text-sm">
+                    <span>Total: {formatCompactNumber(row.performance.total)}</span>
+                    <span>Applied: {formatCompactNumber(row.performance.applied)}</span>
+                    <span>Accepted: {formatCompactNumber(row.performance.accepted)}</span>
+                    <span>Ignored: {formatCompactNumber(row.performance.ignored)}</span>
+                    <span>Rejected: {formatCompactNumber(row.performance.rejected)}</span>
+                  </div>
+                ),
               },
               {
                 header: "Visits",
@@ -388,12 +431,15 @@ export function JobsPage() {
                 render: (row) => <span>{formatPercent(row.performance.conversionRatio)}</span>,
               },
               {
-                header: "Freshness",
+                header: "Expirace",
                 className: "min-w-[210px]",
                 render: (row) => (
                   <div className="space-y-1">
-                    <p className="font-medium text-slate-900">{formatRelativeDateTime(row.performance.freshnessAt)}</p>
-                    <p className="text-xs text-slate-500">{formatDateTime(row.performance.freshnessAt)}</p>
+                    <p className="font-medium text-slate-900">Offer: {formatDateTime(row.performance.offerExpiresAt)}</p>
+                    <p className="text-xs text-slate-500">
+                      Candidates: {formatDateTime(row.performance.candidatesAccessExpiresAt)}
+                    </p>
+                    <p className="text-xs text-slate-500">Stats: {formatRelativeDateTime(row.performance.freshnessAt)}</p>
                   </div>
                 ),
               },

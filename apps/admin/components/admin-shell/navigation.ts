@@ -7,6 +7,8 @@ import {
   GraduationCap,
   LayoutDashboard,
   MessageSquareMore,
+  Rss,
+  Search,
   Shield,
   Users,
 } from "lucide-react";
@@ -44,8 +46,20 @@ export const navigationGroups: NavigationGroup[] = [
       {
         label: "Jobs Overview",
         href: ROUTES.jobs,
-        description: "Read-only přehled veřejných pracovních nabídek",
+        description: "Canonical stats a job detail audit",
         icon: BriefcaseBusiness,
+      },
+      {
+        label: "External Jobs",
+        href: ROUTES.externalJobs,
+        description: "QA pohled na externí feedy",
+        icon: Rss,
+      },
+      {
+        label: "Candidates",
+        href: ROUTES.candidates,
+        description: "Filtrovaný support search kandidátů",
+        icon: Search,
       },
       {
         label: "System Health",

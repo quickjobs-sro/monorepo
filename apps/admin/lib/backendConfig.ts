@@ -1,5 +1,5 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
-const DEFAULT_BACKEND_URL = "http://localhost:3000/";
+const DEFAULT_BACKEND_URL = "https://backend.quickjobs.cz/";
 const DEFAULT_REVISION = "admin-v1";
 
 function normalizeBackendBaseUrl(rawUrl?: string | null): string {

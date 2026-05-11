@@ -84,6 +84,70 @@ export interface paths {
         patch: operations["AdminMeController_changePassword"];
         trace?: never;
     };
+    "/v1/auth/phone-verifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MobileAuthController_requestPhoneVerification_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MobileAuthController_createSession_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/sessions/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MobileAuthController_refreshSession_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/sessions/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["MobileAuthController_revokeCurrentSession_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/me/profile": {
         parameters: {
             query?: never;
@@ -100,7 +164,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/me/profile": {
+    "/v1/me/profile": {
         parameters: {
             query?: never;
             header?: never;
@@ -108,6 +172,166 @@ export interface paths {
             cookie?: never;
         };
         get: operations["MeProfileController_getProfile[1]"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalMeController_getMe_v1"];
+        put?: never;
+        post?: never;
+        delete: operations["CanonicalMeController_removeMe_v1"];
+        options?: never;
+        head?: never;
+        patch: operations["CanonicalMeController_updateMe_v1"];
+        trace?: never;
+    };
+    "/v1/me/areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalMeController_getMeAreas_v1"];
+        put?: never;
+        post: operations["CanonicalMeController_createMeArea_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/areas/{areaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CanonicalMeController_removeMeArea_v1"];
+        options?: never;
+        head?: never;
+        patch: operations["CanonicalMeController_updateMeArea_v1"];
+        trace?: never;
+    };
+    "/v1/me/schools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalMeController_getMeSchools_v1"];
+        put?: never;
+        post: operations["CanonicalMeController_addMeSchool_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/schools/{userSchoolId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CanonicalMeController_removeMeSchool_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CanonicalMeController_registerCurrentDevice_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/devices/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CanonicalMeController_removeCurrentDevice_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/images/{slot}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["CanonicalMeController_uploadMeImage_v1"];
+        post?: never;
+        delete: operations["CanonicalMeController_removeMeImage_v1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CanonicalMeController_changePassword_v1"];
+        trace?: never;
+    };
+    "/v1/me/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalMeController_getMeReviews_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -148,7 +372,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/jobs/public": {
+    "/v1/jobs/public": {
         parameters: {
             query?: never;
             header?: never;
@@ -180,7 +404,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/jobs/public/company/{companyId}": {
+    "/v1/jobs/public/company/{companyId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -212,7 +436,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/jobs/public/{id}": {
+    "/v1/jobs/public/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -220,6 +444,54 @@ export interface paths {
             cookie?: never;
         };
         get: operations["PublicJobsController_getPublicJobDetail[1]"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/jobs/{id}/visits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["JobVisitsController_recordPublicJobVisit_v1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalJobsController_getJobs_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalJobsController_getJobDetail_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -244,7 +516,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/jobs/available": {
+    "/v1/jobs/available": {
         parameters: {
             query?: never;
             header?: never;
@@ -252,6 +524,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["AvailableJobsController_getAvailableJobs[1]"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/external-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalExternalJobsController_getExternalJobs_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/external-jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalExternalJobsController_getExternalJobDetail_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -276,7 +580,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/jobs/external-applied": {
+    "/v1/jobs/external-applied": {
         parameters: {
             query?: never;
             header?: never;
@@ -308,7 +612,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/jobs/external-ignored": {
+    "/v1/jobs/external-ignored": {
         parameters: {
             query?: never;
             header?: never;
@@ -324,14 +628,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/candidates": {
+    "/v1/me/external-job-reactions": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["CandidatesController_findCandidates[0]_v1"];
+        get: operations["MeExternalJobReactionsController_getExternalJobReactions_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -340,7 +644,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/candidates": {
+    "/v1/candidates": {
         parameters: {
             query?: never;
             header?: never;
@@ -357,22 +661,6 @@ export interface paths {
         trace?: never;
     };
     "/v1/candidate-watchdogs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["WatchdogsController_listWatchdogs[0]_v1"];
-        put?: never;
-        post: operations["WatchdogsController_createWatchdog[0]_v1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/candidate-watchdogs": {
         parameters: {
             query?: never;
             header?: never;
@@ -401,42 +689,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["WatchdogsController_updateWatchdog[0]_v1"];
-        trace?: never;
-    };
-    "/candidate-watchdogs/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
         patch: operations["WatchdogsController_updateWatchdog[1]"];
         trace?: never;
     };
     "/v1/candidate-search/history": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["WatchdogsController_getHistory[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/candidate-search/history": {
         parameters: {
             query?: never;
             header?: never;
@@ -475,22 +731,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["SchoolsController_getSchools[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         get: operations["SchoolsController_getSchools[1]"];
         put?: never;
         post?: never;
@@ -501,22 +741,6 @@ export interface paths {
         trace?: never;
     };
     "/v1/schools/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["SchoolsController_getSchool[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -539,22 +763,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["SchoolsController_getFacultiesForSchool[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/schools/{id}/faculties": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         get: operations["SchoolsController_getFacultiesForSchool[1]"];
         put?: never;
         post?: never;
@@ -571,22 +779,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["FacultiesController_getFaculties[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/faculties": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         get: operations["FacultiesController_getFaculties[1]"];
         put?: never;
         post?: never;
@@ -597,22 +789,6 @@ export interface paths {
         trace?: never;
     };
     "/v1/faculties/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["FacultiesController_getFaculty[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/faculties/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -715,22 +891,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["CompaniesController_getCompanies[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/companies": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         get: operations["CompaniesController_getCompanies[1]"];
         put?: never;
         post?: never;
@@ -741,22 +901,6 @@ export interface paths {
         trace?: never;
     };
     "/v1/companies/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["CompaniesController_getCompanyDetail[0]_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/companies/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -788,7 +932,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/my-applications": {
+    "/v1/my-applications": {
         parameters: {
             query?: never;
             header?: never;
@@ -796,6 +940,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["MyApplicationsController_getMyApplications[1]"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CanonicalMyApplicationsController_getMyApplications_v1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -850,6 +1010,24 @@ export interface components {
         AdminChangePasswordRequestDto: {
             oldPassword: string;
             newPassword: string;
+        };
+        RequestPhoneVerificationRequestDto: {
+            /** @example +420777123456 */
+            phone: string;
+        };
+        PhoneVerificationResponseDto: {
+            userExists: boolean;
+        };
+        TokenPairResponseDto: {
+            accessToken: string;
+            refreshToken: string;
+            /** @example Bearer */
+            tokenType: string;
+            /** @example 3600 */
+            expiresIn: number;
+        };
+        RefreshSessionRequestDto: {
+            refreshToken: string;
         };
         MeProfileExperienceDto: {
             id: number;
@@ -972,6 +1150,101 @@ export interface components {
         };
         MeProfileResponseDto: {
             data: components["schemas"]["MeProfileDataDto"];
+        };
+        UpdateMeExperienceDto: {
+            title?: string | null;
+            company_name?: string | null;
+        };
+        NotificationChannelsDto: {
+            /** @description Plain channels replace the trigger. Values prefixed with + or - add/remove a channel. */
+            new_one_time_jobs?: string[];
+            /** @description Plain channels replace the trigger. Values prefixed with + or - add/remove a channel. */
+            new_long_term_jobs?: string[];
+            /** @description Plain channels replace the trigger. Values prefixed with + or - add/remove a channel. */
+            new_full_time_jobs?: string[];
+        };
+        UpdateMeDto: {
+            given_name?: string | null;
+            family_name?: string | null;
+            /** Format: email */
+            email?: string | null;
+            /** @enum {string|null} */
+            gender?: "male" | "female" | null;
+            /** Format: date */
+            birth_date?: string | null;
+            company_name?: string | null;
+            description?: string | null;
+            skills?: string[];
+            experience?: components["schemas"]["UpdateMeExperienceDto"][];
+            /** @enum {array} */
+            roles?: "candidate" | "employer";
+            subscribed_notifications?: components["schemas"]["NotificationChannelsDto"];
+            hide_profile?: boolean;
+            user_source?: string | null;
+        };
+        DeleteMeDto: {
+            deleted_reason?: string | null;
+        };
+        MeProfileAreasResponseDto: {
+            areas: components["schemas"]["MeProfileAreaDto"][];
+        };
+        AreaPlaceDto: {
+            address: string;
+            latitude: number;
+            longitude: number;
+        };
+        CreateAreaDto: {
+            name?: string | null;
+            radius: number;
+            active?: boolean;
+            place: components["schemas"]["AreaPlaceDto"];
+        };
+        MeProfileAreaResponseDto: {
+            data: components["schemas"]["MeProfileAreaDto"];
+        };
+        UpdateAreaPlaceDto: {
+            address?: string;
+            latitude?: number | null;
+            longitude?: number | null;
+        };
+        UpdateAreaDto: {
+            name?: string | null;
+            radius?: number;
+            active?: boolean;
+            place?: components["schemas"]["UpdateAreaPlaceDto"];
+        };
+        MeProfileSchoolsResponseDto: {
+            userSchools: components["schemas"]["MeProfileUserSchoolDto"][];
+        };
+        AddUserSchoolDto: {
+            school_id: number;
+            school_faculty_id?: number | null;
+            /** @enum {string} */
+            status: "completed" | "in_progress" | "in_progress_1" | "in_progress_2" | "in_progress_3" | "in_progress_4" | "in_progress_5";
+            end_year?: number | null;
+            otherText?: string | null;
+        };
+        MeProfileUserSchoolResponseDto: {
+            data: components["schemas"]["MeProfileUserSchoolDto"];
+        };
+        RegisterDeviceDto: {
+            pushToken: string;
+            /** @enum {string} */
+            platform: "ios" | "android" | "web";
+            appVersion: string;
+            deviceId?: string;
+        };
+        MeProfileImageResponseDto: {
+            data: components["schemas"]["MeProfileImageDto"];
+        };
+        ChangePasswordDto: {
+            old_password: string;
+            new_password: string;
+        };
+        MeProfileReviewsResponseDto: {
+            reviews: components["schemas"]["MeProfileReviewDto"][];
+            rating?: number | null;
+            rating_count?: number | null;
         };
         ImportJobRequestDto: {
             /**
@@ -1161,6 +1434,75 @@ export interface components {
             data: components["schemas"]["PublicJobDto"];
             stats: components["schemas"]["PublicJobStatsDto"];
         };
+        CanonicalJobStatsDto: {
+            job_id: number;
+            applied_total: number;
+            /** Format: date-time */
+            updated_at: string;
+            jobVisits: number;
+            total?: number;
+            applied?: number;
+            accepted?: number;
+            ignored?: number;
+            rejected?: number;
+        };
+        CanonicalJobViewerDto: {
+            is_author: boolean;
+            is_relevant?: boolean | null;
+        };
+        CanonicalJobDto: {
+            id: number;
+            description: string;
+            salary: number;
+            salary_to?: number | null;
+            salary_type: Record<string, never>;
+            /** @enum {string} */
+            gender: "male" | "female" | "any";
+            /** Format: date-time */
+            starts_at?: string | null;
+            does_start_immediately?: boolean | null;
+            /** Format: date-time */
+            ends_at?: string | null;
+            place_id?: number | null;
+            place: components["schemas"]["PublicJobPlaceDto"];
+            requirements?: Record<string, never> | null;
+            benefits?: string | null;
+            /** @enum {string} */
+            term: "one_time" | "long_term" | "full_time";
+            has_more_days: boolean;
+            time_period?: Record<string, never> | null;
+            time_flexibility?: Record<string, never> | null;
+            status: Record<string, never>;
+            author_id: number;
+            author?: components["schemas"]["PublicJobAuthorDto"] | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            offer_duration?: number | null;
+            /** Format: date-time */
+            offer_expires_at?: string | null;
+            candidates_access_duration: number;
+            /** Format: date-time */
+            candidates_access_expires_at?: string | null;
+            is_banned?: boolean | null;
+            url?: string | null;
+            cta_text?: string | null;
+            is_relevant?: boolean;
+            stats: components["schemas"]["CanonicalJobStatsDto"];
+            viewer: components["schemas"]["CanonicalJobViewerDto"];
+        };
+        CanonicalJobsListMetaDto: {
+            banned_job_ids: number[];
+            limit: number;
+        };
+        CanonicalJobsListResponseDto: {
+            data: components["schemas"]["CanonicalJobDto"][];
+            meta: components["schemas"]["CanonicalJobsListMetaDto"];
+        };
+        CanonicalJobDetailResponseDto: {
+            data: components["schemas"]["CanonicalJobDto"];
+        };
         AvailableJobDto: {
             id: number;
             description: string;
@@ -1206,6 +1548,48 @@ export interface components {
             banned_job_ids: number[];
             stats: components["schemas"]["PublicJobStatsDto"][];
         };
+        CanonicalExternalJobReactionDto: {
+            id: number;
+            /** @enum {string} */
+            status: "applied" | "ignored";
+            note?: string | null;
+            /** Format: date-time */
+            saved_at?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            external_job_id: number;
+        };
+        CanonicalExternalJobViewerDto: {
+            reaction?: components["schemas"]["CanonicalExternalJobReactionDto"] | null;
+        };
+        CanonicalExternalJobDto: {
+            id: number;
+            title?: string | null;
+            description: string;
+            url: string;
+            place: Record<string, never>;
+            term: Record<string, never>;
+            status: Record<string, never>;
+            author: Record<string, never>;
+            feed_name: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            viewer: components["schemas"]["CanonicalExternalJobViewerDto"];
+        };
+        CanonicalExternalJobsListMetaDto: {
+            limit: number;
+        };
+        CanonicalExternalJobsListResponseDto: {
+            data: components["schemas"]["CanonicalExternalJobDto"][];
+            meta: components["schemas"]["CanonicalExternalJobsListMetaDto"];
+        };
+        CanonicalExternalJobDetailResponseDto: {
+            data: components["schemas"]["CanonicalExternalJobDto"];
+        };
         ExternalJobDto: {
             id: number;
             title: string;
@@ -1223,6 +1607,39 @@ export interface components {
         };
         ExternalJobsListResponseDto: {
             jobs: components["schemas"]["ExternalJobDto"][];
+        };
+        CanonicalExternalJobReactionHistoryDto: {
+            id: number;
+            /** @enum {string} */
+            status: "applied" | "ignored";
+            note?: string | null;
+            /** Format: date-time */
+            saved_at?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            external_job_id: number;
+            user_id: number;
+            /** @enum {string} */
+            raw_status: "apply" | "ignore";
+            job: components["schemas"]["CanonicalExternalJobDto"];
+        };
+        CanonicalExternalJobReactionsMetaDto: {
+            status: number;
+            /** Format: date-time */
+            timestamp: string;
+        };
+        CanonicalExternalJobReactionsPaginationDto: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+        };
+        CanonicalExternalJobReactionsResponseDto: {
+            data: components["schemas"]["CanonicalExternalJobReactionHistoryDto"][];
+            meta: components["schemas"]["CanonicalExternalJobReactionsMetaDto"];
+            pagination: components["schemas"]["CanonicalExternalJobReactionsPaginationDto"];
         };
         CandidateStatusDto: {
             /** @enum {string} */
@@ -1432,13 +1849,76 @@ export interface components {
             /** @description Optional specific messaging_token.id to target a single device. If omitted, all active tokens of the user are used. */
             messagingTokenId?: number;
         };
-        CompanyLookupDto: {
+        CompanyOfferTypeDto: {
+            /** @description Unique offer type identifier. */
             id: number;
+            /** @description Offer type label shown to users. */
+            name?: string | null;
+        };
+        CompanyOfferDto: {
+            /** @description Unique company offer identifier. */
+            id: number;
+            offerType: components["schemas"]["CompanyOfferTypeDto"];
+        };
+        CompanyContactDto: {
+            /** @description Unique contact identifier. */
+            id: number;
+            /** @description Contact first name. */
+            firstName: string;
+            /** @description Contact last name. */
+            lastName: string;
+            /** @description Public contact phone. */
+            phone?: string | null;
+            /** @description Public contact email. */
+            email?: string | null;
+            /** @description Public contact photo URL. */
+            photo?: string | null;
+            /** @description Short public contact description. */
+            description?: string | null;
+            /** @description Contact creation timestamp in ISO-8601 format. */
+            createdAt: string;
+            /** @description Contact update timestamp in ISO-8601 format. */
+            updatedAt: string;
+        };
+        CompanyWebsiteDto: {
+            /** @description Unique website identifier. */
+            id: number;
+            /** @description Website label shown in the UI. */
             name: string;
+            /** @description Absolute website URL. */
+            url: string;
+            /** @description Ascending sort index for website buttons within a company. */
+            sortOrder: number;
+        };
+        CompanyLookupDto: {
+            /** @description Unique company identifier. */
+            id: number;
+            /** @description Public company name. */
+            name: string;
+            /** @description Public company slug used by frontend routes when available. */
             slug?: string | null;
+            /** @description Absolute or relative logo URL shown in company listings. */
             logo?: string | null;
+            /** @description Short public description rendered in the company list and detail. */
             short_description?: string | null;
+            /** @description Human-readable company location shown in public company cards. */
             location?: string | null;
+            /** @description Primary public company website URL. */
+            web?: string | null;
+            /**
+             * @description Ordered free-text notes describing which students or graduates the company is interested in. Present in both GET /companies and GET /companies/:id responses.
+             * @example [
+             *       "ČVUT - FEL, FIT",
+             *       "Studenti ekonomických fakult a absolventi do 2 let po škole"
+             *     ]
+             */
+            studentAudienceNotes: string[];
+            /** @description Public offer types promoted by the company. Present in both GET /companies and GET /companies/:id responses. */
+            companyOffers: components["schemas"]["CompanyOfferDto"][];
+            /** @description Public HR or recruiter contacts for the company. Present in both GET /companies and GET /companies/:id responses. */
+            contacts: components["schemas"]["CompanyContactDto"][];
+            /** @description Public company websites or career links ordered by sortOrder. Present in both GET /companies and GET /companies/:id responses. */
+            websites: components["schemas"]["CompanyWebsiteDto"][];
         };
         CompaniesLookupResponseDto: {
             companies: components["schemas"]["CompanyLookupDto"][];
@@ -1521,6 +2001,30 @@ export interface components {
             jobs: components["schemas"]["MyApplicationJobDto"][];
             users: components["schemas"]["PublicJobAuthorDto"][];
             stats: components["schemas"]["PublicJobStatsDto"][];
+            meta: components["schemas"]["MyApplicationsMetaDto"];
+            pagination: components["schemas"]["MyApplicationsPaginationDto"];
+        };
+        CanonicalMyApplicationDto: {
+            id: number;
+            /** @enum {string} */
+            status: "applied" | "ignored" | "accepted" | "rejected";
+            /** @enum {string|null} */
+            employer_statement?: "saved" | "rejected" | "waiting_for_response" | "invited_for_next_round" | "employed" | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            called_at?: string | null;
+            /** Format: date-time */
+            reacted_at?: string | null;
+            candidate_id: number;
+            job_id: number;
+            /** Format: date-time */
+            updated_at: string;
+            call_length?: number | null;
+            job: components["schemas"]["CanonicalJobDto"];
+        };
+        CanonicalMyApplicationsResponseDto: {
+            data: components["schemas"]["CanonicalMyApplicationDto"][];
             meta: components["schemas"]["MyApplicationsMetaDto"];
             pagination: components["schemas"]["MyApplicationsPaginationDto"];
         };
@@ -1678,6 +2182,109 @@ export interface operations {
             };
         };
     };
+    MobileAuthController_requestPhoneVerification_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestPhoneVerificationRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhoneVerificationResponseDto"];
+                };
+            };
+        };
+    };
+    MobileAuthController_createSession_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    method: "phone_verification";
+                    /** @example +420777123456 */
+                    phone: string;
+                    /** @example 1111 */
+                    verificationCode: string;
+                    /** @example user_identity */
+                    scope?: string;
+                } | {
+                    /** @enum {string} */
+                    method: "password";
+                    /** @example +420777123456 */
+                    username: string;
+                    password: string;
+                    /** @example user_identity */
+                    scope?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenPairResponseDto"];
+                };
+            };
+        };
+    };
+    MobileAuthController_refreshSession_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshSessionRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenPairResponseDto"];
+                };
+            };
+        };
+    };
+    MobileAuthController_revokeCurrentSession_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     "MeProfileController_getProfile[0]_v2": {
         parameters: {
             query?: never;
@@ -1712,6 +2319,357 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeProfileResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_getMe_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_removeMe_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteMeDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalMeController_updateMe_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_getMeAreas_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileAreasResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_createMeArea_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAreaDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileAreaResponseDto"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileAreaResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_removeMeArea_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                areaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalMeController_updateMeArea_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                areaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAreaDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileAreaResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_getMeSchools_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileSchoolsResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_addMeSchool_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddUserSchoolDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileUserSchoolResponseDto"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileUserSchoolResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_removeMeSchool_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userSchoolId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalMeController_registerCurrentDevice_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterDeviceDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalMeController_removeCurrentDevice_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalMeController_uploadMeImage_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slot: "avatar" | "body" | "face" | "optional";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileImageResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMeController_removeMeImage_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slot: "avatar" | "body" | "face" | "optional";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalMeController_changePassword_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalMeController_getMeReviews_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeProfileReviewsResponseDto"];
                 };
             };
         };
@@ -1840,7 +2798,10 @@ export interface operations {
     "PublicJobsController_getPublicJobDetail[0]_v2": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Set to 1 to return public detail without recording an automatic visit. */
+                "X-QJ-Skip-Visit"?: string;
+            };
             path: {
                 id: number;
             };
@@ -1861,7 +2822,10 @@ export interface operations {
     "PublicJobsController_getPublicJobDetail[1]": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Set to 1 to return public detail without recording an automatic visit. */
+                "X-QJ-Skip-Visit"?: string;
+            };
             path: {
                 id: number;
             };
@@ -1875,6 +2839,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicJobDetailResponseDto"];
+                };
+            };
+        };
+    };
+    JobVisitsController_recordPublicJobVisit_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CanonicalJobsController_getJobs_v1: {
+        parameters: {
+            query?: {
+                /** @description Supports repeated query params or a comma-separated string. Defaults to one_time. */
+                term?: ("one_time" | "long_term" | "full_time")[];
+                /** @description Expands area matching up to 50 km while preserving is_relevant. */
+                includeWiderAreas?: boolean;
+                /** @description Legacy compatibility parameter. Accepted but ignored. */
+                fields?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalJobsListResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalJobsController_getJobDetail_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalJobDetailResponseDto"];
                 };
             };
         };
@@ -1927,6 +2957,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AvailableJobsListResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalExternalJobsController_getExternalJobs_v1: {
+        parameters: {
+            query?: {
+                /** @description Supports repeated query params or a comma-separated string. Defaults to all terms. */
+                term?: ("one_time" | "long_term" | "full_time")[];
+                /** @description Requested result size. Values above 100 are capped. */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalExternalJobsListResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalExternalJobsController_getExternalJobDetail_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalExternalJobDetailResponseDto"];
                 };
             };
         };
@@ -2019,21 +3094,14 @@ export interface operations {
             };
         };
     };
-    "CandidatesController_findCandidates[0]_v1": {
+    MeExternalJobReactionsController_getExternalJobReactions_v1: {
         parameters: {
             query?: {
-                keyword?: string;
-                skills?: string[];
-                jobTerms?: ("one_time" | "long_term" | "full_time")[];
-                lat?: number;
-                lng?: number;
-                showAll?: boolean;
-                gender?: "male" | "female";
-                schoolStatus?: ("completed" | "in_progress" | "in_progress_1" | "in_progress_2" | "in_progress_3" | "in_progress_4" | "in_progress_5")[];
-                schoolIds?: number[];
-                schoolFacultyIds?: number[];
-                age?: number;
+                /** @description Supports repeated query params or a comma-separated string. Defaults to applied and ignored. */
+                status?: ("applied" | "ignored")[];
+                /** @description Zero-based page number. Defaults to 0. */
                 page?: number;
+                /** @description Requested page size. Values above 100 are capped. */
                 limit?: number;
             };
             header?: never;
@@ -2047,7 +3115,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CandidateSearchResponseDto"];
+                    "application/json": components["schemas"]["CanonicalExternalJobReactionsResponseDto"];
                 };
             };
         };
@@ -2081,56 +3149,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CandidateSearchResponseDto"];
-                };
-            };
-        };
-    };
-    "WatchdogsController_listWatchdogs[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandidateWatchdogDto"][];
-                };
-            };
-        };
-    };
-    "WatchdogsController_createWatchdog[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWatchdogDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandidateWatchdogDto"];
-                };
-            };
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandidateWatchdogDto"];
                 };
             };
         };
@@ -2185,31 +3203,6 @@ export interface operations {
             };
         };
     };
-    "WatchdogsController_updateWatchdog[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateWatchdogDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandidateWatchdogDto"];
-                };
-            };
-        };
-    };
     "WatchdogsController_updateWatchdog[1]": {
         parameters: {
             query?: never;
@@ -2231,25 +3224,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CandidateWatchdogDto"];
-                };
-            };
-        };
-    };
-    "WatchdogsController_getHistory[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandidateSearchHistoryResponseDto"];
                 };
             };
         };
@@ -2304,30 +3278,6 @@ export interface operations {
             };
         };
     };
-    "SchoolsController_getSchools[0]_v1": {
-        parameters: {
-            query?: {
-                /** @description Legacy parameter accepted for compatibility and ignored. */
-                type?: number;
-                /** @description Backward-compatible parameter accepted on this lookup endpoint and ignored. */
-                includeFaculties?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SchoolsLookupResponseDto"];
-                };
-            };
-        };
-    };
     "SchoolsController_getSchools[1]": {
         parameters: {
             query?: {
@@ -2348,30 +3298,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SchoolsLookupResponseDto"];
-                };
-            };
-        };
-    };
-    "SchoolsController_getSchool[0]_v1": {
-        parameters: {
-            query?: {
-                /** @description When true, include faculties for each school in the response */
-                includeFaculties?: boolean;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SchoolDto"];
                 };
             };
         };
@@ -2400,27 +3326,6 @@ export interface operations {
             };
         };
     };
-    "SchoolsController_getFacultiesForSchool[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacultyDto"][];
-                };
-            };
-        };
-    };
     "SchoolsController_getFacultiesForSchool[1]": {
         parameters: {
             query?: never;
@@ -2439,35 +3344,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["FacultyDto"][];
                 };
-            };
-        };
-    };
-    "FacultiesController_getFaculties[0]_v1": {
-        parameters: {
-            query: {
-                /** @description School identifier used by the legacy faculties lookup. */
-                schoolId: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacultiesLookupResponseDto"];
-                };
-            };
-            /** @description schoolId query parameter is required and must be a positive integer. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -2497,27 +3373,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    "FacultiesController_getFaculty[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacultyDto"];
-                };
             };
         };
     };
@@ -2690,25 +3545,6 @@ export interface operations {
             };
         };
     };
-    "CompaniesController_getCompanies[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CompaniesLookupResponseDto"];
-                };
-            };
-        };
-    };
     "CompaniesController_getCompanies[1]": {
         parameters: {
             query?: never;
@@ -2724,27 +3560,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompaniesLookupResponseDto"];
-                };
-            };
-        };
-    };
-    "CompaniesController_getCompanyDetail[0]_v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CompanyDetailResponseDto"];
                 };
             };
         };
@@ -2826,6 +3641,36 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MyApplicationsListResponseDto"];
+                };
+            };
+        };
+    };
+    CanonicalMyApplicationsController_getMyApplications_v1: {
+        parameters: {
+            query?: {
+                /** @description Supports repeated query params or a comma-separated string. */
+                status?: ("applied" | "ignored" | "accepted" | "rejected")[];
+                /** @description Filters by job access expiry state. */
+                expired?: "only" | "none" | "any";
+                /** @description Supports repeated query params or a comma-separated string. Defaults to all terms. */
+                term?: ("one_time" | "long_term" | "full_time")[];
+                /** @description Zero-based page number. Defaults to 0. */
+                page?: number;
+                /** @description Requested page size. Values above 100 are capped. */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalMyApplicationsResponseDto"];
                 };
             };
         };

@@ -1,10 +1,10 @@
-import type { JobTerm, PublicJob, PublicJobStats } from "../../lib/openapi/types";
+import type { CanonicalJob, CanonicalJobStats, JobTerm } from "../../lib/openapi/types";
 
 export type JobsTermFilter = JobTerm | "all";
 
 export type JobAnalyticsInput = {
-  job: PublicJob;
-  stats?: PublicJobStats | null;
+  job: CanonicalJob;
+  stats?: CanonicalJobStats | null;
 };
 
 export type JobPerformanceSummary = {
@@ -12,11 +12,20 @@ export type JobPerformanceSummary = {
   title: string;
   companyLabel: string;
   term: JobTerm;
+  total: number;
   appliedTotal: number;
+  applied: number;
+  accepted: number;
+  ignored: number;
+  rejected: number;
   jobVisits: number;
   conversionRatio: number | null;
   freshnessAt: string | null;
   statusSummary: string;
+  isBanned: boolean;
+  isRelevant: boolean | null;
+  offerExpiresAt: string | null;
+  candidatesAccessExpiresAt: string | null;
 };
 
 export type RankedJobMetric = "appliedTotal" | "jobVisits";
@@ -36,7 +45,12 @@ export type RankedJobMetricRow = {
 export type JobTermAnalytics = {
   term: JobTerm;
   jobsCount: number;
+  total: number;
   appliedTotal: number;
+  applied: number;
+  accepted: number;
+  ignored: number;
+  rejected: number;
   jobVisits: number;
   averageAppliesPerJob: number;
   averageVisitsPerJob: number;
@@ -45,7 +59,12 @@ export type JobTermAnalytics = {
 
 export type JobAnalyticsSnapshot = {
   jobsCount: number;
+  total: number;
   appliedTotal: number;
+  applied: number;
+  accepted: number;
+  ignored: number;
+  rejected: number;
   jobVisits: number;
   averageAppliesPerJob: number;
   averageVisitsPerJob: number;

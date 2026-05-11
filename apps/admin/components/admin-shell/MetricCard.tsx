@@ -24,9 +24,11 @@ export function MetricCard({
       )}
     >
       <CardContent className="flex items-start justify-between gap-4 p-5">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{title}</p>
-          <p className="font-[family-name:var(--font-red-hat-display)] text-3xl font-bold text-slate-950">{value}</p>
+          <p className="break-words font-[family-name:var(--font-red-hat-display)] text-3xl font-bold text-slate-950">
+            {value}
+          </p>
           <p className="text-sm text-slate-600">{hint}</p>
         </div>
         <div className="rounded-2xl bg-emerald-950 p-3 text-white shadow-lg">

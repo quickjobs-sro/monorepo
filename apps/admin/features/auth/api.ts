@@ -5,9 +5,10 @@ import type {
   AdminTokenPairResponse,
 } from "@/lib/openapi/types";
 import { fetchJson } from "@/lib/api/fetchJson";
+import { localFetchJson } from "@/lib/api/localFetchJson";
 
 export async function loginWithPassword(payload: AdminPasswordLoginRequest) {
-  return fetchJson<AdminTokenPairResponse>("/admin/auth/password-login", {
+  return localFetchJson<AdminTokenPairResponse>("/api/admin/auth/password-login", {
     method: "POST",
     body: payload,
   });

@@ -1,5 +1,5 @@
-import { getApiRevision } from "../backendConfig";
-import { buildUrl, camelizeDeep, createRequestError, isPlainObject, parseResponseBody } from "../api/shared";
+import { localFetchJson } from "../api/localFetchJson";
+import { createRequestError, isPlainObject } from "../api/shared";
 import { getClientStoredAuthToken, persistClientToken } from "./cookie";
 import {
   getExpiryDate,
@@ -13,25 +13,16 @@ export async function refreshStoredToken(token: StoredAdminToken): Promise<Store
     throw createRequestError(401, "Missing refresh token");
   }
 
-  const response = await fetch(buildUrl("/admin/auth/refresh"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Revision": getApiRevision(),
-    },
-    body: JSON.stringify({
-      refreshToken: token.refreshToken,
-    }),
-  });
-
-  const responseBody = camelizeDeep(await parseResponseBody(response));
-  if (!response.ok) {
-    const message =
-      typeof responseBody === "string"
-        ? responseBody
-        : `Request failed with status ${response.status}.`;
-    throw createRequestError(response.status, message, responseBody);
+  if (typeof window === "undefined") {
+    throw createRequestError(401, "Server-side admin token refresh is not supported.");
   }
+
+  const responseBody = await localFetchJson<unknown>("/api/admin/auth/refresh", {
+    method: "POST",
+    body: {
+      refreshToken: token.refreshToken,
+    },
+  });
 
   const refreshedToken = {
     ...token,

@@ -21,6 +21,11 @@ function createStats(overrides: Record<string, unknown> = {}) {
     jobId: 1,
     appliedTotal: 3,
     jobVisits: 12,
+    total: 6,
+    applied: 3,
+    accepted: 1,
+    ignored: 1,
+    rejected: 1,
     updatedAt: "2026-04-22T11:00:00.000Z",
     ...overrides,
   };
@@ -37,6 +42,11 @@ const snapshot = buildJobAnalyticsSnapshot([
       jobId: 11,
       appliedTotal: 5,
       jobVisits: 20,
+      total: 9,
+      applied: 5,
+      accepted: 2,
+      ignored: 1,
+      rejected: 1,
     }),
   },
   {
@@ -49,6 +59,11 @@ const snapshot = buildJobAnalyticsSnapshot([
       jobId: 12,
       appliedTotal: 0,
       jobVisits: 8,
+      total: 3,
+      applied: 0,
+      accepted: 1,
+      ignored: 2,
+      rejected: 0,
     }),
   },
   {
@@ -61,12 +76,22 @@ const snapshot = buildJobAnalyticsSnapshot([
       jobId: 13,
       appliedTotal: 2,
       jobVisits: 0,
+      total: 4,
+      applied: 2,
+      accepted: 0,
+      ignored: 1,
+      rejected: 1,
     }),
   },
 ]);
 
 assert.equal(snapshot.jobsCount, 3);
+assert.equal(snapshot.total, 16);
 assert.equal(snapshot.appliedTotal, 7);
+assert.equal(snapshot.applied, 7);
+assert.equal(snapshot.accepted, 3);
+assert.equal(snapshot.ignored, 4);
+assert.equal(snapshot.rejected, 2);
 assert.equal(snapshot.jobVisits, 28);
 assert.equal(snapshot.averageAppliesPerJob, 7 / 3);
 assert.equal(snapshot.averageVisitsPerJob, 28 / 3);
@@ -123,3 +148,8 @@ assert.equal(visitsWithoutApply.statusSummary, "Návštěvy bez reakcí");
 assert.equal(visitsWithoutApply.conversionRatio, 0);
 assert.equal(activeJob.statusSummary, "Aktivní job");
 assert.equal(activeJob.conversionRatio, 0.4);
+assert.equal(activeJob.total, 6);
+assert.equal(activeJob.applied, 3);
+assert.equal(activeJob.accepted, 1);
+assert.equal(activeJob.ignored, 1);
+assert.equal(activeJob.rejected, 1);

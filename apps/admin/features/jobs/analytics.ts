@@ -92,13 +92,23 @@ function sortRankedRows(inputs: JobAnalyticsInput[], metric: RankedJobMetric): R
 
 function buildTermAnalytics(inputs: JobAnalyticsInput[], term: JobTerm): JobTermAnalytics {
   const termItems = inputs.map(buildJobPerformanceSummary).filter((item) => item.term === term);
+  const total = termItems.reduce((sum, item) => sum + item.total, 0);
   const appliedTotal = termItems.reduce((sum, item) => sum + item.appliedTotal, 0);
+  const applied = termItems.reduce((sum, item) => sum + item.applied, 0);
+  const accepted = termItems.reduce((sum, item) => sum + item.accepted, 0);
+  const ignored = termItems.reduce((sum, item) => sum + item.ignored, 0);
+  const rejected = termItems.reduce((sum, item) => sum + item.rejected, 0);
   const jobVisits = termItems.reduce((sum, item) => sum + item.jobVisits, 0);
 
   return {
     term,
     jobsCount: termItems.length,
+    total,
     appliedTotal,
+    applied,
+    accepted,
+    ignored,
+    rejected,
     jobVisits,
     averageAppliesPerJob: getAverage(appliedTotal, termItems.length),
     averageVisitsPerJob: getAverage(jobVisits, termItems.length),
@@ -107,25 +117,40 @@ function buildTermAnalytics(inputs: JobAnalyticsInput[], term: JobTerm): JobTerm
 }
 
 export function buildJobPerformanceSummary(input: JobAnalyticsInput): JobPerformanceSummary {
-  const appliedTotal = getNumber(input.stats?.appliedTotal);
-  const jobVisits = getNumber(input.stats?.jobVisits);
+  const stats = input.stats ?? input.job.stats;
+  const appliedTotal = getNumber(stats?.appliedTotal);
+  const jobVisits = getNumber(stats?.jobVisits);
 
   return {
     jobId: input.job.id,
     title: input.job.description,
     companyLabel: getCompanyLabel(input.job),
     term: input.job.term,
+    total: getNumber(stats?.total),
     appliedTotal,
+    applied: getNumber(stats?.applied),
+    accepted: getNumber(stats?.accepted),
+    ignored: getNumber(stats?.ignored),
+    rejected: getNumber(stats?.rejected),
     jobVisits,
     conversionRatio: getConversionRatio(appliedTotal, jobVisits),
-    freshnessAt: input.stats?.updatedAt ?? null,
+    freshnessAt: stats?.updatedAt ?? null,
     statusSummary: getStatusSummary(appliedTotal, jobVisits),
+    isBanned: input.job.isBanned === true,
+    isRelevant: input.job.viewer?.isRelevant ?? input.job.isRelevant ?? null,
+    offerExpiresAt: input.job.offerExpiresAt ?? null,
+    candidatesAccessExpiresAt: input.job.candidatesAccessExpiresAt ?? null,
   };
 }
 
 export function buildJobAnalyticsSnapshot(inputs: JobAnalyticsInput[]): JobAnalyticsSnapshot {
   const performanceItems = inputs.map(buildJobPerformanceSummary);
+  const total = performanceItems.reduce((sum, item) => sum + item.total, 0);
   const appliedTotal = performanceItems.reduce((sum, item) => sum + item.appliedTotal, 0);
+  const applied = performanceItems.reduce((sum, item) => sum + item.applied, 0);
+  const accepted = performanceItems.reduce((sum, item) => sum + item.accepted, 0);
+  const ignored = performanceItems.reduce((sum, item) => sum + item.ignored, 0);
+  const rejected = performanceItems.reduce((sum, item) => sum + item.rejected, 0);
   const jobVisits = performanceItems.reduce((sum, item) => sum + item.jobVisits, 0);
 
   const lowEngagementJobs = performanceItems
@@ -144,7 +169,12 @@ export function buildJobAnalyticsSnapshot(inputs: JobAnalyticsInput[]): JobAnaly
 
   return {
     jobsCount: performanceItems.length,
+    total,
     appliedTotal,
+    applied,
+    accepted,
+    ignored,
+    rejected,
     jobVisits,
     averageAppliesPerJob: getAverage(appliedTotal, performanceItems.length),
     averageVisitsPerJob: getAverage(jobVisits, performanceItems.length),

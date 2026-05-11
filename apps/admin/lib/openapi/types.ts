@@ -34,6 +34,23 @@ export type PublicJobDetailResponse = CamelizeDeep<Schemas["PublicJobDetailRespo
 export type PublicJob = PublicJobsResponse["jobs"][number];
 export type PublicJobStats = PublicJobsResponse["stats"][number];
 
+export type CanonicalJobsResponse = CamelizeDeep<Schemas["CanonicalJobsListResponseDto"]>;
+export type CanonicalJobDetailResponse = CamelizeDeep<Schemas["CanonicalJobDetailResponseDto"]>;
+export type CanonicalJob = CanonicalJobsResponse["data"][number];
+export type CanonicalJobStats = CanonicalJob["stats"];
+export type JobDispatchesResponse = CamelizeDeep<Schemas["JobDispatchesResponseDto"]>;
+export type DispatchStatus = JobDispatchesResponse["dispatches"][number];
+
+export type CanonicalExternalJobsResponse = CamelizeDeep<Schemas["CanonicalExternalJobsListResponseDto"]>;
+export type CanonicalExternalJobDetailResponse = CamelizeDeep<Schemas["CanonicalExternalJobDetailResponseDto"]>;
+export type CanonicalExternalJob = CanonicalExternalJobsResponse["data"][number];
+
+export type CandidateSearchResponse = CamelizeDeep<Schemas["CandidateSearchResponseDto"]>;
+export type Candidate = CandidateSearchResponse["users"][number];
+export type CandidateWatchdog = CamelizeDeep<Schemas["CandidateWatchdogDto"]>;
+export type CandidateSearchHistoryResponse = CamelizeDeep<Schemas["CandidateSearchHistoryResponseDto"]>;
+export type CandidateSearchHistoryItem = CandidateSearchHistoryResponse["items"][number];
+
 export type CompaniesResponse = CamelizeDeep<Schemas["CompaniesLookupResponseDto"]>;
 export type CompanyLookup = CompaniesResponse["companies"][number];
 export type CompanyDetailResponse = CamelizeDeep<Schemas["CompanyDetailResponseDto"]>;

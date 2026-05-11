@@ -51,6 +51,11 @@
             }
           }
         },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "tags": [
           "Admin Auth"
         ]
@@ -92,6 +97,11 @@
             }
           }
         },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "tags": [
           "Admin Auth"
         ]
@@ -155,6 +165,197 @@
         ]
       }
     },
+    "/v1/auth/phone-verifications": {
+      "post": {
+        "operationId": "MobileAuthController_requestPhoneVerification_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPhoneVerificationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhoneVerificationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/sessions": {
+      "post": {
+        "operationId": "MobileAuthController_createSession_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "method",
+                      "phone",
+                      "verificationCode"
+                    ],
+                    "properties": {
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "phone_verification"
+                        ]
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "+420777123456",
+                        "maxLength": 45
+                      },
+                      "verificationCode": {
+                        "type": "string",
+                        "example": "1111",
+                        "pattern": "^\\d{4}$",
+                        "minLength": 4,
+                        "maxLength": 4
+                      },
+                      "scope": {
+                        "type": "string",
+                        "example": "user_identity",
+                        "maxLength": 255
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "method",
+                      "username",
+                      "password"
+                    ],
+                    "properties": {
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "password"
+                        ]
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "+420777123456",
+                        "maxLength": 45
+                      },
+                      "password": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "scope": {
+                        "type": "string",
+                        "example": "user_identity",
+                        "maxLength": 255
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPairResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/sessions/refresh": {
+      "post": {
+        "operationId": "MobileAuthController_refreshSession_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshSessionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPairResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/sessions/current": {
+      "delete": {
+        "operationId": "MobileAuthController_revokeCurrentSession_v1",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/v2/me/profile": {
       "get": {
         "operationId": "MeProfileController_getProfile[0]_v2",
@@ -181,7 +382,7 @@
         ]
       }
     },
-    "/me/profile": {
+    "/v1/me/profile": {
       "get": {
         "operationId": "MeProfileController_getProfile[1]",
         "parameters": [],
@@ -192,6 +393,527 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MeProfileResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "CanonicalMeController_getMe_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "operationId": "CanonicalMeController_updateMe_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "operationId": "CanonicalMeController_removeMe_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteMeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/areas": {
+      "get": {
+        "operationId": "CanonicalMeController_getMeAreas_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileAreasResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "post": {
+        "operationId": "CanonicalMeController_createMeArea_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAreaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileAreaResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileAreaResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/areas/{areaId}": {
+      "patch": {
+        "operationId": "CanonicalMeController_updateMeArea_v1",
+        "parameters": [
+          {
+            "name": "areaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAreaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileAreaResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "operationId": "CanonicalMeController_removeMeArea_v1",
+        "parameters": [
+          {
+            "name": "areaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/schools": {
+      "get": {
+        "operationId": "CanonicalMeController_getMeSchools_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileSchoolsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "post": {
+        "operationId": "CanonicalMeController_addMeSchool_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddUserSchoolDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileUserSchoolResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileUserSchoolResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/schools/{userSchoolId}": {
+      "delete": {
+        "operationId": "CanonicalMeController_removeMeSchool_v1",
+        "parameters": [
+          {
+            "name": "userSchoolId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/devices": {
+      "post": {
+        "operationId": "CanonicalMeController_registerCurrentDevice_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/devices/current": {
+      "delete": {
+        "operationId": "CanonicalMeController_removeCurrentDevice_v1",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/images/{slot}": {
+      "put": {
+        "operationId": "CanonicalMeController_uploadMeImage_v1",
+        "parameters": [
+          {
+            "name": "slot",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "avatar",
+                "body",
+                "face",
+                "optional"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileImageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "operationId": "CanonicalMeController_removeMeImage_v1",
+        "parameters": [
+          {
+            "name": "slot",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "avatar",
+                "body",
+                "face",
+                "optional"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/password": {
+      "patch": {
+        "operationId": "CanonicalMeController_changePassword_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/me/reviews": {
+      "get": {
+        "operationId": "CanonicalMeController_getMeReviews_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeProfileReviewsResponseDto"
                 }
               }
             }
@@ -317,7 +1039,7 @@
         ]
       }
     },
-    "/jobs/public": {
+    "/v1/jobs/public": {
       "get": {
         "operationId": "PublicJobsController_getPublicJobs[1]",
         "parameters": [
@@ -402,7 +1124,7 @@
         ]
       }
     },
-    "/jobs/public/company/{companyId}": {
+    "/v1/jobs/public/company/{companyId}": {
       "get": {
         "operationId": "PublicJobsController_getCompanyJobs[1]",
         "parameters": [
@@ -443,6 +1165,15 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "name": "X-QJ-Skip-Visit",
+            "in": "header",
+            "description": "Set to 1 to return public detail without recording an automatic visit.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -462,9 +1193,134 @@
         ]
       }
     },
-    "/jobs/public/{id}": {
+    "/v1/jobs/public/{id}": {
       "get": {
         "operationId": "PublicJobsController_getPublicJobDetail[1]",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "X-QJ-Skip-Visit",
+            "in": "header",
+            "description": "Set to 1 to return public detail without recording an automatic visit.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicJobDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/v1/jobs/{id}/visits": {
+      "post": {
+        "operationId": "JobVisitsController_recordPublicJobVisit_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/v1/jobs": {
+      "get": {
+        "operationId": "CanonicalJobsController_getJobs_v1",
+        "parameters": [
+          {
+            "name": "term",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string. Defaults to one_time.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "one_time",
+                  "long_term",
+                  "full_time"
+                ]
+              }
+            }
+          },
+          {
+            "name": "includeWiderAreas",
+            "required": false,
+            "in": "query",
+            "description": "Expands area matching up to 50 km while preserving is_relevant.",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Legacy compatibility parameter. Accepted but ignored.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanonicalJobsListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/v1/jobs/{id}": {
+      "get": {
+        "operationId": "CanonicalJobsController_getJobDetail_v1",
         "parameters": [
           {
             "name": "id",
@@ -481,12 +1337,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PublicJobDetailResponseDto"
+                  "$ref": "#/components/schemas/CanonicalJobDetailResponseDto"
                 }
               }
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Jobs"
         ]
@@ -555,7 +1416,7 @@
         ]
       }
     },
-    "/jobs/available": {
+    "/v1/jobs/available": {
       "get": {
         "operationId": "AvailableJobsController_getAvailableJobs[1]",
         "parameters": [
@@ -618,6 +1479,95 @@
         ]
       }
     },
+    "/v1/external-jobs": {
+      "get": {
+        "operationId": "CanonicalExternalJobsController_getExternalJobs_v1",
+        "parameters": [
+          {
+            "name": "term",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string. Defaults to all terms.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "one_time",
+                  "long_term",
+                  "full_time"
+                ]
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Requested result size. Values above 100 are capped.",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanonicalExternalJobsListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "External Jobs"
+        ]
+      }
+    },
+    "/v1/external-jobs/{id}": {
+      "get": {
+        "operationId": "CanonicalExternalJobsController_getExternalJobDetail_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanonicalExternalJobDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "External Jobs"
+        ]
+      }
+    },
     "/v2/jobs/external-applied": {
       "get": {
         "operationId": "ExternalJobsController_getExternalAppliedJobs[0]_v2",
@@ -655,7 +1605,7 @@
         ]
       }
     },
-    "/jobs/external-applied": {
+    "/v1/jobs/external-applied": {
       "get": {
         "operationId": "ExternalJobsController_getExternalAppliedJobs[1]",
         "parameters": [
@@ -729,7 +1679,7 @@
         ]
       }
     },
-    "/jobs/external-ignored": {
+    "/v1/jobs/external-ignored": {
       "get": {
         "operationId": "ExternalJobsController_getExternalIgnoredJobs[1]",
         "parameters": [
@@ -766,137 +1716,31 @@
         ]
       }
     },
-    "/v1/candidates": {
+    "/v1/me/external-job-reactions": {
       "get": {
-        "operationId": "CandidatesController_findCandidates[0]_v1",
+        "operationId": "MeExternalJobReactionsController_getExternalJobReactions_v1",
         "parameters": [
           {
-            "name": "keyword",
+            "name": "status",
             "required": false,
             "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "skills",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "jobTerms",
-            "required": false,
-            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string. Defaults to applied and ignored.",
             "schema": {
               "type": "array",
               "items": {
                 "type": "string",
                 "enum": [
-                  "one_time",
-                  "long_term",
-                  "full_time"
+                  "applied",
+                  "ignored"
                 ]
               }
-            }
-          },
-          {
-            "name": "lat",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "lng",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "showAll",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "gender",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "male",
-                "female"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "name": "schoolStatus",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "completed",
-                  "in_progress",
-                  "in_progress_1",
-                  "in_progress_2",
-                  "in_progress_3",
-                  "in_progress_4",
-                  "in_progress_5"
-                ]
-              }
-            }
-          },
-          {
-            "name": "schoolIds",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            }
-          },
-          {
-            "name": "schoolFacultyIds",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            }
-          },
-          {
-            "name": "age",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 1,
-              "maximum": 120,
-              "type": "number"
             }
           },
           {
             "name": "page",
             "required": false,
             "in": "query",
+            "description": "Zero-based page number. Defaults to 0.",
             "schema": {
               "minimum": 0,
               "type": "number"
@@ -906,9 +1750,9 @@
             "name": "limit",
             "required": false,
             "in": "query",
+            "description": "Requested page size. Values above 100 are capped.",
             "schema": {
               "minimum": 1,
-              "maximum": 200,
               "type": "number"
             }
           }
@@ -919,7 +1763,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CandidateSearchResponseDto"
+                  "$ref": "#/components/schemas/CanonicalExternalJobReactionsResponseDto"
                 }
               }
             }
@@ -931,11 +1775,11 @@
           }
         ],
         "tags": [
-          "Candidates"
+          "Users"
         ]
       }
     },
-    "/candidates": {
+    "/v1/candidates": {
       "get": {
         "operationId": "CandidatesController_findCandidates[1]",
         "parameters": [
@@ -1106,79 +1950,6 @@
     },
     "/v1/candidate-watchdogs": {
       "post": {
-        "operationId": "WatchdogsController_createWatchdog[0]_v1",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateWatchdogDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CandidateWatchdogDto"
-                }
-              }
-            }
-          },
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CandidateWatchdogDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Candidate Watchdogs"
-        ]
-      },
-      "get": {
-        "operationId": "WatchdogsController_listWatchdogs[0]_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CandidateWatchdogDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Candidate Watchdogs"
-        ]
-      }
-    },
-    "/candidate-watchdogs": {
-      "post": {
         "operationId": "WatchdogsController_createWatchdog[1]",
         "parameters": [],
         "requestBody": {
@@ -1252,51 +2023,6 @@
     },
     "/v1/candidate-watchdogs/{id}": {
       "patch": {
-        "operationId": "WatchdogsController_updateWatchdog[0]_v1",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateWatchdogDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CandidateWatchdogDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Candidate Watchdogs"
-        ]
-      }
-    },
-    "/candidate-watchdogs/{id}": {
-      "patch": {
         "operationId": "WatchdogsController_updateWatchdog[1]",
         "parameters": [
           {
@@ -1341,32 +2067,6 @@
       }
     },
     "/v1/candidate-search/history": {
-      "get": {
-        "operationId": "WatchdogsController_getHistory[0]_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CandidateSearchHistoryResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Candidate Watchdogs"
-        ]
-      }
-    },
-    "/candidate-search/history": {
       "get": {
         "operationId": "WatchdogsController_getHistory[1]",
         "parameters": [],
@@ -1454,51 +2154,6 @@
     },
     "/v1/schools": {
       "get": {
-        "operationId": "SchoolsController_getSchools[0]_v1",
-        "parameters": [
-          {
-            "name": "type",
-            "required": false,
-            "in": "query",
-            "description": "Legacy parameter accepted for compatibility and ignored.",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "includeFaculties",
-            "required": false,
-            "in": "query",
-            "description": "Backward-compatible parameter accepted on this lookup endpoint and ignored.",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SchoolsLookupResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Schools"
-        ]
-      }
-    },
-    "/schools": {
-      "get": {
         "operationId": "SchoolsController_getSchools[1]",
         "parameters": [
           {
@@ -1544,45 +2199,6 @@
     },
     "/v1/schools/{id}": {
       "get": {
-        "operationId": "SchoolsController_getSchool[0]_v1",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "includeFaculties",
-            "required": false,
-            "in": "query",
-            "description": "When true, include faculties for each school in the response",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SchoolDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Schools"
-        ]
-      }
-    },
-    "/schools/{id}": {
-      "get": {
         "operationId": "SchoolsController_getSchool[1]",
         "parameters": [
           {
@@ -1622,39 +2238,6 @@
     },
     "/v1/schools/{id}/faculties": {
       "get": {
-        "operationId": "SchoolsController_getFacultiesForSchool[0]_v1",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FacultyDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Schools"
-        ]
-      }
-    },
-    "/schools/{id}/faculties": {
-      "get": {
         "operationId": "SchoolsController_getFacultiesForSchool[1]",
         "parameters": [
           {
@@ -1687,46 +2270,6 @@
       }
     },
     "/v1/faculties": {
-      "get": {
-        "operationId": "FacultiesController_getFaculties[0]_v1",
-        "parameters": [
-          {
-            "name": "schoolId",
-            "required": true,
-            "in": "query",
-            "description": "School identifier used by the legacy faculties lookup.",
-            "schema": {
-              "minimum": 1,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FacultiesLookupResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "schoolId query parameter is required and must be a positive integer."
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Faculties"
-        ]
-      }
-    },
-    "/faculties": {
       "get": {
         "operationId": "FacultiesController_getFaculties[1]",
         "parameters": [
@@ -1767,36 +2310,6 @@
       }
     },
     "/v1/faculties/{id}": {
-      "get": {
-        "operationId": "FacultiesController_getFaculty[0]_v1",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FacultyDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Faculties"
-        ]
-      }
-    },
-    "/faculties/{id}": {
       "get": {
         "operationId": "FacultiesController_getFaculty[1]",
         "parameters": [
@@ -2089,27 +2602,6 @@
     },
     "/v1/companies": {
       "get": {
-        "operationId": "CompaniesController_getCompanies[0]_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CompaniesLookupResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Companies"
-        ]
-      }
-    },
-    "/companies": {
-      "get": {
         "operationId": "CompaniesController_getCompanies[1]",
         "parameters": [],
         "responses": {
@@ -2130,36 +2622,6 @@
       }
     },
     "/v1/companies/{id}": {
-      "get": {
-        "operationId": "CompaniesController_getCompanyDetail[0]_v1",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CompanyDetailResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Companies"
-        ]
-      }
-    },
-    "/companies/{id}": {
       "get": {
         "operationId": "CompaniesController_getCompanyDetail[1]",
         "parameters": [
@@ -2285,7 +2747,7 @@
         ]
       }
     },
-    "/my-applications": {
+    "/v1/my-applications": {
       "get": {
         "operationId": "MyApplicationsController_getMyApplications[1]",
         "parameters": [
@@ -2381,6 +2843,102 @@
         ]
       }
     },
+    "/v1/me/applications": {
+      "get": {
+        "operationId": "CanonicalMyApplicationsController_getMyApplications_v1",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "applied",
+                  "ignored",
+                  "accepted",
+                  "rejected"
+                ]
+              }
+            }
+          },
+          {
+            "name": "expired",
+            "required": false,
+            "in": "query",
+            "description": "Filters by job access expiry state.",
+            "schema": {
+              "enum": [
+                "only",
+                "none",
+                "any"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "term",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string. Defaults to all terms.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "one_time",
+                  "long_term",
+                  "full_time"
+                ]
+              }
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Zero-based page number. Defaults to 0.",
+            "schema": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Requested page size. Values above 100 are capped.",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanonicalMyApplicationsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Applications"
+        ]
+      }
+    },
     "/admin/feedback": {
       "get": {
         "operationId": "AdminFeedbackController_getFeedback",
@@ -2453,6 +3011,10 @@
         "scheme": "bearer",
         "bearerFormat": "JWT",
         "type": "http"
+      },
+      "basic": {
+        "type": "http",
+        "scheme": "basic"
       }
     },
     "schemas": {
@@ -2559,6 +3121,67 @@
         "required": [
           "oldPassword",
           "newPassword"
+        ]
+      },
+      "RequestPhoneVerificationRequestDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "maxLength": 45,
+            "example": "+420777123456"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "PhoneVerificationResponseDto": {
+        "type": "object",
+        "properties": {
+          "userExists": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "userExists"
+        ]
+      },
+      "TokenPairResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "expiresIn": {
+            "type": "number",
+            "example": 3600
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "tokenType",
+          "expiresIn"
+        ]
+      },
+      "RefreshSessionRequestDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "refreshToken"
         ]
       },
       "MeProfileExperienceDto": {
@@ -3032,6 +3655,385 @@
         },
         "required": [
           "data"
+        ]
+      },
+      "UpdateMeExperienceDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "company_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        }
+      },
+      "NotificationChannelsDto": {
+        "type": "object",
+        "properties": {
+          "new_one_time_jobs": {
+            "description": "Plain channels replace the trigger. Values prefixed with + or - add/remove a channel.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "new_long_term_jobs": {
+            "description": "Plain channels replace the trigger. Values prefixed with + or - add/remove a channel.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "new_full_time_jobs": {
+            "description": "Plain channels replace the trigger. Values prefixed with + or - add/remove a channel.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateMeDto": {
+        "type": "object",
+        "properties": {
+          "given_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "family_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "format": "email"
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "birth_date": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "company_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 250
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "skills": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "experience": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateMeExperienceDto"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "enum": [
+              "candidate",
+              "employer"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "candidate",
+                "employer"
+              ]
+            }
+          },
+          "subscribed_notifications": {
+            "$ref": "#/components/schemas/NotificationChannelsDto"
+          },
+          "hide_profile": {
+            "type": "boolean"
+          },
+          "user_source": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        }
+      },
+      "DeleteMeDto": {
+        "type": "object",
+        "properties": {
+          "deleted_reason": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        }
+      },
+      "MeProfileAreasResponseDto": {
+        "type": "object",
+        "properties": {
+          "areas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeProfileAreaDto"
+            }
+          }
+        },
+        "required": [
+          "areas"
+        ]
+      },
+      "AreaPlaceDto": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "address",
+          "latitude",
+          "longitude"
+        ]
+      },
+      "CreateAreaDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "radius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "place": {
+            "$ref": "#/components/schemas/AreaPlaceDto"
+          }
+        },
+        "required": [
+          "radius",
+          "place"
+        ]
+      },
+      "MeProfileAreaResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MeProfileAreaDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "UpdateAreaPlaceDto": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateAreaDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "radius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "place": {
+            "$ref": "#/components/schemas/UpdateAreaPlaceDto"
+          }
+        }
+      },
+      "MeProfileSchoolsResponseDto": {
+        "type": "object",
+        "properties": {
+          "userSchools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeProfileUserSchoolDto"
+            }
+          }
+        },
+        "required": [
+          "userSchools"
+        ]
+      },
+      "AddUserSchoolDto": {
+        "type": "object",
+        "properties": {
+          "school_id": {
+            "type": "number",
+            "minimum": 1
+          },
+          "school_faculty_id": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "in_progress",
+              "in_progress_1",
+              "in_progress_2",
+              "in_progress_3",
+              "in_progress_4",
+              "in_progress_5"
+            ]
+          },
+          "end_year": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1900
+          },
+          "otherText": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "school_id",
+          "status"
+        ]
+      },
+      "MeProfileUserSchoolResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MeProfileUserSchoolDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "RegisterDeviceDto": {
+        "type": "object",
+        "properties": {
+          "pushToken": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ios",
+              "android",
+              "web"
+            ]
+          },
+          "appVersion": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "deviceId": {
+            "type": "string",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "pushToken",
+          "platform",
+          "appVersion"
+        ]
+      },
+      "MeProfileImageResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MeProfileImageDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "old_password": {
+            "type": "string"
+          },
+          "new_password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "old_password",
+          "new_password"
+        ]
+      },
+      "MeProfileReviewsResponseDto": {
+        "type": "object",
+        "properties": {
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeProfileReviewDto"
+            }
+          },
+          "rating": {
+            "type": "number",
+            "nullable": true
+          },
+          "rating_count": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "reviews"
         ]
       },
       "ImportJobRequestDto": {
@@ -3565,6 +4567,261 @@
           "stats"
         ]
       },
+      "CanonicalJobStatsDto": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "number"
+          },
+          "applied_total": {
+            "type": "number"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "jobVisits": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "applied": {
+            "type": "number"
+          },
+          "accepted": {
+            "type": "number"
+          },
+          "ignored": {
+            "type": "number"
+          },
+          "rejected": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "job_id",
+          "applied_total",
+          "updated_at",
+          "jobVisits"
+        ]
+      },
+      "CanonicalJobViewerDto": {
+        "type": "object",
+        "properties": {
+          "is_author": {
+            "type": "boolean"
+          },
+          "is_relevant": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "required": [
+          "is_author"
+        ]
+      },
+      "CanonicalJobDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "salary": {
+            "type": "number"
+          },
+          "salary_to": {
+            "type": "number",
+            "nullable": true
+          },
+          "salary_type": {
+            "type": "object"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female",
+              "any"
+            ]
+          },
+          "starts_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "does_start_immediately": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "ends_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "place_id": {
+            "type": "number",
+            "nullable": true
+          },
+          "place": {
+            "$ref": "#/components/schemas/PublicJobPlaceDto"
+          },
+          "requirements": {
+            "type": "object",
+            "nullable": true
+          },
+          "benefits": {
+            "type": "string",
+            "nullable": true
+          },
+          "term": {
+            "type": "string",
+            "enum": [
+              "one_time",
+              "long_term",
+              "full_time"
+            ]
+          },
+          "has_more_days": {
+            "type": "boolean"
+          },
+          "time_period": {
+            "type": "object",
+            "nullable": true
+          },
+          "time_flexibility": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "object"
+          },
+          "author_id": {
+            "type": "number"
+          },
+          "author": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicJobAuthorDto"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "offer_duration": {
+            "type": "number",
+            "nullable": true
+          },
+          "offer_expires_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "candidates_access_duration": {
+            "type": "number"
+          },
+          "candidates_access_expires_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "is_banned": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "cta_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_relevant": {
+            "type": "boolean"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/CanonicalJobStatsDto"
+          },
+          "viewer": {
+            "$ref": "#/components/schemas/CanonicalJobViewerDto"
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "salary",
+          "salary_type",
+          "gender",
+          "place",
+          "term",
+          "has_more_days",
+          "status",
+          "author_id",
+          "created_at",
+          "updated_at",
+          "candidates_access_duration",
+          "stats",
+          "viewer"
+        ]
+      },
+      "CanonicalJobsListMetaDto": {
+        "type": "object",
+        "properties": {
+          "banned_job_ids": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "banned_job_ids",
+          "limit"
+        ]
+      },
+      "CanonicalJobsListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CanonicalJobDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/CanonicalJobsListMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CanonicalJobDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CanonicalJobDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
       "AvailableJobDto": {
         "type": "object",
         "properties": {
@@ -3738,6 +4995,158 @@
           "stats"
         ]
       },
+      "CanonicalExternalJobReactionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "applied",
+              "ignored"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "saved_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "external_job_id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "created_at",
+          "updated_at",
+          "external_job_id"
+        ]
+      },
+      "CanonicalExternalJobViewerDto": {
+        "type": "object",
+        "properties": {
+          "reaction": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CanonicalExternalJobReactionDto"
+              }
+            ]
+          }
+        }
+      },
+      "CanonicalExternalJobDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "place": {
+            "type": "object"
+          },
+          "term": {
+            "type": "object"
+          },
+          "status": {
+            "type": "object"
+          },
+          "author": {
+            "type": "object"
+          },
+          "feed_name": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "viewer": {
+            "$ref": "#/components/schemas/CanonicalExternalJobViewerDto"
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "url",
+          "place",
+          "term",
+          "status",
+          "author",
+          "feed_name",
+          "created_at",
+          "updated_at",
+          "viewer"
+        ]
+      },
+      "CanonicalExternalJobsListMetaDto": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "limit"
+        ]
+      },
+      "CanonicalExternalJobsListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CanonicalExternalJobDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/CanonicalExternalJobsListMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CanonicalExternalJobDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CanonicalExternalJobDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
       "ExternalJobDto": {
         "type": "object",
         "properties": {
@@ -3803,6 +5212,125 @@
         },
         "required": [
           "jobs"
+        ]
+      },
+      "CanonicalExternalJobReactionHistoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "applied",
+              "ignored"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "saved_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "external_job_id": {
+            "type": "number"
+          },
+          "user_id": {
+            "type": "number"
+          },
+          "raw_status": {
+            "type": "string",
+            "enum": [
+              "apply",
+              "ignore"
+            ]
+          },
+          "job": {
+            "$ref": "#/components/schemas/CanonicalExternalJobDto"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "created_at",
+          "updated_at",
+          "external_job_id",
+          "user_id",
+          "raw_status",
+          "job"
+        ]
+      },
+      "CanonicalExternalJobReactionsMetaDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "status",
+          "timestamp"
+        ]
+      },
+      "CanonicalExternalJobReactionsPaginationDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "CanonicalExternalJobReactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CanonicalExternalJobReactionHistoryDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/CanonicalExternalJobReactionsMetaDto"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/CanonicalExternalJobReactionsPaginationDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta",
+          "pagination"
         ]
       },
       "CandidateStatusDto": {
@@ -4594,35 +6122,194 @@
           }
         }
       },
-      "CompanyLookupDto": {
+      "CompanyOfferTypeDto": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "number",
+            "description": "Unique offer type identifier."
           },
           "name": {
-            "type": "string"
-          },
-          "slug": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "Offer type label shown to users."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "CompanyOfferDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique company offer identifier."
           },
-          "logo": {
-            "type": "string",
-            "nullable": true
-          },
-          "short_description": {
-            "type": "string",
-            "nullable": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
+          "offerType": {
+            "$ref": "#/components/schemas/CompanyOfferTypeDto"
           }
         },
         "required": [
           "id",
-          "name"
+          "offerType"
+        ]
+      },
+      "CompanyContactDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique contact identifier."
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Contact first name."
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Contact last name."
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public contact phone."
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public contact email."
+          },
+          "photo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public contact photo URL."
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Short public contact description."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Contact creation timestamp in ISO-8601 format."
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Contact update timestamp in ISO-8601 format."
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CompanyWebsiteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique website identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Website label shown in the UI."
+          },
+          "url": {
+            "type": "string",
+            "description": "Absolute website URL."
+          },
+          "sortOrder": {
+            "type": "number",
+            "description": "Ascending sort index for website buttons within a company."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "url",
+          "sortOrder"
+        ]
+      },
+      "CompanyLookupDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique company identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Public company name."
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public company slug used by frontend routes when available."
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Absolute or relative logo URL shown in company listings."
+          },
+          "short_description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Short public description rendered in the company list and detail."
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "description": "Human-readable company location shown in public company cards."
+          },
+          "web": {
+            "type": "string",
+            "nullable": true,
+            "description": "Primary public company website URL."
+          },
+          "studentAudienceNotes": {
+            "description": "Ordered free-text notes describing which students or graduates the company is interested in. Present in both GET /companies and GET /companies/:id responses.",
+            "example": [
+              "ČVUT - FEL, FIT",
+              "Studenti ekonomických fakult a absolventi do 2 let po škole"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "companyOffers": {
+            "description": "Public offer types promoted by the company. Present in both GET /companies and GET /companies/:id responses.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyOfferDto"
+            }
+          },
+          "contacts": {
+            "description": "Public HR or recruiter contacts for the company. Present in both GET /companies and GET /companies/:id responses.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyContactDto"
+            }
+          },
+          "websites": {
+            "description": "Public company websites or career links ordered by sortOrder. Present in both GET /companies and GET /companies/:id responses.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyWebsiteDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "studentAudienceNotes",
+          "companyOffers",
+          "contacts",
+          "websites"
         ]
       },
       "CompaniesLookupResponseDto": {
@@ -4944,6 +6631,96 @@
           "jobs",
           "users",
           "stats",
+          "meta",
+          "pagination"
+        ]
+      },
+      "CanonicalMyApplicationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "applied",
+              "ignored",
+              "accepted",
+              "rejected"
+            ],
+            "type": "string"
+          },
+          "employer_statement": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "saved",
+              "rejected",
+              "waiting_for_response",
+              "invited_for_next_round",
+              "employed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "called_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "reacted_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "candidate_id": {
+            "type": "number"
+          },
+          "job_id": {
+            "type": "number"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "call_length": {
+            "type": "number",
+            "nullable": true
+          },
+          "job": {
+            "$ref": "#/components/schemas/CanonicalJobDto"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "created_at",
+          "candidate_id",
+          "job_id",
+          "updated_at",
+          "job"
+        ]
+      },
+      "CanonicalMyApplicationsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CanonicalMyApplicationDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MyApplicationsMetaDto"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/MyApplicationsPaginationDto"
+          }
+        },
+        "required": [
+          "data",
           "meta",
           "pagination"
         ]
