@@ -46,7 +46,7 @@ test("fetchPublicJobById sends skip-visit header while preserving ISR options", 
     const headers = new Headers(call.init?.headers);
     assert.equal(headers.get("X-QJ-Skip-Visit"), "1");
     assert.deepEqual(call.init?.next, {
-        revalidate: 3600,
+        revalidate: 300,
         tags: ["job-detail", "job-123"],
     });
 });

@@ -17,7 +17,7 @@ const Footer = dynamic(
     { loading: () => <div className="h-32 animate-pulse bg-gray-100" /> }
 );
 
-export const revalidate = 3600;
+export const revalidate = 60;
 export const maxDuration = 30;
 
 export async function generateStaticParams() {
