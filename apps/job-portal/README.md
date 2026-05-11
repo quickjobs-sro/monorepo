@@ -12,6 +12,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 To create [API routes](https://nextjs.org/docs/app/building-your-application/routing/router-handlers) add an `api/` directory to the `app/` directory with a `route.ts` file. For individual endpoints, create a subfolder in the `api` directory, like `api/hello/route.ts` would map to [http://localhost:3002/api/hello](http://localhost:3002/api/hello).
 
+## Backend integrations
+
+- [On-demand revalidation](./docs/on-demand-revalidation.md) describes the secured endpoint backend should call after public company/job mutations.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
@@ -26,4 +30,3 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_source=github.com&utm_medium=referral&utm_campaign=turborepo-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-

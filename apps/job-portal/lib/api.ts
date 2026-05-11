@@ -224,7 +224,7 @@ export async function fetchPublicJobById(id: string | number): Promise<PublicJob
                     "X-QJ-Skip-Visit": "1",
                 },
                 next: {
-                    revalidate: 3600,
+                    revalidate: 300,
                     tags: ["job-detail", `job-${id}`],
                 },
             },
