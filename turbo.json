@@ -5,7 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "passThroughEnv": ["SENTRY_AUTH_TOKEN", "API_URL"]
+      "passThroughEnv": ["SENTRY_AUTH_TOKEN", "API_REVISION", "API_URL", "NEXT_PUBLIC_API_REVISION", "NEXT_PUBLIC_API_URL"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -17,6 +17,14 @@
     "start": {
       "dependsOn": ["build"],
       "cache": false,
+      "passThroughEnv": [
+        "ADMIN_OAUTH_CLIENT_KEY",
+        "ADMIN_OAUTH_CLIENT_SECRET",
+        "API_REVISION",
+        "API_URL",
+        "NEXT_PUBLIC_API_REVISION",
+        "NEXT_PUBLIC_API_URL"
+      ],
       "persistent": true
     }
   }

@@ -2,8 +2,9 @@
 
 - This repo is the target frontend workspace for the migrated admin.
 - Target app path is `apps/admin` unless a better existing convention is clearly present.
-- Vercel project `job-portal-monorepo` builds from the repository root; keep its commands in root `vercel.json`.
-- Never commit Bitbucket credentials or tokens, even in comments; use Vercel env vars for private git dependencies.
+- Coolify is the current deployment target; do not assume Vercel deployment behavior.
+- If Coolify runs root `turbo` commands, keep required runtime env vars in `turbo.json` passthrough config so Next.js server routes can read them.
+- Never commit Bitbucket credentials or tokens, even in comments; use deployment env vars for private git dependencies.
 - Use `apps/job-portal` as the primary reference for:
   - auth/session patterns
   - API client patterns
