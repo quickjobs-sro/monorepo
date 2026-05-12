@@ -221,7 +221,7 @@ export async function generateStaticParams() {
     }
 }
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 // Allow up to 30s so job detail doesn't hit 504 on Vercel (safety net; critical path is job + SEO only)
 export const maxDuration = 30;

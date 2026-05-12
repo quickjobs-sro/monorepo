@@ -378,21 +378,24 @@ async function fetchCompanyDetail(id: number): Promise<CompanyDetailData> {
 
 // ─── unstable_cache wrappers (cross-request, shared across users) ────────────
 
-const _getCompanyDetail = unstable_cache(
-    async (id: number) => fetchCompanyDetail(id),
-    ["company-detail"],
-    { revalidate: 3600, tags: ["companies"] }
-);
+async function getCompanyDetail(id: number): Promise<CompanyDetailData> {
+    const getCachedCompanyDetail = unstable_cache(
+        async () => fetchCompanyDetail(id),
+        ["company-detail", String(id)],
+        { revalidate: 300, tags: [`company-${id}`] }
+    );
+    return getCachedCompanyDetail();
+}
 
 /** Cross-request cached company fetch, deduped per-request via React cache(). */
-export const getCompanyDetailCached = cache(_getCompanyDetail);
+export const getCompanyDetailCached = cache(getCompanyDetail);
 
 // ─── Companies list (public, no auth) ────────────────────────────────────────
 
 const _getCompaniesList = unstable_cache(
     async () => fetchCompanies(),
     ["companies-list"],
-    { revalidate: 3600, tags: ["companies"] }
+    { revalidate: 60, tags: ["companies-list"] }
 );
 
 /** Cross-request cached companies list — used for slug→id resolution and SSR listing. */
@@ -413,6 +416,4 @@ export const resolveCompanySlug = cache(async (slug: string): Promise<number> =>
         return NaN;
     }
 });
-
-
 
