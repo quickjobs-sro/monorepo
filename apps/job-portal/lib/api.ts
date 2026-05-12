@@ -6,6 +6,8 @@ import {
 } from "./migratedQueries";
 import type { JobTerm, PublicJobDetailResponse, PublicJobsResponse } from "./openapi/types";
 
+export { recordJobVisit } from "./jobVisits";
+
 /** Payload for profile update (subset of UpdateProfileInput) */
 export type UpdateProfilePayload = {
     subscribedNotifications?: Record<string, string[]>;
@@ -218,8 +220,11 @@ export async function fetchPublicJobById(id: string | number): Promise<PublicJob
         return await fetchPublicJobDetail(id, {
             signal: controller.signal,
             requestInit: {
+                headers: {
+                    "X-QJ-Skip-Visit": "1",
+                },
                 next: {
-                    revalidate: 3600,
+                    revalidate: 300,
                     tags: ["job-detail", `job-${id}`],
                 },
             },
