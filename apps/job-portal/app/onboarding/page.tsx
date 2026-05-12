@@ -44,6 +44,23 @@ export default function OnboardingPage() {
 
     const executePendingJobAction = async (pendingAction: PendingJobAction): Promise<void> => {
         try {
+            if (pendingAction.action === "open_url") {
+                clearPendingJobAction();
+                if (pendingAction.url) {
+                    window.open(pendingAction.url, "_blank", "noopener,noreferrer");
+                }
+                try {
+                    await API.applications.createApplication(pendingAction.jobId, "apply");
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                } catch {
+                    // non-fatal — URL already opened
+                }
+                setForcedStep(CONGRATULATIONS_STEP);
+                return;
+            }
+
             await API.applications.createApplication(pendingAction.jobId, pendingAction.action);
 
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });

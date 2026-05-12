@@ -256,9 +256,30 @@ export const Onboarding = ({
 
                 const executePendingJobAction = async () => {
                     try {
+                        if (pendingAction.action === "open_url") {
+                            clearPendingJobAction();
+                            if (pendingAction.url) {
+                                window.open(pendingAction.url, "_blank", "noopener,noreferrer");
+                            }
+                            try {
+                                await API.applications.createApplication(pendingAction.jobId, "apply");
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                            } catch {
+                                // non-fatal — URL already opened
+                            }
+                            toast({
+                                title: "Přihláška odeslána! ✅",
+                                description: "Tvůj životopis už míří ke správným lidem.",
+                                duration: 5000,
+                            });
+                            return;
+                        }
+
                         await API.applications.createApplication(pendingAction.jobId, pendingAction.action);
 
-                        // Invalidate queries - TanStack Query automatically marks them as stale 
+                        // Invalidate queries - TanStack Query automatically marks them as stale
                         // and refetches active queries in the background (refetchType: 'active' by default)
                         queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });
                         queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
