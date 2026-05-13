@@ -5,6 +5,7 @@ export const ROUTES = {
   jobs: "/jobs",
   externalJobs: "/external-jobs",
   candidates: "/candidates",
+  users: "/users",
   companies: "/companies",
   schools: "/schools",
   faculties: "/faculties",

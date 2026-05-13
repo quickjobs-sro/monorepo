@@ -62,6 +62,12 @@ export const navigationGroups: NavigationGroup[] = [
         icon: Search,
       },
       {
+        label: "Users",
+        href: ROUTES.users,
+        description: "Admin správa userů a company vazeb",
+        icon: Users,
+      },
+      {
         label: "System Health",
         href: ROUTES.systemHealth,
         description: "Dostupnost backendu a session vrstva",
@@ -106,12 +112,6 @@ export const navigationGroups: NavigationGroup[] = [
 ];
 
 export const comingSoonNavigation: NavigationItem[] = [
-  {
-    label: "Users",
-    description: "Backend parity ještě není připravená",
-    icon: Users,
-    disabled: true,
-  },
   {
     label: "Reviews",
     description: "Čeká na admin-ready read model",

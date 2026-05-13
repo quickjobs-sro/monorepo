@@ -54,6 +54,37 @@ export type CandidateSearchHistoryItem = CandidateSearchHistoryResponse["items"]
 export type CompaniesResponse = CamelizeDeep<Schemas["CompaniesLookupResponseDto"]>;
 export type CompanyLookup = CompaniesResponse["companies"][number];
 export type CompanyDetailResponse = CamelizeDeep<Schemas["CompanyDetailResponseDto"]>;
+export type CompanyJobsResponse = CamelizeDeep<Schemas["CompanyJobsListResponseDto"]>;
+
+export type AdminCompaniesResponse = CamelizeDeep<Schemas["AdminCompaniesResponseDto"]>;
+export type AdminCompanyListItem = AdminCompaniesResponse["companies"][number];
+export type AdminCompanyResponse = CamelizeDeep<Schemas["AdminCompanyResponseDto"]>;
+export type AdminCompany = AdminCompanyResponse["data"];
+export type CreateAdminCompanyRequest = Schemas["CreateAdminCompanyDto"];
+export type UpdateAdminCompanyRequest = Schemas["UpdateAdminCompanyDto"];
+export type AdminCompanyUsersResponse = CamelizeDeep<Schemas["AdminCompanyUsersResponseDto"]>;
+export type AdminCompanyUser = AdminCompanyUsersResponse["users"][number];
+export type AssignAdminCompanyUserRequest = Schemas["AssignAdminCompanyUserDto"];
+export type AdminCompanyUserResponse = CamelizeDeep<Schemas["AdminCompanyUserResponseDto"]>;
+export type AdminCompanyCandidateSearchesResponse = CamelizeDeep<Schemas["AdminCompanyCandidateSearchesResponseDto"]>;
+export type AdminCompanyCandidateSearch = AdminCompanyCandidateSearchesResponse["candidateSearches"][number];
+export type AdminCompanyOfferTypesResponse = CamelizeDeep<Schemas["AdminCompanyOfferTypesResponseDto"]>;
+export type AdminCompanyOfferType = AdminCompanyOfferTypesResponse["offerTypes"][number];
+
+export type AdminUsersResponse = CamelizeDeep<Schemas["AdminUsersResponseDto"]>;
+export type AdminUser = AdminUsersResponse["users"][number];
+export type AdminUserResponse = CamelizeDeep<Schemas["AdminUserResponseDto"]>;
+export type AdminUserDetailResponse = CamelizeDeep<Schemas["AdminUserDetailResponseDto"]>;
+export type AdminUserDetail = AdminUserDetailResponse["data"];
+export type AdminUserAssignableRole = "candidate" | "employer";
+export type CreateAdminUserRequest = Omit<Schemas["CreateAdminUserDto"], "roles"> & {
+  roles?: AdminUserAssignableRole[];
+};
+export type UpdateAdminUserRequest = Omit<Schemas["UpdateAdminUserDto"], "roles"> & {
+  roles?: AdminUserAssignableRole[];
+};
+export type AdminUserJobReactionsResponse = CamelizeDeep<Schemas["AdminUserJobReactionsResponseDto"]>;
+export type AdminUserJobReaction = AdminUserJobReactionsResponse["reactions"][number];
 
 export type SchoolsResponse = CamelizeDeep<Schemas["SchoolsLookupResponseDto"]>;
 export type SchoolLookup = SchoolsResponse["schools"][number];

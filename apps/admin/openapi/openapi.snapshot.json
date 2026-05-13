@@ -929,6 +929,300 @@
         ]
       }
     },
+    "/admin/users": {
+      "get": {
+        "operationId": "AdminUsersController_listUsers",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 200,
+              "type": "string"
+            }
+          },
+          {
+            "name": "companyId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "description": "Role name filter. Public role \"candidate\" maps to internal \"brigadier\".",
+            "schema": {
+              "maxLength": 45,
+              "type": "string"
+            }
+          },
+          {
+            "name": "enabled",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "deleted",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUsersResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Users"
+        ]
+      },
+      "post": {
+        "operationId": "AdminUsersController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdminUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Users"
+        ]
+      }
+    },
+    "/admin/users/{userId}/job-reactions": {
+      "get": {
+        "operationId": "AdminUsersController_listJobReactions",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "source",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "internal",
+                "external"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string. Defaults to applied and ignored.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "applied",
+                  "ignored"
+                ]
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "beforeUpdatedAt",
+            "required": false,
+            "in": "query",
+            "description": "Required when beforeId is provided.",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "beforeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserJobReactionsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Users"
+        ]
+      }
+    },
+    "/admin/users/{userId}": {
+      "get": {
+        "operationId": "AdminUsersController_getUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Users"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminUsersController_updateUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdminUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Users"
+        ]
+      }
+    },
     "/webhooks/jobs/import": {
       "post": {
         "operationId": "JobsImportController_importJob",
@@ -1243,6 +1537,15 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Optional Bearer token. When present and valid, the visit is associated with the authenticated user.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1479,6 +1782,121 @@
         ]
       }
     },
+    "/v1/external-jobs/public": {
+      "get": {
+        "operationId": "PublicExternalJobsController_getPublicExternalJobs_v1",
+        "parameters": [
+          {
+            "name": "lat",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "lng",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "term",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string. Defaults to one_time.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "one_time",
+                  "long_term",
+                  "full_time"
+                ]
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Requested result size. Values above 200 are capped.",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "radius",
+            "required": false,
+            "in": "query",
+            "description": "Search radius in meters. Defaults to 20000 and caps at 50000.",
+            "schema": {
+              "minimum": 1,
+              "default": 20000,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanonicalExternalJobsListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "External Jobs"
+        ]
+      }
+    },
+    "/v1/external-jobs/public/{id}": {
+      "get": {
+        "operationId": "PublicExternalJobsController_getPublicExternalJobDetail_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "X-QJ-Skip-Visit",
+            "in": "header",
+            "description": "Set to 1 to return public external detail without recording an automatic visit.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanonicalExternalJobDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "External Jobs"
+        ]
+      }
+    },
     "/v1/external-jobs": {
       "get": {
         "operationId": "CanonicalExternalJobsController_getExternalJobs_v1",
@@ -1568,46 +1986,9 @@
         ]
       }
     },
-    "/v2/jobs/external-applied": {
-      "get": {
-        "operationId": "ExternalJobsController_getExternalAppliedJobs[0]_v2",
-        "parameters": [
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Requested result size. Values above 100 are capped.",
-            "schema": {
-              "minimum": 1,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExternalJobsListResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Jobs"
-        ]
-      }
-    },
     "/v1/jobs/external-applied": {
       "get": {
-        "operationId": "ExternalJobsController_getExternalAppliedJobs[1]",
+        "operationId": "ExternalJobsController_getExternalAppliedJobs[2]",
         "parameters": [
           {
             "name": "limit",
@@ -1642,9 +2023,9 @@
         ]
       }
     },
-    "/v2/jobs/external-ignored": {
+    "/v2/jobs/external-applied": {
       "get": {
-        "operationId": "ExternalJobsController_getExternalIgnoredJobs[0]_v2",
+        "operationId": "ExternalJobsController_getExternalAppliedJobs[1]_v2",
         "parameters": [
           {
             "name": "limit",
@@ -1681,7 +2062,44 @@
     },
     "/v1/jobs/external-ignored": {
       "get": {
-        "operationId": "ExternalJobsController_getExternalIgnoredJobs[1]",
+        "operationId": "ExternalJobsController_getExternalIgnoredJobs[2]",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Requested result size. Values above 100 are capped.",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalJobsListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/v2/jobs/external-ignored": {
+      "get": {
+        "operationId": "ExternalJobsController_getExternalIgnoredJobs[1]_v2",
         "parameters": [
           {
             "name": "limit",
@@ -2648,6 +3066,510 @@
         },
         "tags": [
           "Companies"
+        ]
+      }
+    },
+    "/v1/companies/{companyId}": {
+      "patch": {
+        "operationId": "CompanyProfileEditorController_updateAssignedCompanyProfile_v1",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyProfileResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Companies"
+        ]
+      }
+    },
+    "/v1/company-offer-types": {
+      "get": {
+        "operationId": "CompanyOfferTypesController_listOfferTypes_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyOfferTypesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Companies"
+        ]
+      }
+    },
+    "/admin/companies": {
+      "get": {
+        "operationId": "AdminCompaniesController_listCompanies",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 200,
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 200,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompaniesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      },
+      "post": {
+        "operationId": "AdminCompaniesController_createCompany",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdminCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompanyResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      }
+    },
+    "/admin/companies/{companyId}": {
+      "get": {
+        "operationId": "AdminCompaniesController_getCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompanyResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminCompaniesController_updateCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdminCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompanyResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminCompaniesController_removeCompany",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      }
+    },
+    "/admin/companies/{companyId}/users": {
+      "get": {
+        "operationId": "AdminCompaniesController_listCompanyUsers",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompanyUsersResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      }
+    },
+    "/admin/companies/{companyId}/users/{userId}": {
+      "put": {
+        "operationId": "AdminCompaniesController_assignCompanyUser",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignAdminCompanyUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompanyUserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminCompaniesController_unassignCompanyUser",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      }
+    },
+    "/admin/companies/{companyId}/candidate-searches": {
+      "get": {
+        "operationId": "AdminCompaniesController_listCompanyCandidateSearches",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "beforeCreatedAt",
+            "required": false,
+            "in": "query",
+            "description": "Required when beforeId is provided.",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "beforeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompanyCandidateSearchesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
+        ]
+      }
+    },
+    "/admin/company-offer-types": {
+      "get": {
+        "operationId": "AdminCompanyOfferTypesController_listOfferTypes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCompanyOfferTypesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Companies"
         ]
       }
     },
@@ -4035,6 +4957,683 @@
         "required": [
           "reviews"
         ]
+      },
+      "AdminUserCompanySummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "web": {
+            "type": "string",
+            "nullable": true
+          },
+          "hubspotLink": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "AdminUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "givenName": {
+            "type": "string",
+            "nullable": true
+          },
+          "familyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "birthDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "companyId": {
+            "type": "number",
+            "nullable": true
+          },
+          "company": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminUserCompanySummaryDto"
+              }
+            ]
+          },
+          "hubspotLink": {
+            "type": "string",
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "sendNotification": {
+            "type": "boolean"
+          },
+          "hideProfile": {
+            "type": "boolean"
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true
+          },
+          "userSource": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "candidateAccessTo": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "skills": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": true
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "roles",
+          "enabled",
+          "sendNotification",
+          "hideProfile",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdminPageInfoDto": {
+        "type": "object",
+        "properties": {
+          "hasNext": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "hasNext"
+        ]
+      },
+      "AdminUsersResponseDto": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUserDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminPageInfoDto"
+          }
+        },
+        "required": [
+          "users",
+          "pageInfo"
+        ]
+      },
+      "CreateAdminUserDto": {
+        "type": "object",
+        "properties": {
+          "givenName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "familyName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "format": "email"
+          },
+          "telephone": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "birthDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 250
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "skills": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "hideProfile": {
+            "type": "boolean"
+          },
+          "userSource": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "roles": {
+            "type": "array",
+            "enum": [
+              "candidate",
+              "employer"
+            ],
+            "maxItems": 10,
+            "description": "Root role cannot be assigned through this endpoint.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "candidate",
+                "employer"
+              ]
+            }
+          },
+          "companyId": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
+          },
+          "hubspotLink": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          }
+        }
+      },
+      "AdminUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminUserDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "AdminUserJobSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "term": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "authorId": {
+            "type": "number",
+            "nullable": true
+          },
+          "feedName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdminUserJobReactionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "internal",
+              "external"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "applied",
+              "ignored"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "jobId": {
+            "type": "number"
+          },
+          "job": {
+            "$ref": "#/components/schemas/AdminUserJobSummaryDto"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "userId",
+          "jobId",
+          "job"
+        ]
+      },
+      "AdminUserJobReactionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "reactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUserJobReactionDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminPageInfoDto"
+          }
+        },
+        "required": [
+          "reactions",
+          "pageInfo"
+        ]
+      },
+      "AdminUserReactionCountsDto": {
+        "type": "object",
+        "properties": {
+          "internalApplied": {
+            "type": "number"
+          },
+          "internalIgnored": {
+            "type": "number"
+          },
+          "externalApplied": {
+            "type": "number"
+          },
+          "externalIgnored": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "internalApplied",
+          "internalIgnored",
+          "externalApplied",
+          "externalIgnored"
+        ]
+      },
+      "AdminUserDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "givenName": {
+            "type": "string",
+            "nullable": true
+          },
+          "familyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "birthDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "companyId": {
+            "type": "number",
+            "nullable": true
+          },
+          "company": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminUserCompanySummaryDto"
+              }
+            ]
+          },
+          "hubspotLink": {
+            "type": "string",
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "sendNotification": {
+            "type": "boolean"
+          },
+          "hideProfile": {
+            "type": "boolean"
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true
+          },
+          "userSource": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "candidateAccessTo": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "skills": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": true
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reactionCounts": {
+            "$ref": "#/components/schemas/AdminUserReactionCountsDto"
+          }
+        },
+        "required": [
+          "id",
+          "roles",
+          "enabled",
+          "sendNotification",
+          "hideProfile",
+          "createdAt",
+          "updatedAt",
+          "reactionCounts"
+        ]
+      },
+      "AdminUserDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminUserDetailDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "UpdateAdminUserDto": {
+        "type": "object",
+        "properties": {
+          "givenName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "familyName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "format": "email"
+          },
+          "telephone": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 45
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "birthDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 250
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "skills": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "hideProfile": {
+            "type": "boolean"
+          },
+          "userSource": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "platform": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "roles": {
+            "type": "array",
+            "enum": [
+              "candidate",
+              "employer"
+            ],
+            "maxItems": 10,
+            "description": "Root role cannot be assigned through this endpoint.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "candidate",
+                "employer"
+              ]
+            }
+          },
+          "companyId": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1
+          },
+          "hubspotLink": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          }
+        }
       },
       "ImportJobRequestDto": {
         "type": "object",
@@ -6349,6 +7948,899 @@
           "data",
           "jobs",
           "stats"
+        ]
+      },
+      "CompanyProfileContactInputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "email"
+          },
+          "photo": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName"
+        ]
+      },
+      "CompanyProfileWebsiteInputDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "uri"
+          },
+          "sortOrder": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "url"
+        ]
+      },
+      "UpdateCompanyProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "short_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "web": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          },
+          "contacts": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyProfileContactInputDto"
+            }
+          },
+          "websites": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyProfileWebsiteInputDto"
+            }
+          },
+          "offerTypeIds": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          "studentAudienceNotes": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CompanyProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CompanyLookupDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CompanyOfferTypesResponseDto": {
+        "type": "object",
+        "properties": {
+          "offerTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyOfferTypeDto"
+            }
+          }
+        },
+        "required": [
+          "offerTypes"
+        ]
+      },
+      "AdminCompanyListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ico": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "web": {
+            "type": "string",
+            "nullable": true
+          },
+          "hubspot_link": {
+            "type": "string",
+            "nullable": true
+          },
+          "sort_order": {
+            "type": "number",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "AdminCompaniesResponseDto": {
+        "type": "object",
+        "properties": {
+          "companies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyListItemDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminPageInfoDto"
+          }
+        },
+        "required": [
+          "companies",
+          "pageInfo"
+        ]
+      },
+      "AdminCompanyContactInputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "email"
+          },
+          "photo": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName"
+        ]
+      },
+      "AdminCompanyWebsiteInputDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "uri"
+          },
+          "sortOrder": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "url"
+        ]
+      },
+      "CreateAdminCompanyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ico": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 20
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "short_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "paid_until": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "sort_order": {
+            "type": "number",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "web": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          },
+          "hubspot_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          },
+          "contacts": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyContactInputDto"
+            }
+          },
+          "websites": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyWebsiteInputDto"
+            }
+          },
+          "offerTypeIds": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          "studentAudienceNotes": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "AdminCompanyContactDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "photo": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdminCompanyWebsiteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "url",
+          "sortOrder"
+        ]
+      },
+      "AdminCompanyOfferTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "AdminCompanyOfferDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "offerType": {
+            "$ref": "#/components/schemas/AdminCompanyOfferTypeDto"
+          }
+        },
+        "required": [
+          "id",
+          "offerType"
+        ]
+      },
+      "AdminCompanyStudentAudienceNoteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "textId": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "textId",
+          "text",
+          "sortOrder"
+        ]
+      },
+      "AdminCompanyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ico": {
+            "type": "string",
+            "nullable": true
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true
+          },
+          "short_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "paid_until": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "sort_order": {
+            "type": "number",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "web": {
+            "type": "string",
+            "nullable": true
+          },
+          "hubspot_link": {
+            "type": "string",
+            "nullable": true
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyContactDto"
+            }
+          },
+          "websites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyWebsiteDto"
+            }
+          },
+          "companyOffers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyOfferDto"
+            }
+          },
+          "studentAudienceNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyStudentAudienceNoteDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at",
+          "contacts",
+          "websites",
+          "companyOffers",
+          "studentAudienceNotes"
+        ]
+      },
+      "AdminCompanyResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminCompanyDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "UpdateAdminCompanyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ico": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 20
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "short_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "paid_until": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "sort_order": {
+            "type": "number",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "web": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          },
+          "hubspot_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          },
+          "contacts": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyContactInputDto"
+            }
+          },
+          "websites": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyWebsiteInputDto"
+            }
+          },
+          "offerTypeIds": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          "studentAudienceNotes": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AdminCompanyUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "givenName": {
+            "type": "string",
+            "nullable": true
+          },
+          "familyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "company_id": {
+            "type": "number",
+            "nullable": true
+          },
+          "hubspot_link": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "AdminCompanyUsersResponseDto": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyUserDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminPageInfoDto"
+          }
+        },
+        "required": [
+          "users",
+          "pageInfo"
+        ]
+      },
+      "AssignAdminCompanyUserDto": {
+        "type": "object",
+        "properties": {
+          "hubspot_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "format": "uri"
+          }
+        }
+      },
+      "AdminCompanyUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminCompanyUserDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "AdminCompanyCandidateSearchUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "givenName": {
+            "type": "string",
+            "nullable": true
+          },
+          "familyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "hubspot_link": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AdminCompanyCandidateSearchDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "searchTerm": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "keyword": {
+            "type": "string",
+            "nullable": true
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "schoolStatus": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "schoolIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "schoolFacultyIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "jobTerms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "one_time",
+                "long_term",
+                "full_time"
+              ]
+            }
+          },
+          "showAll": {
+            "type": "boolean"
+          },
+          "ageFilter": {
+            "type": "number",
+            "nullable": true
+          },
+          "latitude": {
+            "type": "number",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "number",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/AdminCompanyCandidateSearchUserDto"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "createdAt",
+          "skills",
+          "schoolStatus",
+          "schoolIds",
+          "schoolFacultyIds",
+          "jobTerms",
+          "showAll",
+          "user"
+        ]
+      },
+      "AdminCompanyCandidateSearchesResponseDto": {
+        "type": "object",
+        "properties": {
+          "candidateSearches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyCandidateSearchDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminPageInfoDto"
+          }
+        },
+        "required": [
+          "candidateSearches",
+          "pageInfo"
+        ]
+      },
+      "AdminCompanyOfferTypesResponseDto": {
+        "type": "object",
+        "properties": {
+          "offerTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCompanyOfferTypeDto"
+            }
+          }
+        },
+        "required": [
+          "offerTypes"
         ]
       },
       "MyApplicationDto": {

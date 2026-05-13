@@ -27,8 +27,8 @@ import {
   formatRelativeDateTime,
 } from "@/lib/formatting";
 import { useAdminSession } from "@/features/auth/SessionProvider";
-import { fetchCompanies } from "@/features/companies/api";
-import { companiesQueryKey } from "@/features/companies/queries";
+import { fetchPublicCompanies } from "@/features/companies/api";
+import { publicCompaniesQueryKey } from "@/features/companies/queries";
 import { fetchFeedback } from "@/features/feedback/api";
 import { feedbackQueryKey } from "@/features/feedback/queries";
 import { fetchCanonicalJobs } from "@/features/jobs/api";
@@ -186,8 +186,8 @@ export function DashboardPage() {
     queryFn: () => fetchCanonicalJobs({ term: [...JOB_TERMS] }),
   });
   const companiesQuery = useQuery({
-    queryKey: companiesQueryKey,
-    queryFn: fetchCompanies,
+    queryKey: publicCompaniesQueryKey,
+    queryFn: fetchPublicCompanies,
   });
   const schoolsQuery = useQuery({
     queryKey: schoolsQueryKey,

@@ -340,6 +340,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminUsersController_listUsers"];
+        put?: never;
+        post: operations["AdminUsersController_createUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{userId}/job-reactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminUsersController_listJobReactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminUsersController_getUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AdminUsersController_updateUser"];
+        trace?: never;
+    };
     "/webhooks/jobs/import": {
         parameters: {
             query?: never;
@@ -532,6 +580,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/external-jobs/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicExternalJobsController_getPublicExternalJobs_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/external-jobs/public/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicExternalJobsController_getPublicExternalJobDetail_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/external-jobs": {
         parameters: {
             query?: never;
@@ -564,22 +644,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v2/jobs/external-applied": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ExternalJobsController_getExternalAppliedJobs[0]_v2"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/jobs/external-applied": {
         parameters: {
             query?: never;
@@ -587,7 +651,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["ExternalJobsController_getExternalAppliedJobs[1]"];
+        get: operations["ExternalJobsController_getExternalAppliedJobs[2]"];
         put?: never;
         post?: never;
         delete?: never;
@@ -596,14 +660,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v2/jobs/external-ignored": {
+    "/v2/jobs/external-applied": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["ExternalJobsController_getExternalIgnoredJobs[0]_v2"];
+        get: operations["ExternalJobsController_getExternalAppliedJobs[1]_v2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -619,7 +683,23 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["ExternalJobsController_getExternalIgnoredJobs[1]"];
+        get: operations["ExternalJobsController_getExternalIgnoredJobs[2]"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/jobs/external-ignored": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ExternalJobsController_getExternalIgnoredJobs[1]_v2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -908,6 +988,134 @@ export interface paths {
             cookie?: never;
         };
         get: operations["CompaniesController_getCompanyDetail[1]"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companies/{companyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CompanyProfileEditorController_updateAssignedCompanyProfile_v1"];
+        trace?: never;
+    };
+    "/v1/company-offer-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CompanyOfferTypesController_listOfferTypes_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/companies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminCompaniesController_listCompanies"];
+        put?: never;
+        post: operations["AdminCompaniesController_createCompany"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/companies/{companyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminCompaniesController_getCompany"];
+        put?: never;
+        post?: never;
+        delete: operations["AdminCompaniesController_removeCompany"];
+        options?: never;
+        head?: never;
+        patch: operations["AdminCompaniesController_updateCompany"];
+        trace?: never;
+    };
+    "/admin/companies/{companyId}/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminCompaniesController_listCompanyUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/companies/{companyId}/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AdminCompaniesController_assignCompanyUser"];
+        post?: never;
+        delete: operations["AdminCompaniesController_unassignCompanyUser"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/companies/{companyId}/candidate-searches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminCompaniesController_listCompanyCandidateSearches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/company-offer-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminCompanyOfferTypesController_listOfferTypes"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1245,6 +1453,185 @@ export interface components {
             reviews: components["schemas"]["MeProfileReviewDto"][];
             rating?: number | null;
             rating_count?: number | null;
+        };
+        AdminUserCompanySummaryDto: {
+            id: number;
+            name: string;
+            slug?: string | null;
+            web?: string | null;
+            hubspotLink?: string | null;
+        };
+        AdminUserDto: {
+            id: number;
+            givenName?: string | null;
+            familyName?: string | null;
+            email?: string | null;
+            phone?: string | null;
+            /** @enum {string|null} */
+            gender?: "male" | "female" | null;
+            /** Format: date */
+            birthDate?: string | null;
+            companyName?: string | null;
+            description?: string | null;
+            roles: string[];
+            companyId?: number | null;
+            company?: components["schemas"]["AdminUserCompanySummaryDto"] | null;
+            hubspotLink?: string | null;
+            enabled: boolean;
+            sendNotification: boolean;
+            hideProfile: boolean;
+            platform?: string | null;
+            userSource?: string | null;
+            deletedReason?: string | null;
+            /** Format: date-time */
+            deletedAt?: string | null;
+            /** Format: date-time */
+            candidateAccessTo?: string | null;
+            skills?: (string[] | {
+                [key: string]: unknown;
+            }) | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        AdminPageInfoDto: {
+            hasNext: boolean;
+        };
+        AdminUsersResponseDto: {
+            users: components["schemas"]["AdminUserDto"][];
+            pageInfo: components["schemas"]["AdminPageInfoDto"];
+        };
+        CreateAdminUserDto: {
+            givenName?: string | null;
+            familyName?: string | null;
+            /** Format: email */
+            email?: string | null;
+            telephone?: string | null;
+            /** @enum {string|null} */
+            gender?: "male" | "female" | null;
+            /** Format: date */
+            birthDate?: string | null;
+            companyName?: string | null;
+            description?: string | null;
+            skills?: string[];
+            enabled?: boolean;
+            hideProfile?: boolean;
+            userSource?: string | null;
+            platform?: string | null;
+            /**
+             * @description Root role cannot be assigned through this endpoint.
+             * @enum {array}
+             */
+            roles?: "candidate" | "employer";
+            companyId?: number | null;
+            /** Format: uri */
+            hubspotLink?: string | null;
+        };
+        AdminUserResponseDto: {
+            data: components["schemas"]["AdminUserDto"];
+        };
+        AdminUserJobSummaryDto: {
+            id: number;
+            title?: string | null;
+            description?: string | null;
+            url?: string | null;
+            term?: string | null;
+            status?: string | null;
+            authorId?: number | null;
+            feedName?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        AdminUserJobReactionDto: {
+            id: number;
+            /** @enum {string} */
+            source: "internal" | "external";
+            /** @enum {string} */
+            status: "applied" | "ignored";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            userId: number;
+            jobId: number;
+            job: components["schemas"]["AdminUserJobSummaryDto"];
+        };
+        AdminUserJobReactionsResponseDto: {
+            reactions: components["schemas"]["AdminUserJobReactionDto"][];
+            pageInfo: components["schemas"]["AdminPageInfoDto"];
+        };
+        AdminUserReactionCountsDto: {
+            internalApplied: number;
+            internalIgnored: number;
+            externalApplied: number;
+            externalIgnored: number;
+        };
+        AdminUserDetailDto: {
+            id: number;
+            givenName?: string | null;
+            familyName?: string | null;
+            email?: string | null;
+            phone?: string | null;
+            /** @enum {string|null} */
+            gender?: "male" | "female" | null;
+            /** Format: date */
+            birthDate?: string | null;
+            companyName?: string | null;
+            description?: string | null;
+            roles: string[];
+            companyId?: number | null;
+            company?: components["schemas"]["AdminUserCompanySummaryDto"] | null;
+            hubspotLink?: string | null;
+            enabled: boolean;
+            sendNotification: boolean;
+            hideProfile: boolean;
+            platform?: string | null;
+            userSource?: string | null;
+            deletedReason?: string | null;
+            /** Format: date-time */
+            deletedAt?: string | null;
+            /** Format: date-time */
+            candidateAccessTo?: string | null;
+            skills?: (string[] | {
+                [key: string]: unknown;
+            }) | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            reactionCounts: components["schemas"]["AdminUserReactionCountsDto"];
+        };
+        AdminUserDetailResponseDto: {
+            data: components["schemas"]["AdminUserDetailDto"];
+        };
+        UpdateAdminUserDto: {
+            givenName?: string | null;
+            familyName?: string | null;
+            /** Format: email */
+            email?: string | null;
+            telephone?: string | null;
+            /** @enum {string|null} */
+            gender?: "male" | "female" | null;
+            /** Format: date */
+            birthDate?: string | null;
+            companyName?: string | null;
+            description?: string | null;
+            skills?: string[];
+            enabled?: boolean;
+            hideProfile?: boolean;
+            userSource?: string | null;
+            platform?: string | null;
+            /**
+             * @description Root role cannot be assigned through this endpoint.
+             * @enum {array}
+             */
+            roles?: "candidate" | "employer";
+            companyId?: number | null;
+            /** Format: uri */
+            hubspotLink?: string | null;
         };
         ImportJobRequestDto: {
             /**
@@ -1927,6 +2314,225 @@ export interface components {
             data: components["schemas"]["CompanyLookupDto"];
             jobs: components["schemas"]["PublicJobDto"][];
             stats: components["schemas"]["PublicJobStatsDto"][];
+        };
+        CompanyProfileContactInputDto: {
+            firstName: string;
+            lastName: string;
+            phone?: string | null;
+            /** Format: email */
+            email?: string | null;
+            photo?: string | null;
+            description?: string | null;
+        };
+        CompanyProfileWebsiteInputDto: {
+            name: string;
+            /** Format: uri */
+            url: string;
+            sortOrder?: number;
+        };
+        UpdateCompanyProfileDto: {
+            name?: string;
+            logo?: string | null;
+            short_description?: string | null;
+            location?: string | null;
+            slug?: string | null;
+            /** Format: uri */
+            web?: string | null;
+            contacts?: components["schemas"]["CompanyProfileContactInputDto"][];
+            websites?: components["schemas"]["CompanyProfileWebsiteInputDto"][];
+            offerTypeIds?: number[];
+            studentAudienceNotes?: string[];
+        };
+        CompanyProfileResponseDto: {
+            data: components["schemas"]["CompanyLookupDto"];
+        };
+        CompanyOfferTypesResponseDto: {
+            offerTypes: components["schemas"]["CompanyOfferTypeDto"][];
+        };
+        AdminCompanyListItemDto: {
+            id: number;
+            name: string;
+            ico?: string | null;
+            slug?: string | null;
+            web?: string | null;
+            hubspot_link?: string | null;
+            sort_order?: number | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        AdminCompaniesResponseDto: {
+            companies: components["schemas"]["AdminCompanyListItemDto"][];
+            pageInfo: components["schemas"]["AdminPageInfoDto"];
+        };
+        AdminCompanyContactInputDto: {
+            firstName: string;
+            lastName: string;
+            phone?: string | null;
+            /** Format: email */
+            email?: string | null;
+            photo?: string | null;
+            description?: string | null;
+        };
+        AdminCompanyWebsiteInputDto: {
+            name: string;
+            /** Format: uri */
+            url: string;
+            sortOrder?: number;
+        };
+        CreateAdminCompanyDto: {
+            name: string;
+            ico?: string | null;
+            logo?: string | null;
+            short_description?: string | null;
+            location?: string | null;
+            /** Format: date */
+            paid_until?: string | null;
+            sort_order?: number | null;
+            slug?: string | null;
+            /** Format: uri */
+            web?: string | null;
+            /** Format: uri */
+            hubspot_link?: string | null;
+            contacts?: components["schemas"]["AdminCompanyContactInputDto"][];
+            websites?: components["schemas"]["AdminCompanyWebsiteInputDto"][];
+            offerTypeIds?: number[];
+            studentAudienceNotes?: string[];
+        };
+        AdminCompanyContactDto: {
+            id: number;
+            firstName: string;
+            lastName: string;
+            phone?: string | null;
+            email?: string | null;
+            photo?: string | null;
+            description?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        AdminCompanyWebsiteDto: {
+            id: number;
+            name: string;
+            url: string;
+            sortOrder: number;
+        };
+        AdminCompanyOfferTypeDto: {
+            id: number;
+            name: string;
+        };
+        AdminCompanyOfferDto: {
+            id: number;
+            offerType: components["schemas"]["AdminCompanyOfferTypeDto"];
+        };
+        AdminCompanyStudentAudienceNoteDto: {
+            id: number;
+            textId: number;
+            text: string;
+            sortOrder: number;
+        };
+        AdminCompanyDto: {
+            id: number;
+            name: string;
+            ico?: string | null;
+            logo?: string | null;
+            short_description?: string | null;
+            location?: string | null;
+            /** Format: date */
+            paid_until?: string | null;
+            sort_order?: number | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            slug?: string | null;
+            web?: string | null;
+            hubspot_link?: string | null;
+            contacts: components["schemas"]["AdminCompanyContactDto"][];
+            websites: components["schemas"]["AdminCompanyWebsiteDto"][];
+            companyOffers: components["schemas"]["AdminCompanyOfferDto"][];
+            studentAudienceNotes: components["schemas"]["AdminCompanyStudentAudienceNoteDto"][];
+        };
+        AdminCompanyResponseDto: {
+            data: components["schemas"]["AdminCompanyDto"];
+        };
+        UpdateAdminCompanyDto: {
+            name?: string;
+            ico?: string | null;
+            logo?: string | null;
+            short_description?: string | null;
+            location?: string | null;
+            /** Format: date */
+            paid_until?: string | null;
+            sort_order?: number | null;
+            slug?: string | null;
+            /** Format: uri */
+            web?: string | null;
+            /** Format: uri */
+            hubspot_link?: string | null;
+            contacts?: components["schemas"]["AdminCompanyContactInputDto"][];
+            websites?: components["schemas"]["AdminCompanyWebsiteInputDto"][];
+            offerTypeIds?: number[];
+            studentAudienceNotes?: string[];
+        };
+        AdminCompanyUserDto: {
+            id: number;
+            givenName?: string | null;
+            familyName?: string | null;
+            email?: string | null;
+            phone?: string | null;
+            company_id?: number | null;
+            hubspot_link?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        AdminCompanyUsersResponseDto: {
+            users: components["schemas"]["AdminCompanyUserDto"][];
+            pageInfo: components["schemas"]["AdminPageInfoDto"];
+        };
+        AssignAdminCompanyUserDto: {
+            /** Format: uri */
+            hubspot_link?: string | null;
+        };
+        AdminCompanyUserResponseDto: {
+            data: components["schemas"]["AdminCompanyUserDto"];
+        };
+        AdminCompanyCandidateSearchUserDto: {
+            id: number;
+            givenName?: string | null;
+            familyName?: string | null;
+            email?: string | null;
+            phone?: string | null;
+            hubspot_link?: string | null;
+        };
+        AdminCompanyCandidateSearchDto: {
+            id: number;
+            userId: number;
+            searchTerm?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            keyword?: string | null;
+            skills: string[];
+            schoolStatus: string[];
+            schoolIds: number[];
+            schoolFacultyIds: number[];
+            jobTerms: ("one_time" | "long_term" | "full_time")[];
+            showAll: boolean;
+            ageFilter?: number | null;
+            latitude?: number | null;
+            longitude?: number | null;
+            user: components["schemas"]["AdminCompanyCandidateSearchUserDto"];
+        };
+        AdminCompanyCandidateSearchesResponseDto: {
+            candidateSearches: components["schemas"]["AdminCompanyCandidateSearchDto"][];
+            pageInfo: components["schemas"]["AdminPageInfoDto"];
+        };
+        AdminCompanyOfferTypesResponseDto: {
+            offerTypes: components["schemas"]["AdminCompanyOfferTypeDto"][];
         };
         MyApplicationDto: {
             id: number;
@@ -2674,6 +3280,132 @@ export interface operations {
             };
         };
     };
+    AdminUsersController_listUsers: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+                q?: string;
+                companyId?: number;
+                /** @description Role name filter. Public role "candidate" maps to internal "brigadier". */
+                role?: string;
+                enabled?: boolean;
+                deleted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUsersResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_createUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdminUserDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_listJobReactions: {
+        parameters: {
+            query: {
+                source: "internal" | "external";
+                /** @description Supports repeated query params or a comma-separated string. Defaults to applied and ignored. */
+                status?: ("applied" | "ignored")[];
+                limit?: number;
+                /** @description Required when beforeId is provided. */
+                beforeUpdatedAt?: string;
+                beforeId?: number;
+            };
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserJobReactionsResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_getUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserDetailResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_updateUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdminUserDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserResponseDto"];
+                };
+            };
+        };
+    };
     JobsImportController_importJob: {
         parameters: {
             query?: {
@@ -2846,7 +3578,10 @@ export interface operations {
     JobVisitsController_recordPublicJobVisit_v1: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional Bearer token. When present and valid, the visit is associated with the authenticated user. */
+                Authorization?: string;
+            };
             path: {
                 id: number;
             };
@@ -2961,6 +3696,58 @@ export interface operations {
             };
         };
     };
+    PublicExternalJobsController_getPublicExternalJobs_v1: {
+        parameters: {
+            query?: {
+                lat?: number;
+                lng?: number;
+                /** @description Supports repeated query params or a comma-separated string. Defaults to one_time. */
+                term?: ("one_time" | "long_term" | "full_time")[];
+                /** @description Requested result size. Values above 200 are capped. */
+                limit?: number;
+                /** @description Search radius in meters. Defaults to 20000 and caps at 50000. */
+                radius?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalExternalJobsListResponseDto"];
+                };
+            };
+        };
+    };
+    PublicExternalJobsController_getPublicExternalJobDetail_v1: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Set to 1 to return public external detail without recording an automatic visit. */
+                "X-QJ-Skip-Visit"?: string;
+            };
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalExternalJobDetailResponseDto"];
+                };
+            };
+        };
+    };
     CanonicalExternalJobsController_getExternalJobs_v1: {
         parameters: {
             query?: {
@@ -3006,7 +3793,7 @@ export interface operations {
             };
         };
     };
-    "ExternalJobsController_getExternalAppliedJobs[0]_v2": {
+    "ExternalJobsController_getExternalAppliedJobs[2]": {
         parameters: {
             query?: {
                 /** @description Requested result size. Values above 100 are capped. */
@@ -3028,7 +3815,7 @@ export interface operations {
             };
         };
     };
-    "ExternalJobsController_getExternalAppliedJobs[1]": {
+    "ExternalJobsController_getExternalAppliedJobs[1]_v2": {
         parameters: {
             query?: {
                 /** @description Requested result size. Values above 100 are capped. */
@@ -3050,7 +3837,7 @@ export interface operations {
             };
         };
     };
-    "ExternalJobsController_getExternalIgnoredJobs[0]_v2": {
+    "ExternalJobsController_getExternalIgnoredJobs[2]": {
         parameters: {
             query?: {
                 /** @description Requested result size. Values above 100 are capped. */
@@ -3072,7 +3859,7 @@ export interface operations {
             };
         };
     };
-    "ExternalJobsController_getExternalIgnoredJobs[1]": {
+    "ExternalJobsController_getExternalIgnoredJobs[1]_v2": {
         parameters: {
             query?: {
                 /** @description Requested result size. Values above 100 are capped. */
@@ -3581,6 +4368,277 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompanyDetailResponseDto"];
+                };
+            };
+        };
+    };
+    CompanyProfileEditorController_updateAssignedCompanyProfile_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCompanyProfileDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyProfileResponseDto"];
+                };
+            };
+        };
+    };
+    CompanyOfferTypesController_listOfferTypes_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyOfferTypesResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompaniesController_listCompanies: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+                search?: string;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompaniesResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompaniesController_createCompany: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdminCompanyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompanyResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompaniesController_getCompany: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompanyResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompaniesController_removeCompany: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminCompaniesController_updateCompany: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdminCompanyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompanyResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompaniesController_listCompanyUsers: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+            };
+            header?: never;
+            path: {
+                companyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompanyUsersResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompaniesController_assignCompanyUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: number;
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignAdminCompanyUserDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompanyUserResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompaniesController_unassignCompanyUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: number;
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminCompaniesController_listCompanyCandidateSearches: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Required when beforeId is provided. */
+                beforeCreatedAt?: string;
+                beforeId?: number;
+            };
+            header?: never;
+            path: {
+                companyId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompanyCandidateSearchesResponseDto"];
+                };
+            };
+        };
+    };
+    AdminCompanyOfferTypesController_listOfferTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCompanyOfferTypesResponseDto"];
                 };
             };
         };
