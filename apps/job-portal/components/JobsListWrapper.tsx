@@ -148,8 +148,9 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
 
     const queryClient = useQueryClient();
     const { data: jobsData, isLoading, isError, error } = useJobs(debouncedShouldFetch);
-    const { data: externalJobsData } = useExternalJobsList(debouncedShouldFetch);
-    const hasValidToken = mounted && tokenRestored && !!userToken && isValidToken(userToken);
+    const isLoggedIn = mounted && tokenRestored && !!userToken && isValidToken(userToken);
+    const { data: externalJobsData } = useExternalJobsList(isLoggedIn, mounted);
+    const hasValidToken = isLoggedIn;
 
 
     const LOADING_GIVE_UP_MS = 20000;
@@ -286,8 +287,8 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
             processedJobs = initialPublicJobs;
         }
 
-        // Merge external jobs for logged-in users — appended after internal jobs
-        if (debouncedShouldFetch && externalJobsData?.jobs?.length) {
+        // Merge external jobs — appended after internal jobs (available for both logged-in and anonymous users)
+        if (mounted && externalJobsData?.jobs?.length) {
             const internalIds = new Set(processedJobs.map((j) => j.id));
             const externalMapped: JobWithStats[] = (externalJobsData.jobs as any[]).map((job) => ({
                 id: job.id,
@@ -309,8 +310,6 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
         const active = processedJobs.filter((job) => job.status === "active");
         return { activeJobs: active, allProcessedJobs: processedJobs };
     }, [debouncedShouldFetch, jobsData, externalJobsData, initialPublicJobs, isError, mounted, tokenRestored, userToken, isLoading]);
-
-    const isLoggedIn = mounted && tokenRestored && !!userToken && isValidToken(userToken);
 
     // When user has token: show loading until authenticated jobs are loaded, or give up after 20s so user isn't stuck.
     if (isLoggedIn && debouncedShouldFetch && isLoading && !loadingTimedOut) {

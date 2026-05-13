@@ -225,6 +225,21 @@ export async function fetchExternalJobsList(
     return { jobs: raw.data ?? [] };
 }
 
+export async function fetchPublicExternalJobsList(
+    options: { lat?: number; lng?: number; signal?: AbortSignal } = {}
+): Promise<ExternalJobsResponse> {
+    const params = new URLSearchParams();
+    if (options.lat != null) params.set("lat", String(options.lat));
+    if (options.lng != null) params.set("lng", String(options.lng));
+    // Pass all terms — the public endpoint defaults to one_time only, but authenticated returns all
+    params.set("term", "one_time,long_term,full_time");
+    const raw = await fetchOpenApiJson<{ data: ExternalJob[] }>(`/v1/external-jobs/public?${params}`, {
+        auth: false,
+        signal: options.signal,
+    });
+    return { jobs: raw.data ?? [] };
+}
+
 export async function fetchExternalJobById(
     id: string | number,
     options: Pick<FetchOptions, "signal" | "token"> = {}

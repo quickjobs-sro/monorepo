@@ -7,6 +7,7 @@ import {
     fetchExternalAppliedJobs,
     fetchExternalIgnoredJobs,
     fetchExternalJobsList,
+    fetchPublicExternalJobsList,
     type ExternalJobsResponse,
 } from "../lib/migratedQueries";
 
@@ -32,16 +33,19 @@ export const useExternalJobs = (type: EXTERNAL_JOB_TYPE, enabled: boolean = true
     });
 };
 
-export const useExternalJobsList = (enabled: boolean = true) => {
+export const useExternalJobsList = (isLoggedIn: boolean, mounted: boolean) => {
     return useQuery<ExternalJobsResponse>({
-        queryKey: [API_KEYS.JOBS, "external", "list"],
+        queryKey: [API_KEYS.JOBS, "external", "list", isLoggedIn ? "auth" : "public"],
         queryFn: async () => {
             const timeoutPromise = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error("Request timeout")), REQUEST_TIMEOUT_MS)
             );
-            return Promise.race([fetchExternalJobsList(), timeoutPromise]);
+            const fetch = isLoggedIn
+                ? fetchExternalJobsList()
+                : fetchPublicExternalJobsList({ lat: 50.0755, lng: 14.4378 });
+            return Promise.race([fetch, timeoutPromise]);
         },
-        enabled,
+        enabled: mounted,
         staleTime: 60_000,
     });
 };
