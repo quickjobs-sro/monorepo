@@ -859,7 +859,7 @@ export default function FeaturesCard({
                                         </Button>
                                     ) : (
                                         <>
-                                            {(hasValidToken && !!user) && (
+                                            {(hasValidToken && !!user && !url) && (
                                                 <TrackedButton
                                                     variant='destructive'
                                                     size='lg'
