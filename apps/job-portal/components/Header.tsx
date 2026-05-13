@@ -457,7 +457,7 @@ export const Header = () => {
                     <span className="font-bold text-sm md:text-base shrink-0">3 ZPŮSOBY, jak si najít práci:</span>
                     <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                         {HowToGetJob.map((item, index) => {
-                            const isActive = pathname === item.link;
+                            const isActive = item.link === "/" ? pathname === "/" : pathname === item.link || pathname.startsWith(item.link + "/");
                             const Icon = item.icon;
                             return (
                                 <NavigationLink
