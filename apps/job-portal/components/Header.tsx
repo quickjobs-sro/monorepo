@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState } from "react";
 import Image from "next/image";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, User, Briefcase, Building2 } from "lucide-react";
 import { LogoType } from "../icons";
 import { Button } from "@ui/components/core/button";
 import { NavigationLink } from "@ui/components/core/navigation-link";
@@ -376,9 +376,10 @@ const MobileDrawerContent = ({ onNavigate }: { onNavigate: () => void }) => {
 
 
 const HowToGetJob = [
-    { title: "Buď v databázi", description: "Buď v databázi", link: "/" },
-    { title: "Prohlížej nabídky", description: "Prohlížej nabídky", link: "/jobs" },
-    { title: "Oslov firmy", description: "Oslov firmy", link: "/companies" }]
+    { title: "Buď v databázi", link: "/", icon: User },
+    { title: "Prohlížej nabídky", link: "/jobs", icon: Briefcase },
+    { title: "Oslov firmy", link: "/companies", icon: Building2 },
+]
 
 
 
@@ -452,15 +453,37 @@ export const Header = () => {
                 </div>
             </div>
             <div className="mt-3 bg-primary">
-                <div className="mx-auto max-w-7xl px-6 py-3 md:py-4 md:px-16 text-white flex flex-col md:flex-row md:items-center gap-2 md:gap-8">
-                    <span className="font-bold text-sm md:text-base">3 ZPŮSOBY, jak si jako student/absolvent najít práci:</span>
-                    <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+                <div className="mx-auto max-w-7xl px-6 py-3 md:py-4 md:px-16 text-white flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
+                    <span className="font-bold text-sm md:text-base shrink-0">3 ZPŮSOBY, jak si najít práci:</span>
+                    <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                         {HowToGetJob.map((item, index) => {
                             const isActive = pathname === item.link;
+                            const Icon = item.icon;
                             return (
-                                <div key={index} className="flex items-center justify-center gap-2">
-                                    <span className={cn("font-bold border border-white rounded-full h-8 w-8 flex items-center justify-center text-sm",)}>{index + 1}</span> <NavigationLink href={item.link} className={cn("text-sm hover:underline ", isActive ? "font-bold" : "")} gaCategory="Header" gaAction="Nav" gaLabel={item.title}>{item.title}</NavigationLink>
-                                </div>
+                                <NavigationLink
+                                    key={index}
+                                    href={item.link}
+                                    className={cn(
+                                        "flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition-colors no-underline",
+                                        isActive
+                                            ? "bg-white border-white text-primary"
+                                            : "bg-transparent border-white/60 text-white hover:border-white hover:bg-white/10"
+                                    )}
+                                    gaCategory="Header"
+                                    gaAction="Nav"
+                                    gaLabel={item.title}
+                                >
+                                    <span className={cn(
+                                        "font-bold rounded-full h-6 w-6 flex items-center justify-center text-xs shrink-0",
+                                        isActive ? "bg-primary text-white" : "border border-white/70 text-white/80"
+                                    )}>
+                                        {index + 1}
+                                    </span>
+                                    <span className={cn("text-sm font-semibold whitespace-nowrap", isActive ? "text-primary" : "text-white")}>
+                                        {item.title}
+                                    </span>
+                                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-white/80")} />
+                                </NavigationLink>
                             );
                         })}
                     </div>
