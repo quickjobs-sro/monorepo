@@ -256,6 +256,21 @@ export async function fetchExternalJobById(
     }
 }
 
+export async function fetchPublicExternalJobById(
+    id: string | number,
+    options: Pick<FetchOptions, "signal"> = {}
+): Promise<ExternalJob | null> {
+    try {
+        const raw = await fetchOpenApiJson<{ data: ExternalJob }>(`/v1/external-jobs/public/${id}`, {
+            auth: false,
+            signal: options.signal,
+        });
+        return raw.data ?? null;
+    } catch {
+        return null;
+    }
+}
+
 export async function fetchMyApplications(
     params: MyApplicationsQueryParams = {},
     options: Pick<FetchOptions, "signal" | "token"> = {}

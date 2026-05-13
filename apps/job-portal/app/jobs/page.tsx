@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { JobsListWrapper } from "../../components/JobsListWrapper";
 import { Header } from "../../components/Header";
 import { fetchPublicJobs } from "../../lib/api";
+import { fetchPublicExternalJobsList } from "../../lib/migratedQueries";
 import Image from "next/image";
 import type { Metadata } from "next";
 import type { JobLike, JobStats } from "../../lib/openapi/types";
@@ -145,10 +146,19 @@ async function getJobs(): Promise<JobWithStats[]> {
 }
 
 
+async function getPublicExternalJobs() {
+    try {
+        const result = await fetchPublicExternalJobsList({ lat: 50.0755, lng: 14.4378 });
+        return result.jobs ?? [];
+    } catch {
+        return [];
+    }
+}
+
 export const revalidate = 60; // 1 min
 
 export default async function Page(): Promise<JSX.Element> {
-    const jobs = await getJobs();
+    const [jobs, externalJobs] = await Promise.all([getJobs(), getPublicExternalJobs()]);
 
     return (
         <>
@@ -183,7 +193,7 @@ export default async function Page(): Promise<JSX.Element> {
                     </div>
                 </div>
 
-                <JobsListWrapper initialPublicJobs={jobs} />
+                <JobsListWrapper initialPublicJobs={jobs} initialPublicExternalJobs={externalJobs} />
             </main>
             <Footer />
         </>

@@ -27,6 +27,7 @@ function stripHtml(html: string): string {
 
 interface JobsListWrapperProps {
     initialPublicJobs: JobWithStats[];
+    initialPublicExternalJobs?: any[];
 }
 
 const LoadingSkeleton = () => (
@@ -84,7 +85,7 @@ const ErrorFallback = ({
     );
 };
 
-export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => {
+export const JobsListWrapper = ({ initialPublicJobs, initialPublicExternalJobs }: JobsListWrapperProps) => {
     const { mounted, tokenRestored } = useTokenRestore();
     const userToken = getAuthToken();
 
@@ -287,10 +288,11 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
             processedJobs = initialPublicJobs;
         }
 
-        // Merge external jobs — appended after internal jobs (available for both logged-in and anonymous users)
-        if (mounted && externalJobsData?.jobs?.length) {
+        // Merge external jobs — use live client data when available, else fall back to server-pre-rendered
+        const externalSource = externalJobsData?.jobs ?? initialPublicExternalJobs ?? [];
+        if (externalSource.length > 0) {
             const internalIds = new Set(processedJobs.map((j) => j.id));
-            const externalMapped: JobWithStats[] = (externalJobsData.jobs as any[]).map((job) => ({
+            const externalMapped: JobWithStats[] = (externalSource as any[]).map((job) => ({
                 id: job.id,
                 description: stripHtml(job.description || ""),
                 title: job.title,
@@ -309,7 +311,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
 
         const active = processedJobs.filter((job) => job.status === "active");
         return { activeJobs: active, allProcessedJobs: processedJobs };
-    }, [debouncedShouldFetch, jobsData, externalJobsData, initialPublicJobs, isError, mounted, tokenRestored, userToken, isLoading]);
+    }, [debouncedShouldFetch, jobsData, externalJobsData, initialPublicJobs, initialPublicExternalJobs, isError, mounted, tokenRestored, userToken, isLoading]);
 
     // When user has token: show loading until authenticated jobs are loaded, or give up after 20s so user isn't stuck.
     if (isLoggedIn && debouncedShouldFetch && isLoading && !loadingTimedOut) {

@@ -9,7 +9,7 @@ import { Header } from "../../../../components/Header";
 import { NavigationLink } from "@ui/components/core/navigation-link";
 import { Button } from "@ui/components/core/button";
 import { fetchPublicJobById, fetchPublicJobs } from "../../../../lib/api";
-import { fetchExternalJobById } from "../../../../lib/migratedQueries";
+import { fetchExternalJobById, fetchPublicExternalJobById } from "../../../../lib/migratedQueries";
 import { generateAISEO, generateJobSEO } from "../../../../lib/seo";
 import { safeJsonLd } from "../../../../lib/utils";
 import { getApplicationStatusForJob, getJobsListCached, withAuthContext, getAuthTokenFromCookies } from "../../../../lib/serverApi";
@@ -188,7 +188,9 @@ async function getExternalJobDetail(id: string) {
     if (isNaN(jobId) || jobId <= 0 || !Number.isInteger(jobId)) return null;
     try {
         const token = await getAuthTokenFromCookies();
-        const raw = await fetchExternalJobById(jobId, { token: token ?? undefined });
+        const raw = token
+            ? await fetchExternalJobById(jobId, { token })
+            : await fetchPublicExternalJobById(jobId);
         if (!raw) return null;
         const job = raw as unknown as ExternalJobRuntime;
 
