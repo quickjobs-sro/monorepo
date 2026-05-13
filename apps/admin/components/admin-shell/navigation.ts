@@ -5,6 +5,7 @@ import {
   BriefcaseBusiness,
   Building2,
   GraduationCap,
+  Handshake,
   LayoutDashboard,
   MessageSquareMore,
   Rss,
@@ -36,6 +37,12 @@ export const navigationGroups: NavigationGroup[] = [
         href: ROUTES.dashboard,
         description: "Operativní přehled dnešní situace",
         icon: LayoutDashboard,
+      },
+      {
+        label: "Customer Success",
+        href: ROUTES.customerSuccess,
+        description: "Firmy v riziku a slabé joby k zásahu",
+        icon: Handshake,
       },
       {
         label: "Feedback",

@@ -2,11 +2,20 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
-import { Building2, Plus, Search, SquareArrowOutUpRight, X } from "lucide-react";
+import { Building2, Filter, Plus, Search, SquareArrowOutUpRight, X } from "lucide-react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@ui/components/core/button";
 import { Card, CardContent } from "@ui/components/core/card";
+import { Checkbox } from "@ui/components/core/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@ui/components/core/dialog";
 import { Input } from "@ui/components/core/input";
+import { Label } from "@ui/components/core/label";
 import { useToast } from "@ui/hooks/use-toast";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PageHeader } from "@/components/admin-shell/PageHeader";
@@ -23,11 +32,17 @@ import {
 import { companiesListQueryKey, companiesQueryKey, companyOfferTypesQueryKey } from "./queries";
 
 const COMPANY_PAGE_SIZE = 50;
+const MISSING_COMPANY_FILTERS = [
+  { label: "Chybí web", query: "missingWeb=true" },
+  { label: "Chybí logo", query: "missingLogo=true" },
+  { label: "Chybí kontakt", query: "missingContact=true" },
+] as const;
 
 export function CompaniesPage() {
   const [draftSearch, setDraftSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showMissingFilters, setShowMissingFilters] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -111,6 +126,10 @@ export function CompaniesPage() {
                 Reset
               </Button>
             </form>
+            <Button type="button" variant="outline" onClick={() => setShowMissingFilters(true)}>
+              <Filter className="h-4 w-4" />
+              Data quality
+            </Button>
             <Button onClick={() => setShowCreateForm((current) => !current)}>
               <Plus className="h-4 w-4" />
               Nová firma
@@ -118,6 +137,31 @@ export function CompaniesPage() {
           </>
         }
       />
+
+      <Dialog open={showMissingFilters} onOpenChange={setShowMissingFilters}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Data quality filtry</DialogTitle>
+            <DialogDescription>
+              Tyto filtry čekají na server-side podporu v `/admin/companies`, aby výsledek nebyl omezený jen na aktuálně načtenou stránku.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            {MISSING_COMPANY_FILTERS.map((filter) => (
+              <Label key={filter.query} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+                <span>
+                  <span className="block font-medium text-slate-900">{filter.label}</span>
+                  <span className="block text-xs text-slate-500">{filter.query}</span>
+                </span>
+                <Checkbox checked={false} disabled />
+              </Label>
+            ))}
+            <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              Backend požadavek je zapsaný v `docs/admin-backend-admin-routes.md`: vybrané missing filtry mají OR semantiku a musí běžet přes JOIN/agregace bez N+1 dotazů.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {showCreateForm ? (
         <Card className="border-white/80 bg-white/90">

@@ -20,7 +20,8 @@ import { PageHeader } from "@/components/admin-shell/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { getErrorMessage } from "@/lib/errors";
 import { formatDateTime, formatName } from "@/lib/formatting";
-import { CompanyPicker, type CompanyPickerSelection } from "../companies/CompanyPicker";
+import { CompanySearchSelect } from "../companies/CompanySearchSelect";
+import type { CompanyPickerSelection } from "../companies/CompanyPicker";
 import { getSafeExternalUrl } from "../companies/companyFormData";
 import { companyUsersRootQueryKey } from "../companies/queries";
 import { createUser, fetchUsers, type UsersQueryParams } from "./api";
@@ -183,11 +184,16 @@ export function UsersPage() {
 
       <Card className="border-white/80 bg-white/90">
         <CardContent className="space-y-4 p-6">
-          <form className="grid gap-3 xl:grid-cols-[1fr_170px_150px_150px_auto_auto]" onSubmit={handleSearch}>
+          <form className="grid gap-3 xl:grid-cols-[1fr_220px_170px_150px_150px_auto_auto]" onSubmit={handleSearch}>
             <Input
               value={draftFilters.q}
               onChange={(event) => setDraftFilter("q", event.target.value)}
               placeholder="Hledat jméno, e-mail nebo telefon"
+            />
+            <CompanySearchSelect
+              selectedCompany={draftCompany}
+              onSelect={handleCompanySelect}
+              placeholder="Firma: všechny"
             />
             <Select value={draftFilters.role} onValueChange={(value) => setDraftFilter("role", value as RoleFilter)}>
               <SelectTrigger className="bg-white">
@@ -229,8 +235,6 @@ export function UsersPage() {
               Reset
             </Button>
           </form>
-
-          <CompanyPicker selectedCompany={draftCompany} onSelect={handleCompanySelect} />
         </CardContent>
       </Card>
 
