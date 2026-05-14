@@ -17,6 +17,9 @@ export type AdminCompaniesQueryParams = {
   limit?: number;
   afterId?: number;
   q?: string;
+  missingWeb?: boolean;
+  missingLogo?: boolean;
+  missingContact?: boolean;
 };
 
 export type CompanyCandidateSearchesQueryParams = {
@@ -41,6 +44,9 @@ export async function fetchCompanies(params: AdminCompaniesQueryParams = {}) {
       limit: params.limit,
       afterId: params.afterId,
       q: params.q,
+      missingWeb: params.missingWeb,
+      missingLogo: params.missingLogo,
+      missingContact: params.missingContact,
     },
   });
 }
@@ -50,9 +56,12 @@ export async function fetchPublicCompanies() {
 }
 
 export async function fetchCompanyDetail(id: string | number) {
-  return fetchJson<AdminCompanyResponse>(`/admin/companies/${toPathId(id, "company id")}`, {
-    auth: true,
-  });
+  return fetchJson<AdminCompanyResponse>(
+    `/admin/companies/${toPathId(id, "company id")}`,
+    {
+      auth: true,
+    },
+  );
 }
 
 export async function createCompany(body: CreateAdminCompanyRequest) {
@@ -62,28 +71,40 @@ export async function createCompany(body: CreateAdminCompanyRequest) {
   });
 }
 
-export async function updateCompany(id: string | number, body: UpdateAdminCompanyRequest) {
-  return fetchJson<AdminCompanyResponse>(`/admin/companies/${toPathId(id, "company id")}`, {
-    auth: true,
-    method: "PATCH",
-    body,
-  });
+export async function updateCompany(
+  id: string | number,
+  body: UpdateAdminCompanyRequest,
+) {
+  return fetchJson<AdminCompanyResponse>(
+    `/admin/companies/${toPathId(id, "company id")}`,
+    {
+      auth: true,
+      method: "PATCH",
+      body,
+    },
+  );
 }
 
-export async function fetchCompanyUsers(companyId: string | number, params: AdminCompaniesQueryParams = {}) {
-  return fetchJson<AdminCompanyUsersResponse>(`/admin/companies/${toPathId(companyId, "company id")}/users`, {
-    auth: true,
-    query: {
-      limit: params.limit,
-      afterId: params.afterId,
+export async function fetchCompanyUsers(
+  companyId: string | number,
+  params: AdminCompaniesQueryParams = {},
+) {
+  return fetchJson<AdminCompanyUsersResponse>(
+    `/admin/companies/${toPathId(companyId, "company id")}/users`,
+    {
+      auth: true,
+      query: {
+        limit: params.limit,
+        afterId: params.afterId,
+      },
     },
-  });
+  );
 }
 
 export async function assignCompanyUser(
   companyId: string | number,
   userId: string | number,
-  body: AssignAdminCompanyUserRequest
+  body: AssignAdminCompanyUserRequest,
 ) {
   return fetchJson<AdminCompanyUserResponse>(
     `/admin/companies/${toPathId(companyId, "company id")}/users/${toPathId(userId, "user id")}`,
@@ -91,40 +112,51 @@ export async function assignCompanyUser(
       auth: true,
       method: "PUT",
       body,
-    }
+    },
   );
 }
 
-export async function unassignCompanyUser(companyId: string | number, userId: string | number) {
+export async function unassignCompanyUser(
+  companyId: string | number,
+  userId: string | number,
+) {
   return fetchJson<null>(
     `/admin/companies/${toPathId(companyId, "company id")}/users/${toPathId(userId, "user id")}`,
     {
       auth: true,
       method: "DELETE",
-    }
+    },
   );
 }
 
 export async function fetchCompanyCandidateSearches(
   companyId: string | number,
-  params: CompanyCandidateSearchesQueryParams = {}
+  params: CompanyCandidateSearchesQueryParams = {},
 ) {
-  return fetchJson<AdminCompanyCandidateSearchesResponse>(`/admin/companies/${toPathId(companyId, "company id")}/candidate-searches`, {
-    auth: true,
-    query: {
-      limit: params.limit,
-      beforeCreatedAt: params.beforeCreatedAt,
-      beforeId: params.beforeId,
+  return fetchJson<AdminCompanyCandidateSearchesResponse>(
+    `/admin/companies/${toPathId(companyId, "company id")}/candidate-searches`,
+    {
+      auth: true,
+      query: {
+        limit: params.limit,
+        beforeCreatedAt: params.beforeCreatedAt,
+        beforeId: params.beforeId,
+      },
     },
-  });
+  );
 }
 
 export async function fetchCompanyOfferTypes() {
-  return fetchJson<AdminCompanyOfferTypesResponse>("/admin/company-offer-types", {
-    auth: true,
-  });
+  return fetchJson<AdminCompanyOfferTypesResponse>(
+    "/admin/company-offer-types",
+    {
+      auth: true,
+    },
+  );
 }
 
 export async function fetchCompanyJobs(companyId: string | number) {
-  return fetchJson<CompanyJobsResponse>(`/v1/jobs/public/company/${toPathId(companyId, "company id")}`);
+  return fetchJson<CompanyJobsResponse>(
+    `/v1/jobs/public/company/${toPathId(companyId, "company id")}`,
+  );
 }

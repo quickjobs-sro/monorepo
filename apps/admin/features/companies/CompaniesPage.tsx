@@ -2,8 +2,21 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
-import { Building2, Filter, Plus, Search, SquareArrowOutUpRight, X } from "lucide-react";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Building2,
+  Filter,
+  Plus,
+  Search,
+  SquareArrowOutUpRight,
+  X,
+} from "lucide-react";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { Badge } from "@ui/components/core/badge";
 import { Button } from "@ui/components/core/button";
 import { Card, CardContent } from "@ui/components/core/card";
 import { Checkbox } from "@ui/components/core/checkbox";
@@ -11,6 +24,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@ui/components/core/dialog";
@@ -20,41 +34,63 @@ import { useToast } from "@ui/hooks/use-toast";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PageHeader } from "@/components/admin-shell/PageHeader";
 import { getErrorMessage } from "@/lib/errors";
-import { formatDateTime } from "@/lib/formatting";
+import { formatCompactNumber, formatDateTime } from "@/lib/formatting";
 import { CompanyForm } from "./CompanyForm";
 import { createCompany, fetchCompanies, fetchCompanyOfferTypes } from "./api";
+import {
+  buildCompaniesListFilterState,
+  buildCompaniesQueryParams,
+  EMPTY_MISSING_COMPANY_FILTERS,
+  getActiveMissingCompanyFilterLabels,
+  MISSING_COMPANY_FILTER_OPTIONS,
+  type MissingCompanyFilterKey,
+  type MissingCompanyFilters,
+} from "./companyFilters";
 import {
   createEmptyCompanyFormValues,
   formValuesToCompanyPayload,
   getSafeExternalUrl,
   type CompanyFormValues,
 } from "./companyFormData";
-import { companiesListQueryKey, companiesQueryKey, companyOfferTypesQueryKey } from "./queries";
+import {
+  companiesListQueryKey,
+  companiesQueryKey,
+  companyOfferTypesQueryKey,
+} from "./queries";
 
 const COMPANY_PAGE_SIZE = 50;
-const MISSING_COMPANY_FILTERS = [
-  { label: "Chybí web", query: "missingWeb=true" },
-  { label: "Chybí logo", query: "missingLogo=true" },
-  { label: "Chybí kontakt", query: "missingContact=true" },
-] as const;
 
 export function CompaniesPage() {
   const [draftSearch, setDraftSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
+  const [draftMissingFilters, setDraftMissingFilters] =
+    useState<MissingCompanyFilters>(EMPTY_MISSING_COMPANY_FILTERS);
+  const [submittedMissingFilters, setSubmittedMissingFilters] =
+    useState<MissingCompanyFilters>(EMPTY_MISSING_COMPANY_FILTERS);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showMissingFilters, setShowMissingFilters] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const listFilters = useMemo(
+    () =>
+      buildCompaniesListFilterState(submittedSearch, submittedMissingFilters),
+    [submittedSearch, submittedMissingFilters],
+  );
+  const activeMissingFilterLabels = getActiveMissingCompanyFilterLabels(
+    submittedMissingFilters,
+  );
 
   const companiesQuery = useInfiniteQuery({
-    queryKey: companiesListQueryKey(submittedSearch),
+    queryKey: companiesListQueryKey(listFilters),
     initialPageParam: undefined as number | undefined,
     queryFn: ({ pageParam }) =>
-      fetchCompanies({
-        limit: COMPANY_PAGE_SIZE,
-        afterId: typeof pageParam === "number" ? pageParam : undefined,
-        q: submittedSearch.trim() || undefined,
-      }),
+      fetchCompanies(
+        buildCompaniesQueryParams({
+          limit: COMPANY_PAGE_SIZE,
+          afterId: typeof pageParam === "number" ? pageParam : undefined,
+          filters: listFilters,
+        }),
+      ),
     getNextPageParam: (lastPage) => {
       if (!lastPage.pageInfo.hasNext) {
         return undefined;
@@ -69,7 +105,8 @@ export function CompaniesPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (values: CompanyFormValues) => createCompany(formValuesToCompanyPayload(values)),
+    mutationFn: (values: CompanyFormValues) =>
+      createCompany(formValuesToCompanyPayload(values)),
     onSuccess: async () => {
       setShowCreateForm(false);
       await queryClient.invalidateQueries({ queryKey: companiesQueryKey });
@@ -87,10 +124,19 @@ export function CompaniesPage() {
     },
   });
 
-  const createInitialValues = useMemo(() => createEmptyCompanyFormValues(), [showCreateForm]);
-  const companies = companiesQuery.data?.pages.flatMap((page) => page.companies) ?? [];
+  const createInitialValues = useMemo(
+    () => createEmptyCompanyFormValues(),
+    [showCreateForm],
+  );
+  const companies =
+    companiesQuery.data?.pages.flatMap((page) => page.companies) ?? [];
 
-  const searchLabel = submittedSearch.trim() ? `Search: "${submittedSearch.trim()}"` : "Search: bez filtru";
+  const searchLabel = listFilters.q
+    ? `Search: "${listFilters.q}"`
+    : "Search: bez filtru";
+  const missingFilterLabel = activeMissingFilterLabels.length
+    ? `Data quality: ${activeMissingFilterLabels.join(" / ")}`
+    : "Data quality: bez filtru";
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,6 +146,34 @@ export function CompaniesPage() {
   function handleResetSearch() {
     setDraftSearch("");
     setSubmittedSearch("");
+    setDraftMissingFilters(EMPTY_MISSING_COMPANY_FILTERS);
+    setSubmittedMissingFilters(EMPTY_MISSING_COMPANY_FILTERS);
+  }
+
+  function handleOpenMissingFilters() {
+    setDraftMissingFilters(submittedMissingFilters);
+    setShowMissingFilters(true);
+  }
+
+  function setDraftMissingFilter(
+    key: MissingCompanyFilterKey,
+    checked: boolean,
+  ) {
+    setDraftMissingFilters((current) => ({
+      ...current,
+      [key]: checked,
+    }));
+  }
+
+  function handleApplyMissingFilters() {
+    setSubmittedMissingFilters(draftMissingFilters);
+    setShowMissingFilters(false);
+  }
+
+  function handleClearMissingFilters() {
+    setDraftMissingFilters(EMPTY_MISSING_COMPANY_FILTERS);
+    setSubmittedMissingFilters(EMPTY_MISSING_COMPANY_FILTERS);
+    setShowMissingFilters(false);
   }
 
   return (
@@ -110,7 +184,10 @@ export function CompaniesPage() {
         description="Admin katalog firem přes `/admin/companies` s create/edit workflow bez per-row requestů."
         actions={
           <>
-            <form className="flex w-full flex-wrap gap-2 sm:w-auto" onSubmit={handleSearch}>
+            <form
+              className="flex w-full flex-wrap gap-2 sm:w-auto"
+              onSubmit={handleSearch}
+            >
               <Input
                 value={draftSearch}
                 onChange={(event) => setDraftSearch(event.target.value)}
@@ -126,9 +203,18 @@ export function CompaniesPage() {
                 Reset
               </Button>
             </form>
-            <Button type="button" variant="outline" onClick={() => setShowMissingFilters(true)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleOpenMissingFilters}
+            >
               <Filter className="h-4 w-4" />
               Data quality
+              {activeMissingFilterLabels.length ? (
+                <Badge className="ml-1 bg-emerald-100 text-emerald-900">
+                  {activeMissingFilterLabels.length}
+                </Badge>
+              ) : null}
             </Button>
             <Button onClick={() => setShowCreateForm((current) => !current)}>
               <Plus className="h-4 w-4" />
@@ -143,23 +229,57 @@ export function CompaniesPage() {
           <DialogHeader>
             <DialogTitle>Data quality filtry</DialogTitle>
             <DialogDescription>
-              Tyto filtry čekají na server-side podporu v `/admin/companies`, aby výsledek nebyl omezený jen na aktuálně načtenou stránku.
+              Filtry běží server-side nad `/admin/companies`. Více zaškrtnutých
+              položek má OR semantiku.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            {MISSING_COMPANY_FILTERS.map((filter) => (
-              <Label key={filter.query} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-                <span>
-                  <span className="block font-medium text-slate-900">{filter.label}</span>
-                  <span className="block text-xs text-slate-500">{filter.query}</span>
-                </span>
-                <Checkbox checked={false} disabled />
-              </Label>
+            {MISSING_COMPANY_FILTER_OPTIONS.map((filter) => (
+              <div
+                key={filter.query}
+                className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
+              >
+                <Label htmlFor={`company-filter-${filter.key}`}>
+                  <span className="block font-medium text-slate-900">
+                    {filter.label}
+                  </span>
+                  <span className="block text-xs text-slate-500">
+                    {filter.query}
+                  </span>
+                </Label>
+                <Checkbox
+                  id={`company-filter-${filter.key}`}
+                  checked={draftMissingFilters[filter.key]}
+                  onCheckedChange={(checked) =>
+                    setDraftMissingFilter(filter.key, checked === true)
+                  }
+                />
+              </div>
             ))}
             <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-              Backend požadavek je zapsaný v `docs/admin-backend-admin-routes.md`: vybrané missing filtry mají OR semantiku a musí běžet přes JOIN/agregace bez N+1 dotazů.
+              Vybrané filtry rozšiřují výsledek: firma se vrátí, pokud jí chybí
+              aspoň jedna zaškrtnutá hodnota.
             </p>
           </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowMissingFilters(false)}
+            >
+              Zavřít
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClearMissingFilters}
+            >
+              Vyčistit filtry
+            </Button>
+            <Button type="button" onClick={handleApplyMissingFilters}>
+              Použít filtry
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -167,13 +287,17 @@ export function CompaniesPage() {
         <Card className="border-white/80 bg-white/90">
           <CardContent className="space-y-4 p-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Create Company</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Create Company
+              </p>
               <h2 className="mt-2 font-[family-name:var(--font-red-hat-display)] text-2xl font-bold text-slate-950">
                 Nová firma
               </h2>
             </div>
             {offerTypesQuery.isError ? (
-              <p className="text-sm text-rose-700">{getErrorMessage(offerTypesQuery.error)}</p>
+              <p className="text-sm text-rose-700">
+                {getErrorMessage(offerTypesQuery.error)}
+              </p>
             ) : null}
             <CompanyForm
               initialValues={createInitialValues}
@@ -189,11 +313,15 @@ export function CompaniesPage() {
 
       {companiesQuery.isLoading ? (
         <Card>
-          <CardContent className="p-6 text-sm text-slate-500">Načítám firmy...</CardContent>
+          <CardContent className="p-6 text-sm text-slate-500">
+            Načítám firmy...
+          </CardContent>
         </Card>
       ) : companiesQuery.isError ? (
         <Card className="border-rose-200 bg-rose-50/80">
-          <CardContent className="p-6 text-sm text-rose-700">{getErrorMessage(companiesQuery.error)}</CardContent>
+          <CardContent className="p-6 text-sm text-rose-700">
+            {getErrorMessage(companiesQuery.error)}
+          </CardContent>
         </Card>
       ) : (
         <>
@@ -202,6 +330,7 @@ export function CompaniesPage() {
               <Building2 className="h-4 w-4 text-emerald-700" />
               <span>Načteno: {companies.length}</span>
               <span>{searchLabel}</span>
+              <span>{missingFilterLabel}</span>
               <span>Page size: {COMPANY_PAGE_SIZE}</span>
               {companiesQuery.hasNextPage ? (
                 <Button
@@ -211,7 +340,9 @@ export function CompaniesPage() {
                   disabled={companiesQuery.isFetchingNextPage}
                   onClick={() => companiesQuery.fetchNextPage()}
                 >
-                  {companiesQuery.isFetchingNextPage ? "Načítám..." : "Načíst další"}
+                  {companiesQuery.isFetchingNextPage
+                    ? "Načítám..."
+                    : "Načíst další"}
                 </Button>
               ) : null}
             </CardContent>
@@ -228,8 +359,12 @@ export function CompaniesPage() {
                 render: (company) => (
                   <div className="space-y-1">
                     <p className="font-medium text-slate-900">{company.name}</p>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">ID {company.id}</p>
-                    <p className="text-sm text-slate-600">IČO: {company.ico ?? "—"}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                      ID {company.id}
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      IČO: {company.ico ?? "—"}
+                    </p>
                   </div>
                 ),
               },
@@ -241,11 +376,18 @@ export function CompaniesPage() {
                     <div className="space-y-1">
                       <p>{company.slug ?? "Bez slugu"}</p>
                       {webUrl ? (
-                        <a className="text-emerald-700 underline-offset-4 hover:underline" href={webUrl} target="_blank" rel="noreferrer">
+                        <a
+                          className="text-emerald-700 underline-offset-4 hover:underline"
+                          href={webUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
                           {company.web}
                         </a>
                       ) : (
-                        <p className="text-slate-500">{company.web ? "Neplatné URL" : "Bez webu"}</p>
+                        <p className="text-slate-500">
+                          {company.web ? "Neplatné URL" : "Bez webu"}
+                        </p>
                       )}
                     </div>
                   );
@@ -271,8 +413,32 @@ export function CompaniesPage() {
                 },
               },
               {
+                header: "Data quality",
+                render: (company) => {
+                  const hasLogo = Boolean(company.logo?.trim());
+                  return (
+                    <div className="space-y-2">
+                      <Badge
+                        className={
+                          hasLogo
+                            ? "bg-emerald-100 text-emerald-900"
+                            : "bg-amber-100 text-amber-900"
+                        }
+                      >
+                        {hasLogo ? "Logo: ano" : "Logo: chybí"}
+                      </Badge>
+                      <p className="text-sm text-slate-600">
+                        Kontakty: {formatCompactNumber(company.contactCount)}
+                      </p>
+                    </div>
+                  );
+                },
+              },
+              {
                 header: "Aktualizováno",
-                render: (company) => <span>{formatDateTime(company.updatedAt)}</span>,
+                render: (company) => (
+                  <span>{formatDateTime(company.updatedAt)}</span>
+                ),
               },
               {
                 header: "Detail",

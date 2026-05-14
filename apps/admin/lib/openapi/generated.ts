@@ -356,6 +356,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/users/{userId}/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminUsersController_listUserJobs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/users/{userId}/job-reactions": {
         parameters: {
             query?: never;
@@ -1188,6 +1204,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/analytics/companies/no-recent-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listCompaniesNoRecentJobs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/companies/low-candidate-searches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listCompaniesLowCandidateSearches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/companies/no-assigned-users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listCompaniesNoAssignedUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/companies/at-risk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listCompaniesAtRisk"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/jobs/low-applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listJobsLowApplications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/jobs/old": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listJobsOld"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/jobs/low-detail-visits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listJobsLowDetailVisits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/jobs/underperforming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminAnalyticsController_listJobsUnderperforming"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1530,6 +1674,34 @@ export interface components {
         };
         AdminUserResponseDto: {
             data: components["schemas"]["AdminUserDto"];
+        };
+        AdminUserJobStatsDto: {
+            visits: number;
+            applications: number;
+            acceptedApplications: number;
+            rejectedApplications: number;
+            conversionRate: number;
+        };
+        AdminUserJobDto: {
+            id: number;
+            title: string;
+            /** @enum {string|null} */
+            term?: "one_time" | "long_term" | "full_time" | null;
+            /** @enum {string} */
+            status: "active" | "expired" | "draft" | "archived" | "banned" | "not_relevant";
+            companyId?: number | null;
+            companyName?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            offerExpiresAt?: string | null;
+            stats: components["schemas"]["AdminUserJobStatsDto"];
+        };
+        AdminUserJobsResponseDto: {
+            jobs: components["schemas"]["AdminUserJobDto"][];
+            pageInfo: components["schemas"]["AdminPageInfoDto"];
         };
         AdminUserJobSummaryDto: {
             id: number;
@@ -2353,10 +2525,12 @@ export interface components {
             id: number;
             name: string;
             ico?: string | null;
+            logo?: string | null;
             slug?: string | null;
             web?: string | null;
             hubspot_link?: string | null;
             sort_order?: number | null;
+            contactCount: number;
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
@@ -2653,6 +2827,73 @@ export interface components {
         AdminFeedbackResponseDto: {
             feedback: components["schemas"]["AdminFeedbackItemDto"][];
             pageInfo: components["schemas"]["AdminFeedbackPageInfoDto"];
+        };
+        AdminAnalyticsCompanyCriteriaDto: {
+            days?: number;
+            minSearches?: number;
+            noRecentJobsDays?: number;
+            lowCandidateSearchesDays?: number;
+            minCandidateSearches?: number;
+            noAssignedUsers?: boolean;
+        };
+        AdminAnalyticsCompanyItemDto: {
+            id: number;
+            name: string;
+            ico: string | null;
+            slug: string | null;
+            web: string | null;
+            hubspotLink: string | null;
+            /** Format: date */
+            paidUntil: string;
+            assignedUserCount: number;
+            recentJobsCount: number | null;
+            candidateSearchCount: number | null;
+            /** Format: date-time */
+            lastJobCreatedAt: string | null;
+            /** Format: date-time */
+            lastCandidateSearchAt: string | null;
+            matchedCriteria: ("no_recent_jobs" | "low_candidate_searches" | "no_assigned_users")[];
+        };
+        AdminAnalyticsPageInfoDto: {
+            hasNext: boolean;
+        };
+        AdminAnalyticsCompaniesResponseDto: {
+            criteria: components["schemas"]["AdminAnalyticsCompanyCriteriaDto"];
+            items: components["schemas"]["AdminAnalyticsCompanyItemDto"][];
+            pageInfo: components["schemas"]["AdminAnalyticsPageInfoDto"];
+        };
+        AdminAnalyticsJobCriteriaDto: {
+            maxApplied?: number;
+            minAgeDays?: number;
+            maxDetailVisits?: number;
+        };
+        AdminAnalyticsJobCompanyDto: {
+            id: number;
+            name: string;
+            slug: string | null;
+        };
+        AdminAnalyticsJobItemDto: {
+            id: number;
+            descriptionPreview: string | null;
+            term: string;
+            status: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            offerExpiresAt: string | null;
+            authorId: number;
+            company: components["schemas"]["AdminAnalyticsJobCompanyDto"] | null;
+            appliedCount: number;
+            detailVisitCount: number;
+            ageDays: number;
+            matchedCriteria: ("low_applications" | "old_job" | "low_detail_visits")[];
+        };
+        AdminAnalyticsJobsResponseDto: {
+            criteria: components["schemas"]["AdminAnalyticsJobCriteriaDto"];
+            items: components["schemas"]["AdminAnalyticsJobItemDto"][];
+            pageInfo: components["schemas"]["AdminAnalyticsPageInfoDto"];
         };
     };
     responses: never;
@@ -3327,6 +3568,34 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminUserResponseDto"];
+                };
+            };
+        };
+    };
+    AdminUsersController_listUserJobs: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+                /** @description Supports repeated query params or a comma-separated string. */
+                term?: ("one_time" | "long_term" | "full_time")[];
+                /** @description Supports repeated query params or a comma-separated string. */
+                status?: ("active" | "expired" | "draft" | "archived" | "banned" | "not_relevant")[];
+            };
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserJobsResponseDto"];
                 };
             };
         };
@@ -4423,6 +4692,9 @@ export interface operations {
                 afterId?: number;
                 search?: string;
                 q?: string;
+                missingWeb?: boolean;
+                missingLogo?: boolean;
+                missingContact?: boolean;
             };
             header?: never;
             path?: never;
@@ -4755,6 +5027,195 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminFeedbackResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listCompaniesNoRecentJobs: {
+        parameters: {
+            query: {
+                limit?: number;
+                afterId?: number;
+                days: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsCompaniesResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listCompaniesLowCandidateSearches: {
+        parameters: {
+            query: {
+                limit?: number;
+                afterId?: number;
+                days: number;
+                minSearches: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsCompaniesResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listCompaniesNoAssignedUsers: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsCompaniesResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listCompaniesAtRisk: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+                noRecentJobsDays?: number;
+                lowCandidateSearchesDays?: number;
+                minCandidateSearches?: number;
+                noAssignedUsers?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsCompaniesResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listJobsLowApplications: {
+        parameters: {
+            query: {
+                limit?: number;
+                afterId?: number;
+                maxApplied: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsJobsResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listJobsOld: {
+        parameters: {
+            query: {
+                limit?: number;
+                afterId?: number;
+                minAgeDays: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsJobsResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listJobsLowDetailVisits: {
+        parameters: {
+            query: {
+                limit?: number;
+                afterId?: number;
+                maxDetailVisits: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsJobsResponseDto"];
+                };
+            };
+        };
+    };
+    AdminAnalyticsController_listJobsUnderperforming: {
+        parameters: {
+            query?: {
+                limit?: number;
+                afterId?: number;
+                maxApplied?: number;
+                minAgeDays?: number;
+                maxDetailVisits?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsJobsResponseDto"];
                 };
             };
         };

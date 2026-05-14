@@ -1,10 +1,29 @@
 export const companiesQueryKey = ["admin", "companies"] as const;
-export const publicCompaniesQueryKey = ["admin", "companies", "public-list"] as const;
-export const companyOfferTypesQueryKey = ["admin", "companies", "offer-types"] as const;
-export const companyUsersRootQueryKey = ["admin", "companies", "users"] as const;
+export const publicCompaniesQueryKey = [
+  "admin",
+  "companies",
+  "public-list",
+] as const;
+export const companyOfferTypesQueryKey = [
+  "admin",
+  "companies",
+  "offer-types",
+] as const;
+export const companyUsersRootQueryKey = [
+  "admin",
+  "companies",
+  "users",
+] as const;
 
-export function companiesListQueryKey(q?: string) {
-  return ["admin", "companies", "list", q?.trim() ?? ""] as const;
+export type CompaniesListQueryKeyParams = {
+  q: string;
+  missingWeb: boolean;
+  missingLogo: boolean;
+  missingContact: boolean;
+};
+
+export function companiesListQueryKey(params: CompaniesListQueryKeyParams) {
+  return ["admin", "companies", "list", params] as const;
 }
 
 export function companyPickerQueryKey(q?: string) {

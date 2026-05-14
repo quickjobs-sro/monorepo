@@ -1053,6 +1053,98 @@
         ]
       }
     },
+    "/admin/users/{userId}/jobs": {
+      "get": {
+        "operationId": "AdminUsersController_listUserJobs",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "term",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "one_time",
+                  "long_term",
+                  "full_time"
+                ]
+              }
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "active",
+                  "expired",
+                  "draft",
+                  "archived",
+                  "banned",
+                  "not_relevant"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserJobsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Users"
+        ]
+      }
+    },
     "/admin/users/{userId}/job-reactions": {
       "get": {
         "operationId": "AdminUsersController_listJobReactions",
@@ -3151,6 +3243,7 @@
             "schema": {
               "minimum": 1,
               "maximum": 100,
+              "default": 50,
               "type": "number"
             }
           },
@@ -3179,6 +3272,30 @@
             "schema": {
               "maxLength": 200,
               "type": "string"
+            }
+          },
+          {
+            "name": "missingWeb",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "missingLogo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "missingContact",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -3915,6 +4032,510 @@
         ],
         "tags": [
           "Admin Feedback"
+        ]
+      }
+    },
+    "/admin/analytics/companies/no-recent-jobs": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listCompaniesNoRecentJobs",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "days",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsCompaniesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/analytics/companies/low-candidate-searches": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listCompaniesLowCandidateSearches",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "days",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            }
+          },
+          {
+            "name": "minSearches",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsCompaniesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/analytics/companies/no-assigned-users": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listCompaniesNoAssignedUsers",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsCompaniesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/analytics/companies/at-risk": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listCompaniesAtRisk",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "noRecentJobsDays",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            }
+          },
+          {
+            "name": "lowCandidateSearchesDays",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            }
+          },
+          {
+            "name": "minCandidateSearches",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "noAssignedUsers",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsCompaniesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/analytics/jobs/low-applications": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listJobsLowApplications",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "maxApplied",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsJobsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/analytics/jobs/old": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listJobsOld",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "minAgeDays",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsJobsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/analytics/jobs/low-detail-visits": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listJobsLowDetailVisits",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "maxDetailVisits",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsJobsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/analytics/jobs/underperforming": {
+      "get": {
+        "operationId": "AdminAnalyticsController_listJobsUnderperforming",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "afterId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "maxApplied",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000
+            }
+          },
+          {
+            "name": "minAgeDays",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            }
+          },
+          {
+            "name": "maxDetailVisits",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAnalyticsJobsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin Analytics"
         ]
       }
     }
@@ -5251,6 +5872,114 @@
         },
         "required": [
           "data"
+        ]
+      },
+      "AdminUserJobStatsDto": {
+        "type": "object",
+        "properties": {
+          "visits": {
+            "type": "number"
+          },
+          "applications": {
+            "type": "number"
+          },
+          "acceptedApplications": {
+            "type": "number"
+          },
+          "rejectedApplications": {
+            "type": "number"
+          },
+          "conversionRate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "visits",
+          "applications",
+          "acceptedApplications",
+          "rejectedApplications",
+          "conversionRate"
+        ]
+      },
+      "AdminUserJobDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "term": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "one_time",
+              "long_term",
+              "full_time"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "expired",
+              "draft",
+              "archived",
+              "banned",
+              "not_relevant"
+            ]
+          },
+          "companyId": {
+            "type": "number",
+            "nullable": true
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "offerExpiresAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/AdminUserJobStatsDto"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "stats"
+        ]
+      },
+      "AdminUserJobsResponseDto": {
+        "type": "object",
+        "properties": {
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUserJobDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminPageInfoDto"
+          }
+        },
+        "required": [
+          "jobs",
+          "pageInfo"
         ]
       },
       "AdminUserJobSummaryDto": {
@@ -8109,6 +8838,10 @@
             "type": "string",
             "nullable": true
           },
+          "logo": {
+            "type": "string",
+            "nullable": true
+          },
           "slug": {
             "type": "string",
             "nullable": true
@@ -8125,6 +8858,9 @@
             "type": "number",
             "nullable": true
           },
+          "contactCount": {
+            "type": "number"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -8137,6 +8873,7 @@
         "required": [
           "id",
           "name",
+          "contactCount",
           "created_at",
           "updated_at"
         ]
@@ -9292,6 +10029,273 @@
         },
         "required": [
           "feedback",
+          "pageInfo"
+        ]
+      },
+      "AdminAnalyticsCompanyCriteriaDto": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "number"
+          },
+          "minSearches": {
+            "type": "number"
+          },
+          "noRecentJobsDays": {
+            "type": "number"
+          },
+          "lowCandidateSearchesDays": {
+            "type": "number"
+          },
+          "minCandidateSearches": {
+            "type": "number"
+          },
+          "noAssignedUsers": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminAnalyticsCompanyItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ico": {
+            "type": "string",
+            "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "web": {
+            "type": "string",
+            "nullable": true
+          },
+          "hubspotLink": {
+            "type": "string",
+            "nullable": true
+          },
+          "paidUntil": {
+            "type": "string",
+            "format": "date"
+          },
+          "assignedUserCount": {
+            "type": "number"
+          },
+          "recentJobsCount": {
+            "type": "number",
+            "nullable": true
+          },
+          "candidateSearchCount": {
+            "type": "number",
+            "nullable": true
+          },
+          "lastJobCreatedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "lastCandidateSearchAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "matchedCriteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "no_recent_jobs",
+                "low_candidate_searches",
+                "no_assigned_users"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ico",
+          "slug",
+          "web",
+          "hubspotLink",
+          "paidUntil",
+          "assignedUserCount",
+          "recentJobsCount",
+          "candidateSearchCount",
+          "lastJobCreatedAt",
+          "lastCandidateSearchAt",
+          "matchedCriteria"
+        ]
+      },
+      "AdminAnalyticsPageInfoDto": {
+        "type": "object",
+        "properties": {
+          "hasNext": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "hasNext"
+        ]
+      },
+      "AdminAnalyticsCompaniesResponseDto": {
+        "type": "object",
+        "properties": {
+          "criteria": {
+            "$ref": "#/components/schemas/AdminAnalyticsCompanyCriteriaDto"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAnalyticsCompanyItemDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminAnalyticsPageInfoDto"
+          }
+        },
+        "required": [
+          "criteria",
+          "items",
+          "pageInfo"
+        ]
+      },
+      "AdminAnalyticsJobCriteriaDto": {
+        "type": "object",
+        "properties": {
+          "maxApplied": {
+            "type": "number"
+          },
+          "minAgeDays": {
+            "type": "number"
+          },
+          "maxDetailVisits": {
+            "type": "number"
+          }
+        }
+      },
+      "AdminAnalyticsJobCompanyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "AdminAnalyticsJobItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "descriptionPreview": {
+            "type": "string",
+            "nullable": true
+          },
+          "term": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "offerExpiresAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "authorId": {
+            "type": "number"
+          },
+          "company": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminAnalyticsJobCompanyDto"
+              }
+            ]
+          },
+          "appliedCount": {
+            "type": "number"
+          },
+          "detailVisitCount": {
+            "type": "number"
+          },
+          "ageDays": {
+            "type": "number"
+          },
+          "matchedCriteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "low_applications",
+                "old_job",
+                "low_detail_visits"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "descriptionPreview",
+          "term",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "offerExpiresAt",
+          "authorId",
+          "company",
+          "appliedCount",
+          "detailVisitCount",
+          "ageDays",
+          "matchedCriteria"
+        ]
+      },
+      "AdminAnalyticsJobsResponseDto": {
+        "type": "object",
+        "properties": {
+          "criteria": {
+            "$ref": "#/components/schemas/AdminAnalyticsJobCriteriaDto"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAnalyticsJobItemDto"
+            }
+          },
+          "pageInfo": {
+            "$ref": "#/components/schemas/AdminAnalyticsPageInfoDto"
+          }
+        },
+        "required": [
+          "criteria",
+          "items",
           "pageInfo"
         ]
       }

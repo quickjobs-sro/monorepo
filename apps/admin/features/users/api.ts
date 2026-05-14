@@ -1,5 +1,6 @@
 import type {
   AdminUserJobReactionsResponse,
+  AdminUserJobsResponse,
   AdminUserResponse,
   AdminUserDetailResponse,
   AdminUsersResponse,
@@ -7,6 +8,10 @@ import type {
   UpdateAdminUserRequest,
 } from "@/lib/openapi/types";
 import { fetchJson } from "@/lib/api/fetchJson";
+import type {
+  AdminUserJobStatus,
+  UserJobsQueryParams,
+} from "./userJobsFilters";
 
 export type UsersQueryParams = {
   limit?: number;
@@ -20,6 +25,7 @@ export type UsersQueryParams = {
 
 export type UserJobReactionSource = "internal" | "external";
 export type UserJobReactionStatus = "applied" | "ignored";
+export type { AdminUserJobStatus, UserJobsQueryParams };
 
 export type UserJobReactionsQueryParams = {
   source: UserJobReactionSource;
@@ -54,9 +60,12 @@ export async function fetchUsers(params: UsersQueryParams = {}) {
 }
 
 export async function fetchUserDetail(userId: string | number) {
-  return fetchJson<AdminUserDetailResponse>(`/admin/users/${toPathId(userId, "user id")}`, {
-    auth: true,
-  });
+  return fetchJson<AdminUserDetailResponse>(
+    `/admin/users/${toPathId(userId, "user id")}`,
+    {
+      auth: true,
+    },
+  );
 }
 
 export async function createUser(body: CreateAdminUserRequest) {
@@ -66,23 +75,53 @@ export async function createUser(body: CreateAdminUserRequest) {
   });
 }
 
-export async function updateUser(userId: string | number, body: UpdateAdminUserRequest) {
-  return fetchJson<AdminUserResponse>(`/admin/users/${toPathId(userId, "user id")}`, {
-    auth: true,
-    method: "PATCH",
-    body,
-  });
+export async function updateUser(
+  userId: string | number,
+  body: UpdateAdminUserRequest,
+) {
+  return fetchJson<AdminUserResponse>(
+    `/admin/users/${toPathId(userId, "user id")}`,
+    {
+      auth: true,
+      method: "PATCH",
+      body,
+    },
+  );
 }
 
-export async function fetchUserJobReactions(userId: string | number, params: UserJobReactionsQueryParams) {
-  return fetchJson<AdminUserJobReactionsResponse>(`/admin/users/${toPathId(userId, "user id")}/job-reactions`, {
-    auth: true,
-    query: {
-      source: params.source,
-      status: params.status,
-      limit: params.limit,
-      beforeUpdatedAt: params.beforeUpdatedAt,
-      beforeId: params.beforeId,
+export async function fetchUserJobReactions(
+  userId: string | number,
+  params: UserJobReactionsQueryParams,
+) {
+  return fetchJson<AdminUserJobReactionsResponse>(
+    `/admin/users/${toPathId(userId, "user id")}/job-reactions`,
+    {
+      auth: true,
+      query: {
+        source: params.source,
+        status: params.status,
+        limit: params.limit,
+        beforeUpdatedAt: params.beforeUpdatedAt,
+        beforeId: params.beforeId,
+      },
     },
-  });
+  );
+}
+
+export async function fetchUserJobs(
+  userId: string | number,
+  params: UserJobsQueryParams = {},
+) {
+  return fetchJson<AdminUserJobsResponse>(
+    `/admin/users/${toPathId(userId, "user id")}/jobs`,
+    {
+      auth: true,
+      query: {
+        limit: params.limit,
+        afterId: params.afterId,
+        term: params.term,
+        status: params.status,
+      },
+    },
+  );
 }

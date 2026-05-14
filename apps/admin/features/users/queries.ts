@@ -1,4 +1,9 @@
-import type { UserJobReactionSource, UserJobReactionStatus, UsersQueryParams } from "./api";
+import type {
+  UserJobReactionSource,
+  UserJobReactionStatus,
+  UserJobsQueryParams,
+  UsersQueryParams,
+} from "./api";
 
 export const usersQueryKey = ["admin", "users"] as const;
 
@@ -13,7 +18,11 @@ export function userDetailQueryKey(userId: string) {
 export function userJobReactionsQueryKey(
   userId: string,
   source: UserJobReactionSource,
-  status: UserJobReactionStatus
+  status: UserJobReactionStatus,
 ) {
   return ["admin", "users", "job-reactions", userId, source, status] as const;
+}
+
+export function userJobsQueryKey(userId: string, params: UserJobsQueryParams) {
+  return ["admin", "users", "jobs", userId, params] as const;
 }
