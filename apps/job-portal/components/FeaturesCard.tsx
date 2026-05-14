@@ -812,7 +812,7 @@ export default function FeaturesCard({
                                         <p className="text-sm sm:text-base font-bold">{timeLeftText}</p>
                                     </div>
                                 )}
-                                <div className="flex justify-between gap-4 w-full mt-4">
+                                <div className="flex flex-col sm:flex-row justify-between gap-3 w-full mt-4">
                                     {isExternal ? (
                                         <div className="w-full">
                                             <ExternalApplyButton
