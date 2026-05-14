@@ -812,7 +812,7 @@ export default function FeaturesCard({
                                         <p className="text-sm sm:text-base font-bold">{timeLeftText}</p>
                                     </div>
                                 )}
-                                <div className="flex flex-col sm:flex-row justify-between gap-3 w-full mt-4">
+                                <div className="flex justify-between gap-3 w-full mt-4">
                                     {isExternal ? (
                                         <div className="w-full">
                                             <ExternalApplyButton
@@ -863,7 +863,7 @@ export default function FeaturesCard({
                                                 <TrackedButton
                                                     variant='destructive'
                                                     size='lg'
-                                                    className="uppercase w-full min-w-[130px]"
+                                                    className="uppercase flex-1"
                                                     onClick={handleNotInterested}
                                                     disabled={isDisabled}
                                                     gaCategory="Job card"
@@ -876,7 +876,7 @@ export default function FeaturesCard({
                                             <TrackedButton
                                                 variant='default'
                                                 size='lg'
-                                                className="uppercase w-full min-w-[130px]"
+                                                className="uppercase flex-1"
                                                 onClick={handleApply}
                                                 disabled={isDisabled}
                                                 gaCategory="Job card"

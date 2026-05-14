@@ -138,7 +138,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
 
     return (
         <>
-            <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <div className="flex gap-3 w-full">
                 {(hasValidToken && !!user) && (
                     <Button
                         variant="destructive"
