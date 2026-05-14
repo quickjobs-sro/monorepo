@@ -138,12 +138,12 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
 
     return (
         <>
-            <div className="flex gap-3 w-full">
+            <div className="flex flex-col gap-3 w-full">
                 {(hasValidToken && !!user) && (
                     <Button
                         variant="destructive"
                         size="lg"
-                        className="uppercase flex-1"
+                        className="uppercase w-full"
                         onClick={() => { setIsDisabled(true); ignoreMutation.mutate(); }}
                         disabled={isDisabled || ignoreMutation.isPending || applyMutation.isPending}
                     >
@@ -153,7 +153,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
                 <Button
                     variant="default"
                     size="lg"
-                    className="uppercase flex-1"
+                    className="uppercase w-full"
                     onClick={handleInterested}
                     disabled={isDisabled || ignoreMutation.isPending || applyMutation.isPending}
                 >
