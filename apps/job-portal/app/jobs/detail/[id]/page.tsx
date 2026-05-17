@@ -85,6 +85,7 @@ export async function generateMetadata({
             job,
             jobTypeLabel,
             location: job.place?.address || "Praha",
+            title: jobDetail.title ?? undefined,
         });
 
         const url = `https://jobs.quickjobs.cz/jobs/detail/${id}`;
@@ -166,7 +167,7 @@ async function getJobDetail(id: string) {
         const job: JobLike | undefined = publicResult.data;
         const stats = publicResult.stats;
         const applicationStatus: "applied" | "ignored" | "accepted" | "rejected" | null = null;
-        const title = extractJobTitle(job.description);
+        const title = (job as any).title || extractJobTitle(job.description);
         const expiresAt = (job as any).offer_expires_at || job.offerExpiresAt;
         const { days: timeLeftDays, hours: timeLeftHour } = calculateTimeLeft(expiresAt);
         return { job, stats, title, timeLeftDays, timeLeftHour, applicationStatus };

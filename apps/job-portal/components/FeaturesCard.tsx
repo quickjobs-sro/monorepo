@@ -222,6 +222,9 @@ export default function FeaturesCard({
         }
     }, [id, applicationStatus, employerStatement]);
 
+    const currentApplicationStatus = dynamicApplicationStatus ?? applicationStatus;
+    const currentEmployerStatement = dynamicEmployerStatement ?? employerStatement;
+
     const hasStatusFromServer =
         applicationStatus === "applied" || applicationStatus === "ignored" || applicationStatus === "accepted" || applicationStatus === "rejected";
     useEffect(() => {
@@ -262,7 +265,7 @@ export default function FeaturesCard({
             mutationInProgressRef.current = true;
 
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Application API timeout")), 5000)
+                setTimeout(() => reject(new Error("Application API timeout")), 10000)
             );
 
             return (Promise.race([
@@ -279,14 +282,13 @@ export default function FeaturesCard({
         mutationKey: ["jobApplication", id],
         onSuccess: async (data, variables) => {
             mutationInProgressRef.current = false;
-            // Safety net: reset ref after 10s in case of edge cases (align with RN)
-            setTimeout(() => {
-                mutationInProgressRef.current = false;
-            }, 10000);
 
             if (variables.status === "apply") {
+                setDynamicApplicationStatus("applied");
                 setShowCheckModal(false);
                 setShowInterested(true);
+            } else if (variables.status === "ignore") {
+                setDynamicApplicationStatus("ignored");
             }
 
             // Invalidate queries - use prefix matching to invalidate all related queries
@@ -345,7 +347,9 @@ export default function FeaturesCard({
             }
             const fullUrl = url.startsWith("http") ? url : `https://${url}`;
             window.open(fullUrl, "_blank", "noopener,noreferrer");
-            jobMutation.mutate({ status: "apply" });
+            if (currentApplicationStatus !== "applied" && currentApplicationStatus !== "accepted") {
+                jobMutation.mutate({ status: "apply" });
+            }
             return;
         }
 
@@ -384,7 +388,7 @@ export default function FeaturesCard({
         } else {
             setShowCheckModal(true);
         }
-    }, [url, isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, user, router, id, currentUrl, jobMutation]);
+    }, [url, isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, user, router, id, currentUrl, jobMutation, currentApplicationStatus]);
 
     const handleNotInterested = useCallback(() => {
         if (!isLoggedIn) {
@@ -417,7 +421,7 @@ export default function FeaturesCard({
             title: "Status: Nemám zájem",
             duration: 3000,
         });
-    }, [isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, router, toast, jobMutation, id]);
+    }, [isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, router, toast, jobMutation, id, currentUrl]);
 
     const startAt = jobStartsAt ? new Date(jobStartsAt) : null;
     const endsAtDate = jobEndsAt ? new Date(jobEndsAt) : null;
@@ -467,10 +471,6 @@ export default function FeaturesCard({
                 : "dnů"
         : "dnů"
         } ${timeLeftHourNum} hod.`;
-
-    // Use dynamic status if available, otherwise fall back to prop
-    const currentApplicationStatus = dynamicApplicationStatus ?? applicationStatus;
-    const currentEmployerStatement = dynamicEmployerStatement ?? employerStatement;
 
     return (
         <>
@@ -819,9 +819,10 @@ export default function FeaturesCard({
                                                 jobId={id}
                                                 jobUrl={externalUrl}
                                                 feedName={feedName}
+                                                ctaText={ctaText}
                                             />
                                         </div>
-                                    ) : currentApplicationStatus === "applied" ? (
+                                    ) : currentApplicationStatus === "applied" && !url ? (
                                         <Button
                                             variant='default'
                                             size='lg'

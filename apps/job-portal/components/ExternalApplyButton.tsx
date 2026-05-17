@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { Badge } from "@ui/components/core/badge";
 import { Button } from "@ui/components/core/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import API from "../lib/legacyApi";
@@ -20,13 +21,26 @@ import { API_KEYS } from "@ui/types/api_keys";
 import { reportError } from "../lib/reportError";
 import { useRouterWithNavigationLoading } from "@ui/hooks/useRouterWithNavigationLoading";
 
+const LS_APPLIED = "appliedExternalJobs";
+const LS_IGNORED = "ignoredExternalJobs";
+
+function readIds(key: string): number[] {
+    try { return JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { return []; }
+}
+
+function saveId(key: string, id: number) {
+    const ids = readIds(key);
+    if (!ids.includes(id)) localStorage.setItem(key, JSON.stringify([...ids, id]));
+}
+
 interface ExternalApplyButtonProps {
     jobId: number;
     jobUrl?: string;
     feedName?: string;
+    ctaText?: string | null;
 }
 
-export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyButtonProps) {
+export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: ExternalApplyButtonProps) {
     const router = useRouterWithNavigationLoading();
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -39,11 +53,18 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
     const isGrafton = feedName === "Grafton";
     const jobDetailUrl = `/jobs/detail/${jobId}`;
 
+    const [hasApplied, setHasApplied] = useState(false);
+    const [hasIgnored, setHasIgnored] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [showFillModal, setShowFillModal] = useState(false);
     const [showCheckModal, setShowCheckModal] = useState(false);
     const mutationInProgressRef = useRef(false);
     const pendingPopupRef = useRef<Window | null>(null);
+
+    useEffect(() => {
+        setHasApplied(readIds(LS_APPLIED).includes(jobId));
+        setHasIgnored(readIds(LS_IGNORED).includes(jobId));
+    }, [jobId]);
 
     useEffect(() => () => {
         if (pendingPopupRef.current) {
@@ -60,7 +81,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
     const ignoreMutation = useMutation({
         mutationFn: () => {
             const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Application API timeout")), 5000)
+                setTimeout(() => reject(new Error("Application API timeout")), 10000)
             );
             return Promise.race([
                 API.applications.createExternalApplication({ action: "ignore", externalJobId: jobId }),
@@ -69,6 +90,8 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
         },
         mutationKey: ["externalJobIgnore", jobId],
         onSuccess: () => {
+            saveId(LS_IGNORED, jobId);
+            setHasIgnored(true);
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
             toast({ title: "Nabídka označena jako bez zájmu", duration: 3000 });
             router.push("/jobs");
@@ -85,7 +108,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
             if (mutationInProgressRef.current) throw new Error("Mutation already in progress");
             mutationInProgressRef.current = true;
             const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Application API timeout")), 5000)
+                setTimeout(() => reject(new Error("Application API timeout")), 10000)
             );
             return Promise.race([
                 API.applications.createExternalApplication({ action: "apply", externalJobId: jobId }),
@@ -95,6 +118,8 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
         mutationKey: ["externalJobApplication", jobId],
         onSuccess: () => {
             mutationInProgressRef.current = false;
+            saveId(LS_APPLIED, jobId);
+            setHasApplied(true);
             setShowCheckModal(false);
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
@@ -134,31 +159,62 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName }: ExternalApplyBu
         }
     }, [isDisabled, hasEmptyProfile]);
 
-    const buttonLabel = isGrafton ? "MÁM ZÁJEM" : "VÍCE INFO";
+    const handleRevisit = useCallback(() => {
+        if (jobUrl) window.open(jobUrl, "_blank", "noopener,noreferrer");
+    }, [jobUrl]);
+
+    const buttonLabel = ctaText || "MÁM ZÁJEM";
 
     return (
         <>
+            {hasApplied && (
+                <Badge className="bg-blue-500 text-white border-0 w-fit mb-2">Navštíveno</Badge>
+            )}
             <div className="flex flex-col gap-3 w-full">
-                {(hasValidToken && !!user) && (
-                    <Button
-                        variant="destructive"
-                        size="lg"
-                        className="uppercase w-full"
-                        onClick={() => { setIsDisabled(true); ignoreMutation.mutate(); }}
-                        disabled={isDisabled || ignoreMutation.isPending || applyMutation.isPending}
-                    >
-                        NEMÁM ZÁJEM
-                    </Button>
+                {hasApplied ? (
+                    isGrafton ? (
+                        <Button
+                            variant="default"
+                            size="lg"
+                            className="uppercase w-full bg-green-600 hover:bg-green-700 text-white"
+                            disabled
+                        >
+                            ✓ Přihláška odeslána
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            className="uppercase w-full"
+                            onClick={handleRevisit}
+                        >
+                            ↗ OTEVŘÍT ZNOVU
+                        </Button>
+                    )
+                ) : (
+                    <>
+                        {(hasValidToken && !!user && !hasIgnored) && (
+                            <Button
+                                variant="destructive"
+                                size="lg"
+                                className="uppercase w-full"
+                                onClick={() => { setIsDisabled(true); ignoreMutation.mutate(); }}
+                                disabled={isDisabled || ignoreMutation.isPending || applyMutation.isPending}
+                            >
+                                NEMÁM ZÁJEM
+                            </Button>
+                        )}
+                        <Button
+                            variant="default"
+                            size="lg"
+                            className="uppercase w-full"
+                            onClick={handleInterested}
+                            disabled={isDisabled || ignoreMutation.isPending || applyMutation.isPending}
+                        >
+                            {buttonLabel}
+                        </Button>
+                    </>
                 )}
-                <Button
-                    variant="default"
-                    size="lg"
-                    className="uppercase w-full"
-                    onClick={handleInterested}
-                    disabled={isDisabled || ignoreMutation.isPending || applyMutation.isPending}
-                >
-                    {buttonLabel}
-                </Button>
             </div>
 
             <Dialog open={showFillModal} onOpenChange={setShowFillModal}>

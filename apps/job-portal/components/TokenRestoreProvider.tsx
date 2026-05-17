@@ -49,7 +49,7 @@ export const TokenRestoreProvider = ({ children }: TokenRestoreProviderProps) =>
         if (!token || !isValidToken(token)) return;
         try {
             const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Token restoration timeout")), 5000)
+                setTimeout(() => reject(new Error("Token restoration timeout")), 10000)
             );
             await Promise.race([restoreClientSessionToken(), timeoutPromise]);
         } catch (error: unknown) {
@@ -90,7 +90,7 @@ export const TokenRestoreProvider = ({ children }: TokenRestoreProviderProps) =>
 
             try {
                 const timeoutPromise = new Promise<never>((_, reject) =>
-                    setTimeout(() => reject(new Error("Token restoration timeout")), 5000)
+                    setTimeout(() => reject(new Error("Token restoration timeout")), 10000)
                 );
 
                 await Promise.race([restoreClientSessionToken(), timeoutPromise]);
