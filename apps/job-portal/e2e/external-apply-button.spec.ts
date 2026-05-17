@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-// Fake JWT with exp year 2286 so isValidToken passes
+// Fake JWT with exp year 2286 so isValidToken passes and token is not considered expired
 const FAKE_ACCESS_TOKEN =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjo5OTk5OTk5OTk5fQ.ZmFrZQ";
 
@@ -42,40 +42,43 @@ const MOCK_PROFILE = {
     },
 };
 
-/** Finds the first job detail page that renders an ExternalApplyButton (URL-based external job).
- *  Returns the jobId string, or null if none found among the first N links. */
-async function findUrlExternalJobId(page: ReturnType<typeof test["info"]> extends never ? never : any, limit = 6): Promise<string | null> {
+/** Minimal applied/ignored response shape — only `id` is needed by the component */
+const emptyReactions = () => JSON.stringify({ jobs: [] });
+const appliedReactions = (id: number) => JSON.stringify({ jobs: [{ id }] });
+const ignoredReactions = (id: number) => JSON.stringify({ jobs: [{ id }] });
+
+/** Finds a URL-based external job ID by temporarily mocking the backend applied list for each
+ *  candidate and checking whether OTEVŘÍT ZNOVU renders on the job detail page. */
+async function findUrlExternalJobId(page: any): Promise<string | null> {
+    // Known external job IDs — checked in order; first one that renders OTEVŘÍT ZNOVU is used.
+    const candidates = [21425, 21424, 21421, 21420, 21416, 21415, 21414, 21413, 21402];
+
+    // Navigate first so token restore completes before we probe detail pages
     await page.goto("/jobs");
     await expect(page.getByRole("main")).toBeVisible({ timeout: 15_000 });
+    await page.waitForTimeout(3_000);
 
-    const links = page.locator('a[href^="/jobs/detail/"]');
-    await expect(links.first()).toBeVisible({ timeout: 15_000 });
+    for (const id of candidates) {
+        const jobId = String(id);
 
-    const hrefs: string[] = await links.evaluateAll((els: HTMLAnchorElement[]) =>
-        els.slice(0, 6).map((el) => el.getAttribute("href") ?? "").filter(Boolean)
-    );
-
-    for (const href of hrefs.slice(0, limit)) {
-        const jobId = href.match(/\/jobs\/detail\/(\d+)/)?.[1];
-        if (!jobId) continue;
-
-        // Pre-populate localStorage as if this job was already applied via ExternalApplyButton
-        await page.evaluate((id: number) => {
-            localStorage.setItem("appliedExternalJobs", JSON.stringify([id]));
-        }, Number(jobId));
+        // Temporarily tell the component this job is in the applied list
+        const appliedHandler = async (route: any) => {
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: appliedReactions(id),
+            });
+        };
+        await page.route(/backend\.quickjobs\.cz\/v2\/jobs\/external-applied/, appliedHandler);
 
         await page.goto(`/jobs/detail/${jobId}`);
-        await expect(page.getByRole("main")).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByRole("main")).toBeVisible({ timeout: 12_000 });
 
-        // "↗ OTEVŘÍT ZNOVU" only appears in ExternalApplyButton for URL-based external jobs
         const reopenBtn = page.getByRole("button", { name: /OTEVŘÍT ZNOVU/i });
-        const isUrlExternal = await reopenBtn.isVisible({ timeout: 2_000 }).catch(() => false);
+        const isUrlExternal = await reopenBtn.isVisible({ timeout: 9_000 }).catch(() => false);
 
-        // Clean up localStorage between attempts regardless of outcome
-        await page.evaluate(() => {
-            localStorage.removeItem("appliedExternalJobs");
-            localStorage.removeItem("ignoredExternalJobs");
-        });
+        // Restore the default empty-list handler for the next iteration
+        await page.unroute(/backend\.quickjobs\.cz\/v2\/jobs\/external-applied/, appliedHandler);
 
         if (isUrlExternal) return jobId;
     }
@@ -99,19 +102,6 @@ test.describe("ExternalApplyButton", () => {
                 secure: false,
                 sameSite: "Lax",
             },
-            {
-                name: "QuickJobs.tokens",
-                value: JSON.stringify({
-                    accessToken: FAKE_ACCESS_TOKEN,
-                    refreshToken: "fake-refresh-token",
-                    tokenType: "Bearer",
-                }),
-                domain: "localhost",
-                path: "/",
-                httpOnly: false,
-                secure: false,
-                sameSite: "Lax",
-            },
         ]);
     });
 
@@ -119,11 +109,12 @@ test.describe("ExternalApplyButton", () => {
         await page.evaluate(() => {
             localStorage.removeItem("appliedExternalJobs");
             localStorage.removeItem("ignoredExternalJobs");
+            localStorage.removeItem("quickjobs_pending_job_action");
         }).catch(() => {});
     });
 
     test.beforeEach(async ({ page }) => {
-        // Mock profile so token restore + profile fetch succeed
+        // Mock profile so the fake token appears as a real logged-in session
         await page.route(/\/me\/profile/, async (route) => {
             if (route.request().method() === "GET") {
                 await route.fulfill({
@@ -135,7 +126,7 @@ test.describe("ExternalApplyButton", () => {
                 await route.continue();
             }
         });
-        // Stub token restore so it doesn't 401
+        // Stub token restore endpoints so they complete instantly (avoids 10s timeout)
         await page.route(/\/oauth\/token/, async (route) => {
             await route.fulfill({
                 status: 200,
@@ -143,12 +134,27 @@ test.describe("ExternalApplyButton", () => {
                 body: JSON.stringify({ access_token: FAKE_ACCESS_TOKEN, token_type: "Bearer" }),
             });
         });
+        // Stub legacy API calls (syncLegacyToken → quickjobs-api-wrapper → api.quickjobs.cz)
+        await page.route(/api\.quickjobs\.cz/, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify({ data: { accessToken: FAKE_ACCESS_TOKEN } }),
+            });
+        });
+        // Default: backend reports no applied or ignored jobs for this test user
+        await page.route(/backend\.quickjobs\.cz\/v2\/jobs\/external-applied/, async (route) => {
+            await route.fulfill({ status: 200, contentType: "application/json", body: emptyReactions() });
+        });
+        await page.route(/backend\.quickjobs\.cz\/v2\/jobs\/external-ignored/, async (route) => {
+            await route.fulfill({ status: 200, contentType: "application/json", body: emptyReactions() });
+        });
     });
 
-    test("URL external job: OTEVŘÍT ZNOVU appears on revisit from localStorage, backend not called again", async ({ page }) => {
+    test("URL external job: OTEVŘÍT ZNOVU appears when backend lists job as applied, clicking it does not call apply API", async ({ page }) => {
         const jobId = await findUrlExternalJobId(page);
         if (!jobId) {
-            test.skip(true, "No URL-based external jobs found in the first 6 job links");
+            test.skip(true, "No URL-based external jobs found via public API");
             return;
         }
 
@@ -158,35 +164,34 @@ test.describe("ExternalApplyButton", () => {
             await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: {} }) });
         });
 
-        // Simulate returning to the job after having previously applied
-        await page.evaluate((id: number) => {
-            localStorage.setItem("appliedExternalJobs", JSON.stringify([id]));
-        }, Number(jobId));
+        // Override applied list to include this job
+        const appliedHandler = async (route: any) => {
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: appliedReactions(Number(jobId)),
+            });
+        };
+        await page.route(/backend\.quickjobs\.cz\/v2\/jobs\/external-applied/, appliedHandler);
 
         await page.goto(`/jobs/detail/${jobId}`);
         await expect(page.getByRole("main")).toBeVisible({ timeout: 10_000 });
 
-        // "↗ OTEVŘÍT ZNOVU" must be visible
+        // OTEVŘÍT ZNOVU must be visible
         const reopenBtn = page.getByRole("button", { name: /OTEVŘÍT ZNOVU/i });
         await expect(reopenBtn).toBeVisible({ timeout: 5_000 });
 
-        // "NEMÁM ZÁJEM" must be gone
+        // NEMÁM ZÁJEM must be gone
         await expect(page.getByRole("button", { name: /NEMÁM ZÁJEM/i })).not.toBeVisible();
 
-        // Clicking OTEVŘÍT ZNOVU must NOT call the backend
+        // Clicking OTEVŘÍT ZNOVU must NOT call the backend apply endpoint
         const [newTab] = await Promise.all([
             page.context().waitForEvent("page").catch(() => null),
             reopenBtn.click(),
         ]);
 
-        await page.waitForTimeout(1_000); // give any potential request time to fire
+        await page.waitForTimeout(1_000);
         expect(applyCallCount.n).toBe(0);
-
-        // localStorage still contains the jobId
-        const stored = await page.evaluate(() =>
-            JSON.parse(localStorage.getItem("appliedExternalJobs") ?? "[]")
-        );
-        expect(stored).toContain(Number(jobId));
 
         if (newTab) await newTab.close();
     });
@@ -194,7 +199,7 @@ test.describe("ExternalApplyButton", () => {
     test("URL external job: backend apply called exactly once, NEMÁM ZÁJEM disappears after apply", async ({ page }) => {
         const jobId = await findUrlExternalJobId(page);
         if (!jobId) {
-            test.skip(true, "No URL-based external jobs found in the first 6 job links");
+            test.skip(true, "No URL-based external jobs found via public API");
             return;
         }
 
@@ -214,10 +219,10 @@ test.describe("ExternalApplyButton", () => {
 
         // Fresh state: both buttons visible
         await expect(page.getByRole("button", { name: /NEMÁM ZÁJEM/i })).toBeVisible({ timeout: 5_000 });
-        await expect(page.getByRole("button", { name: /MÁM ZÁJEM/i })).toBeVisible();
+        await expect(page.getByRole("button", { name: /^MÁM ZÁJEM$/i })).toBeVisible();
 
         // Click MÁM ZÁJEM → confirmation dialog
-        await page.getByRole("button", { name: /MÁM ZÁJEM/i }).click();
+        await page.getByRole("button", { name: /^MÁM ZÁJEM$/i }).click();
         const confirmBtn = page.getByRole("button", { name: /ANO.*MÁM ZÁJEM/i });
         await expect(confirmBtn).toBeVisible({ timeout: 5_000 });
         await confirmBtn.click();
@@ -235,7 +240,7 @@ test.describe("ExternalApplyButton", () => {
     test("NEMÁM ZÁJEM: backend ignore called exactly once, button gone on revisit", async ({ page }) => {
         const jobId = await findUrlExternalJobId(page);
         if (!jobId) {
-            test.skip(true, "No URL-based external jobs found in the first 6 job links");
+            test.skip(true, "No URL-based external jobs found via public API");
             return;
         }
 
@@ -264,16 +269,53 @@ test.describe("ExternalApplyButton", () => {
 
         expect(ignoreCallCount.n).toBe(1);
 
-        // Revisit: NEMÁM ZÁJEM must be gone, MÁM ZÁJEM still there
-        await page.evaluate((id: number) => {
-            // Ensure we're in ignored state (in case redirect happened)
-            localStorage.setItem("ignoredExternalJobs", JSON.stringify([id]));
-        }, Number(jobId));
+        // Revisit: mock backend to return job as ignored, then check NEMÁM ZÁJEM is gone
+        const ignoredHandler = async (route: any) => {
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: ignoredReactions(Number(jobId)),
+            });
+        };
+        await page.route(/backend\.quickjobs\.cz\/v2\/jobs\/external-ignored/, ignoredHandler);
 
         await page.goto(`/jobs/detail/${jobId}`);
         await expect(page.getByRole("main")).toBeVisible({ timeout: 10_000 });
 
         await expect(page.getByRole("button", { name: /NEMÁM ZÁJEM/i })).not.toBeVisible({ timeout: 3_000 });
-        await expect(page.getByRole("button", { name: /MÁM ZÁJEM/i })).toBeVisible();
+        await expect(page.getByRole("button", { name: /^MÁM ZÁJEM$/i })).toBeVisible();
+    });
+
+    test("not logged in: clicking MÁM ZÁJEM saves external_apply pending action and redirects to login", async ({ page, context }) => {
+        const jobId = await findUrlExternalJobId(page);
+        if (!jobId) {
+            test.skip(true, "No URL-based external jobs found via public API");
+            return;
+        }
+
+        // Remove auth cookie to simulate unauthenticated state
+        await context.clearCookies();
+
+        await page.goto(`/jobs/detail/${jobId}`);
+        await expect(page.getByRole("main")).toBeVisible({ timeout: 10_000 });
+
+        // Only MÁM ZÁJEM should appear — NEMÁM ZÁJEM requires login
+        const mamZajemBtn = page.getByRole("button", { name: /^MÁM ZÁJEM$/i });
+        await expect(mamZajemBtn).toBeVisible({ timeout: 8_000 });
+        await expect(page.getByRole("button", { name: /NEMÁM ZÁJEM/i })).not.toBeVisible();
+
+        await mamZajemBtn.click();
+
+        // Should redirect to /login
+        await expect(page).toHaveURL(/\/login/, { timeout: 5_000 });
+
+        // Pending action must be saved with the correct shape
+        const pending = await page.evaluate(() =>
+            JSON.parse(localStorage.getItem("quickjobs_pending_job_action") ?? "null")
+        );
+        expect(pending).not.toBeNull();
+        expect(pending.jobId).toBe(Number(jobId));
+        expect(pending.action).toBe("external_apply");
+        expect(pending.url).toBeTruthy();
     });
 });

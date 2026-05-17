@@ -42,7 +42,7 @@ import { useGetProfile } from "../hooks/useGetProfile";
 import { API_KEYS } from "@ui/types/api_keys";
 import { useToast } from "@ui/hooks/use-toast";
 import { getSchoolStatusString } from "@ui/helpers/getSchoolStatusString";
-import { getPendingJobAction, clearPendingJobAction, type PendingJobAction } from "../lib/utils";
+import { getPendingJobAction, clearPendingJobAction, ensureAbsoluteUrl, type PendingJobAction } from "../lib/utils";
 import { Button } from "@ui/components/core/button";
 import { Input } from "@ui/components/core/input";
 import { Label } from "@ui/components/core/label";
@@ -259,7 +259,7 @@ export const Onboarding = ({
                         if (pendingAction.action === "open_url") {
                             clearPendingJobAction();
                             if (pendingAction.url) {
-                                window.open(pendingAction.url, "_blank", "noopener,noreferrer");
+                                window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
                             }
                             try {
                                 await API.applications.createApplication(pendingAction.jobId, "apply");
@@ -274,6 +274,21 @@ export const Onboarding = ({
                                 description: "Tvůj životopis už míří ke správným lidem.",
                                 duration: 5000,
                             });
+                            return;
+                        }
+
+                        if (pendingAction.action === "external_apply") {
+                            clearPendingJobAction();
+                            try {
+                                await API.applications.createExternalApplication({ action: "apply", externalJobId: pendingAction.jobId });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                                if (pendingAction.url) {
+                                    window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
+                                }
+                            } catch {
+                                // non-fatal
+                            }
                             return;
                         }
 

@@ -23,7 +23,7 @@ import { Toaster } from "@ui/components/core/toaster";
 import { getAuthToken, removeAuthToken, setAuthToken } from "../lib/constants";
 import { normalizeApiError, is5xx, FIVE_XX_USER_MESSAGE } from "../lib/apiErrors";
 import type { StoredAuthToken } from "../lib/authSession";
-import { getPendingJobAction, clearPendingJobAction, type PendingJobAction } from "../lib/utils";
+import { getPendingJobAction, clearPendingJobAction, ensureAbsoluteUrl, type PendingJobAction } from "../lib/utils";
 import { reportError } from "../lib/reportError";
 import { fetchProfile } from "../lib/migratedQueries";
 import { useRouterWithNavigationLoading } from "@ui/hooks/useRouterWithNavigationLoading";
@@ -80,10 +80,26 @@ export const JobPortalLoginCard = ({
     const [selectedUserType, setSelectedUserType] = useState<"employer" | "applicant">(userType);
 
     const executePendingJobAction = async (pendingAction: PendingJobAction, defaultReturnUrl?: string | null): Promise<boolean> => {
+        if (pendingAction.action === "external_apply") {
+            clearPendingJobAction();
+            try {
+                await API.applications.createExternalApplication({ action: "apply", externalJobId: pendingAction.jobId });
+                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                if (pendingAction.url) {
+                    window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
+                }
+            } catch (error: any) {
+                reportError(error, { location: "JobPortalLoginCard.executePendingJobAction.external", jobId: pendingAction.jobId });
+            }
+            router.push("/jobs");
+            return true;
+        }
+
         if (pendingAction.action === "open_url") {
             clearPendingJobAction();
             if (pendingAction.url) {
-                window.open(pendingAction.url, "_blank", "noopener,noreferrer");
+                window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
             }
             // Also submit the application so the job is marked as applied
             try {

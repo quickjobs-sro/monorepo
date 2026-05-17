@@ -18,9 +18,13 @@ import {
     DialogTitle,
 } from "@ui/components/core/dialog";
 import { API_KEYS } from "@ui/types/api_keys";
+import { EXTERNAL_JOB_TYPE } from "@ui/types/application_status";
 import { reportError } from "../lib/reportError";
 import { useRouterWithNavigationLoading } from "@ui/hooks/useRouterWithNavigationLoading";
+import { useExternalJobs } from "../hooks/useExternalJobs";
+import { savePendingJobAction } from "../lib/utils";
 
+// localStorage keys — used only for optimistic post-action feedback while the backend query refetches
 const LS_APPLIED = "appliedExternalJobs";
 const LS_IGNORED = "ignoredExternalJobs";
 
@@ -36,11 +40,10 @@ function saveId(key: string, id: number) {
 interface ExternalApplyButtonProps {
     jobId: number;
     jobUrl?: string;
-    feedName?: string;
     ctaText?: string | null;
 }
 
-export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: ExternalApplyButtonProps) {
+export function ExternalApplyButton({ jobId, jobUrl, ctaText }: ExternalApplyButtonProps) {
     const router = useRouterWithNavigationLoading();
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -49,21 +52,29 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
     const hasValidToken = mounted && tokenRestored && !!token && isValidToken(token);
     const { data: userProfile } = useGetProfile(!!hasValidToken);
     const user = userProfile?.data;
+    const isLoggedIn = hasValidToken && !!user;
 
-    const isGrafton = feedName === "Grafton";
     const jobDetailUrl = `/jobs/detail/${jobId}`;
 
-    const [hasApplied, setHasApplied] = useState(false);
-    const [hasIgnored, setHasIgnored] = useState(false);
+    // Backend lists — source of truth for applied/ignored state
+    const { data: appliedData } = useExternalJobs(EXTERNAL_JOB_TYPE.APPLIED, isLoggedIn);
+    const { data: ignoredData } = useExternalJobs(EXTERNAL_JOB_TYPE.IGNORED, isLoggedIn);
+    const backendAppliedIds = appliedData?.jobs?.map((j) => j.id) ?? null;
+    const backendIgnoredIds = ignoredData?.jobs?.map((j) => j.id) ?? null;
+
+    // Optimistic local state — used immediately after an action, before backend query refetches
+    const [optimisticApplied, setOptimisticApplied] = useState(false);
+    const [optimisticIgnored, setOptimisticIgnored] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [showFillModal, setShowFillModal] = useState(false);
     const [showCheckModal, setShowCheckModal] = useState(false);
     const mutationInProgressRef = useRef(false);
     const pendingPopupRef = useRef<Window | null>(null);
 
+    // Seed optimistic state from localStorage on mount (so UI is instant on revisit)
     useEffect(() => {
-        setHasApplied(readIds(LS_APPLIED).includes(jobId));
-        setHasIgnored(readIds(LS_IGNORED).includes(jobId));
+        setOptimisticApplied(readIds(LS_APPLIED).includes(jobId));
+        setOptimisticIgnored(readIds(LS_IGNORED).includes(jobId));
     }, [jobId]);
 
     useEffect(() => () => {
@@ -72,6 +83,14 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
             pendingPopupRef.current = null;
         }
     }, []);
+
+    // Backend is authoritative; fall back to optimistic (localStorage) while backend query loads
+    const hasApplied = backendAppliedIds !== null
+        ? backendAppliedIds.includes(jobId)
+        : optimisticApplied;
+    const hasIgnored = backendIgnoredIds !== null
+        ? backendIgnoredIds.includes(jobId)
+        : optimisticIgnored;
 
     const hasEmptyProfile =
         (!user?.skills || user.skills.length === 0) &&
@@ -91,7 +110,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
         mutationKey: ["externalJobIgnore", jobId],
         onSuccess: () => {
             saveId(LS_IGNORED, jobId);
-            setHasIgnored(true);
+            setOptimisticIgnored(true);
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
             toast({ title: "Nabídka označena jako bez zájmu", duration: 3000 });
             router.push("/jobs");
@@ -119,11 +138,11 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
         onSuccess: () => {
             mutationInProgressRef.current = false;
             saveId(LS_APPLIED, jobId);
-            setHasApplied(true);
+            setOptimisticApplied(true);
             setShowCheckModal(false);
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
-            if (jobUrl && !isGrafton) {
+            if (jobUrl) {
                 if (pendingPopupRef.current) {
                     pendingPopupRef.current.location.href = jobUrl;
                 } else {
@@ -154,6 +173,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
         if (isDisabled) return;
         if (!mounted || !tokenRestored) return;
         if (!hasValidToken) {
+            savePendingJobAction({ jobId, action: "external_apply", url: jobUrl, returnUrl: jobDetailUrl });
             router.push(`/login?returnUrl=${encodeURIComponent(jobDetailUrl)}`);
             return;
         }
@@ -170,7 +190,6 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
     }, [jobUrl]);
 
     const buttonLabel = ctaText || "MÁM ZÁJEM";
-    const isLoggedIn = hasValidToken && !!user;
     const effectiveHasApplied = isLoggedIn && hasApplied;
     const effectiveHasIgnored = isLoggedIn && hasIgnored;
 
@@ -179,18 +198,9 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
             {effectiveHasApplied && (
                 <Badge className="bg-blue-500 text-white border-0 w-fit mb-2">Navštíveno</Badge>
             )}
-            <div className="flex flex-col gap-3 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
                 {effectiveHasApplied ? (
-                    isGrafton ? (
-                        <Button
-                            variant="default"
-                            size="lg"
-                            className="uppercase w-full bg-green-600 hover:bg-green-700 text-white"
-                            disabled
-                        >
-                            ✓ Přihláška odeslána
-                        </Button>
-                    ) : (
+                    jobUrl ? (
                         <Button
                             variant="outline"
                             size="lg"
@@ -198,6 +208,15 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
                             onClick={handleRevisit}
                         >
                             ↗ OTEVŘÍT ZNOVU
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="default"
+                            size="lg"
+                            className="uppercase w-full bg-green-600 hover:bg-green-700 text-white"
+                            disabled
+                        >
+                            ✓ Přihláška odeslána
                         </Button>
                     )
                 ) : (
@@ -253,9 +272,9 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
                     <DialogHeader>
                         <DialogTitle>Máš zájem o tuto nabídku?</DialogTitle>
                         <DialogDescription className="mt-2">
-                            {isGrafton
-                                ? "Odešleme tvůj profil s kontaktními údaji, aby se s tebou mohl zaměstnavatel spojit."
-                                : "Zájem odešleme zaměstnavateli a otevřeme stránku nabídky, kde se přihlásíš přímo."}
+                            {jobUrl
+                                ? "Zájem odešleme zaměstnavateli a otevřeme stránku nabídky, kde se přihlásíš přímo."
+                                : "Odešleme tvůj profil s kontaktními údaji, aby se s tebou mohl zaměstnavatel spojit."}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex-col-reverse sm:flex-row gap-3">
@@ -268,7 +287,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
                         <Button
                             onClick={() => {
                                 setIsDisabled(true);
-                                if (!isGrafton && jobUrl) {
+                                if (jobUrl) {
                                     const popup = window.open("about:blank", "_blank");
                                     if (popup) popup.opener = null;
                                     pendingPopupRef.current = popup;

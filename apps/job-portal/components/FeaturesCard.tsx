@@ -35,7 +35,7 @@ import {
 } from "@ui/components/core/dialog";
 import { API_KEYS } from "@ui/types/api_keys";
 import { APPLICATION_STATUS, EXTERNAL_JOB_TYPE } from "@ui/types/application_status";
-import { savePendingJobAction } from "../lib/utils";
+import { savePendingJobAction, ensureAbsoluteUrl } from "../lib/utils";
 import { ApplicationStatusProvider } from "./ApplicationStatusProvider";
 import { reportError } from "../lib/reportError";
 import { ShareButtons } from "./ShareButtons";
@@ -340,12 +340,12 @@ export default function FeaturesCard({
 
     const handleApply = useCallback(() => {
         if (url) {
+            const fullUrl = ensureAbsoluteUrl(url);
             if (!isLoggedIn) {
-                savePendingJobAction({ jobId: id, action: "open_url", url, returnUrl: currentUrl });
+                savePendingJobAction({ jobId: id, action: "open_url", url: fullUrl, returnUrl: currentUrl });
                 router.push(`/login?returnUrl=${encodeURIComponent(currentUrl)}`);
                 return;
             }
-            const fullUrl = url.startsWith("http") ? url : `https://${url}`;
             window.open(fullUrl, "_blank", "noopener,noreferrer");
             if (currentApplicationStatus !== "applied" && currentApplicationStatus !== "accepted") {
                 jobMutation.mutate({ status: "apply" });
@@ -818,7 +818,6 @@ export default function FeaturesCard({
                                             <ExternalApplyButton
                                                 jobId={id}
                                                 jobUrl={externalUrl}
-                                                feedName={feedName}
                                                 ctaText={ctaText}
                                             />
                                         </div>

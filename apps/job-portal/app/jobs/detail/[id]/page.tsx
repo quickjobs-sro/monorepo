@@ -189,8 +189,9 @@ async function getExternalJobDetail(id: string) {
     if (isNaN(jobId) || jobId <= 0 || !Number.isInteger(jobId)) return null;
     try {
         const token = await getAuthTokenFromCookies();
+        // Try authenticated fetch first; fall back to public if unavailable or auth fails
         const raw = token
-            ? await fetchExternalJobById(jobId, { token })
+            ? (await fetchExternalJobById(jobId, { token })) ?? await fetchPublicExternalJobById(jobId)
             : await fetchPublicExternalJobById(jobId);
         if (!raw) return null;
         const job = raw as unknown as ExternalJobRuntime;
