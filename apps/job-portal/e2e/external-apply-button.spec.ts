@@ -71,8 +71,11 @@ async function findUrlExternalJobId(page: ReturnType<typeof test["info"]> extend
         const reopenBtn = page.getByRole("button", { name: /OTEVŘÍT ZNOVU/i });
         const isUrlExternal = await reopenBtn.isVisible({ timeout: 2_000 }).catch(() => false);
 
-        // Clean up localStorage between attempts
-        await page.evaluate(() => localStorage.removeItem("appliedExternalJobs"));
+        // Clean up localStorage between attempts regardless of outcome
+        await page.evaluate(() => {
+            localStorage.removeItem("appliedExternalJobs");
+            localStorage.removeItem("ignoredExternalJobs");
+        });
 
         if (isUrlExternal) return jobId;
     }
@@ -110,6 +113,13 @@ test.describe("ExternalApplyButton", () => {
                 sameSite: "Lax",
             },
         ]);
+    });
+
+    test.afterEach(async ({ page }) => {
+        await page.evaluate(() => {
+            localStorage.removeItem("appliedExternalJobs");
+            localStorage.removeItem("ignoredExternalJobs");
+        }).catch(() => {});
     });
 
     test.beforeEach(async ({ page }) => {
