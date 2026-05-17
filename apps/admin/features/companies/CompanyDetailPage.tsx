@@ -44,6 +44,7 @@ import {
   fetchCompanyDetail,
   fetchCompanyJobs,
   fetchCompanyOfferTypes,
+  fetchCompanySortOrderStats,
   fetchCompanyUsers,
   unassignCompanyUser,
   updateCompany,
@@ -61,6 +62,7 @@ import {
   companyDetailQueryKey,
   companyJobsQueryKey,
   companyOfferTypesQueryKey,
+  companySortOrderStatsQueryKey,
   companyUsersQueryKey,
 } from "./queries";
 
@@ -217,6 +219,11 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
   const offerTypesQuery = useQuery({
     queryKey: companyOfferTypesQueryKey,
     queryFn: fetchCompanyOfferTypes,
+    enabled: hasValidCompanyId && showCompanyEdit,
+  });
+  const sortOrderStatsQuery = useQuery({
+    queryKey: companySortOrderStatsQueryKey,
+    queryFn: fetchCompanySortOrderStats,
     enabled: hasValidCompanyId && showCompanyEdit,
   });
 
@@ -486,6 +493,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
               isSubmitting={updateMutation.isPending}
               offerTypes={offerTypesQuery.data?.offerTypes ?? []}
               onSubmit={(values) => updateMutation.mutate(values)}
+              sortOrderStats={sortOrderStatsQuery.data}
               submitLabel="Uložit firmu"
             />
           </CollapsibleSection>
@@ -573,6 +581,12 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
                           <span>
                             {statsMap.get(job.id)?.appliedTotal ?? "—"}
                           </span>
+                        ),
+                      },
+                      {
+                        header: "Detail visits",
+                        render: (job) => (
+                          <span>{statsMap.get(job.id)?.jobVisits ?? "—"}</span>
                         ),
                       },
                       {

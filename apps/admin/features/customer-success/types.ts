@@ -48,6 +48,59 @@ export type AdminAnalyticsJobResponse = {
   pageInfo: { hasNext: boolean };
 };
 
+export type CustomerSuccessClaudeExportQuery = {
+  company: CompanyAnalyticsQuery;
+  job: JobAnalyticsQuery;
+  companyLimit?: number;
+  jobLimit?: number;
+  format?: "json";
+};
+
+export type CustomerSuccessClaudeExportResponse = {
+  generatedAt: string;
+  filters: {
+    companies: Record<string, number | boolean>;
+    jobs: Record<string, number>;
+  };
+  companies: Array<{
+    companyId: number;
+    companyName: string;
+    users: Array<{
+      userId: number;
+      name: string | null;
+    }>;
+    matchedCriteria: CompanyCriterion[];
+  }>;
+  jobs: Array<{
+    jobId: number;
+    publicUrl: string;
+    createdAt: string;
+    company: { id: number; name: string | null } | null;
+    authorId: number;
+    fullAd: {
+      description: string;
+      salary: number;
+      salaryTo: number | null;
+      salaryType: unknown;
+      requirements: unknown | null;
+      benefits: string | null;
+      term: "one_time" | "long_term" | "full_time";
+      startsAt: string | null;
+      endsAt: string | null;
+      place: unknown | null;
+      offerDuration: number | null;
+      offerExpiresAt: string | null;
+      status: unknown;
+    };
+    performance: {
+      appliedCount: number;
+      detailVisitCount: number;
+      ageDays: number;
+      matchedCriteria: JobCriterion[];
+    };
+  }>;
+};
+
 export type CompanyAnalyticsQuery = {
   view: CompanyAnalyticsView;
   days?: number;

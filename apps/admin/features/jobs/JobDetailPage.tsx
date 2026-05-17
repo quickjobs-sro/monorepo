@@ -216,7 +216,7 @@ export function JobDetailPage({ jobId }: { jobId: string }) {
                       ? `Job má ${formatCompactNumber(performance.jobVisits)} tracked visits a ${formatCompactNumber(
                           performance.appliedTotal
                         )} apply reakcí.`
-                      : "Job zatím nemá žádné tracked návštěvy nebo backend stats ještě nic nevrátil."}
+                      : "Job zatím nemá žádné zaznamenané detail visits."}
                   </p>
                 </div>
 

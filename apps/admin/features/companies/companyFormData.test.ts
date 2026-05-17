@@ -3,6 +3,8 @@ const {
   companyToFormValues,
   createEmptyCompanyFormValues,
   formValuesToCompanyPayload,
+  getCompanySortOrderAutoFillValue,
+  getCompanySortOrderHelpText,
   getSafeExternalUrl,
 } = require("./companyFormData");
 
@@ -200,3 +202,50 @@ assert.equal(formValues.sortOrder, "12");
 assert.equal(formValues.contacts[0]?.phone, "");
 assert.deepEqual(formValues.offerTypeIds, [3]);
 assert.deepEqual(formValues.studentAudienceNotes, ["Studentům VŠ", "Absolventům"]);
+
+assert.equal(
+  getCompanySortOrderHelpText({ maxSortOrder: 12, nextSortOrder: 13 }),
+  "Nejvyšší aktuální sort číslo: 12. Pro top pozici použij 13 nebo vyšší.",
+);
+assert.equal(
+  getCompanySortOrderHelpText({ maxSortOrder: null, nextSortOrder: 1 }),
+  "Zatím není nastavené žádné sort číslo. Doporučený start je 1.",
+);
+assert.equal(getCompanySortOrderHelpText(undefined), null);
+
+assert.equal(
+  getCompanySortOrderAutoFillValue({
+    autoFillSortOrder: true,
+    currentSortOrder: "",
+    sortOrderTouched: false,
+    stats: { maxSortOrder: 12, nextSortOrder: 13 },
+  }),
+  "13",
+);
+assert.equal(
+  getCompanySortOrderAutoFillValue({
+    autoFillSortOrder: true,
+    currentSortOrder: "",
+    sortOrderTouched: true,
+    stats: { maxSortOrder: 12, nextSortOrder: 13 },
+  }),
+  null,
+);
+assert.equal(
+  getCompanySortOrderAutoFillValue({
+    autoFillSortOrder: false,
+    currentSortOrder: "",
+    sortOrderTouched: false,
+    stats: { maxSortOrder: 12, nextSortOrder: 13 },
+  }),
+  null,
+);
+assert.equal(
+  getCompanySortOrderAutoFillValue({
+    autoFillSortOrder: true,
+    currentSortOrder: "5",
+    sortOrderTouched: false,
+    stats: { maxSortOrder: 12, nextSortOrder: 13 },
+  }),
+  null,
+);

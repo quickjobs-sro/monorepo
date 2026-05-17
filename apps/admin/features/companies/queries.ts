@@ -9,6 +9,11 @@ export const companyOfferTypesQueryKey = [
   "companies",
   "offer-types",
 ] as const;
+export const companySortOrderStatsQueryKey = [
+  "admin",
+  "companies",
+  "sort-order-stats",
+] as const;
 export const companyUsersRootQueryKey = [
   "admin",
   "companies",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { FormEvent, useMemo, useState } from "react";
 import {
   Building2,
@@ -36,7 +37,12 @@ import { PageHeader } from "@/components/admin-shell/PageHeader";
 import { getErrorMessage } from "@/lib/errors";
 import { formatCompactNumber, formatDateTime } from "@/lib/formatting";
 import { CompanyForm } from "./CompanyForm";
-import { createCompany, fetchCompanies, fetchCompanyOfferTypes } from "./api";
+import {
+  createCompany,
+  fetchCompanies,
+  fetchCompanyOfferTypes,
+  fetchCompanySortOrderStats,
+} from "./api";
 import {
   buildCompaniesListFilterState,
   buildCompaniesQueryParams,
@@ -56,6 +62,7 @@ import {
   companiesListQueryKey,
   companiesQueryKey,
   companyOfferTypesQueryKey,
+  companySortOrderStatsQueryKey,
 } from "./queries";
 
 const COMPANY_PAGE_SIZE = 50;
@@ -102,6 +109,11 @@ export function CompaniesPage() {
   const offerTypesQuery = useQuery({
     queryKey: companyOfferTypesQueryKey,
     queryFn: fetchCompanyOfferTypes,
+  });
+  const sortOrderStatsQuery = useQuery({
+    queryKey: companySortOrderStatsQueryKey,
+    queryFn: fetchCompanySortOrderStats,
+    enabled: showCreateForm,
   });
 
   const createMutation = useMutation({
@@ -300,11 +312,13 @@ export function CompaniesPage() {
               </p>
             ) : null}
             <CompanyForm
+              autoFillSortOrder
               initialValues={createInitialValues}
               isSubmitting={createMutation.isPending}
               offerTypes={offerTypesQuery.data?.offerTypes ?? []}
               onCancel={() => setShowCreateForm(false)}
               onSubmit={(values) => createMutation.mutate(values)}
+              sortOrderStats={sortOrderStatsQuery.data}
               submitLabel="Vytvořit firmu"
             />
           </CardContent>
@@ -415,18 +429,39 @@ export function CompaniesPage() {
               {
                 header: "Data quality",
                 render: (company) => {
-                  const hasLogo = Boolean(company.logo?.trim());
+                  const rawLogo = company.logo?.trim();
+                  const logoUrl = getSafeExternalUrl(rawLogo);
+                  const logoFallback = rawLogo
+                    ? "Logo: neplatné URL"
+                    : "Logo: chybí";
                   return (
                     <div className="space-y-2">
-                      <Badge
-                        className={
-                          hasLogo
-                            ? "bg-emerald-100 text-emerald-900"
-                            : "bg-amber-100 text-amber-900"
-                        }
-                      >
-                        {hasLogo ? "Logo: ano" : "Logo: chybí"}
-                      </Badge>
+                      {logoUrl ? (
+                        <div className="flex items-center gap-2">
+                          <Image
+                            alt={`${company.name} logo`}
+                            className="h-9 w-9 rounded border border-slate-200 bg-white object-contain p-1"
+                            height={36}
+                            loading="lazy"
+                            onError={(event) => {
+                              event.currentTarget.classList.add("hidden");
+                              event.currentTarget.nextElementSibling?.classList.remove(
+                                "hidden",
+                              );
+                            }}
+                            src={logoUrl}
+                            unoptimized
+                            width={36}
+                          />
+                          <Badge className="hidden bg-amber-100 text-amber-900">
+                            Logo: nelze načíst
+                          </Badge>
+                        </div>
+                      ) : (
+                        <Badge className="bg-amber-100 text-amber-900">
+                          {logoFallback}
+                        </Badge>
+                      )}
                       <p className="text-sm text-slate-600">
                         Kontakty: {formatCompactNumber(company.contactCount)}
                       </p>

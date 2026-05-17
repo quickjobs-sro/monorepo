@@ -240,7 +240,7 @@ export function JobFilters({
               <Label className="space-y-2">
                 <span>Max. detail visits</span>
                 <Input
-                  min={1}
+                  min={0}
                   type="number"
                   value={draft.maxDetailVisits}
                   onChange={(event) =>

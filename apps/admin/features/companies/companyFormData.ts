@@ -36,6 +36,11 @@ export type CompanyFormValues = {
   studentAudienceNotes: string[];
 };
 
+export type CompanySortOrderStats = {
+  maxSortOrder: number | null;
+  nextSortOrder: number;
+};
+
 type CompanyPayload = CreateAdminCompanyRequest & UpdateAdminCompanyRequest;
 
 function nullableText(value: string): string | null {
@@ -70,6 +75,38 @@ function optionalNumber(value: string): number | null {
 
   const parsed = Number(trimmed);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function getCompanySortOrderHelpText(
+  stats?: CompanySortOrderStats | null,
+): string | null {
+  if (!stats) {
+    return null;
+  }
+
+  if (stats.maxSortOrder == null) {
+    return "Zatím není nastavené žádné sort číslo. Doporučený start je 1.";
+  }
+
+  return `Nejvyšší aktuální sort číslo: ${stats.maxSortOrder}. Pro top pozici použij ${stats.nextSortOrder} nebo vyšší.`;
+}
+
+export function getCompanySortOrderAutoFillValue({
+  autoFillSortOrder,
+  currentSortOrder,
+  sortOrderTouched,
+  stats,
+}: {
+  autoFillSortOrder: boolean;
+  currentSortOrder: string;
+  sortOrderTouched: boolean;
+  stats?: CompanySortOrderStats | null;
+}): string | null {
+  if (!autoFillSortOrder || !stats || sortOrderTouched || currentSortOrder.trim()) {
+    return null;
+  }
+
+  return String(stats.nextSortOrder);
 }
 
 export function createEmptyContact(): CompanyContactFormValue {

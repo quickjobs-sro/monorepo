@@ -1370,64 +1370,9 @@
         ]
       }
     },
-    "/v2/jobs/public": {
-      "get": {
-        "operationId": "PublicJobsController_getPublicJobs[0]_v2",
-        "parameters": [
-          {
-            "name": "lat",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "lng",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "term",
-            "required": false,
-            "in": "query",
-            "description": "Supports repeated query params or a comma-separated string. Defaults to one_time.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "one_time",
-                  "long_term",
-                  "full_time"
-                ]
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PublicJobsListResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Jobs"
-        ]
-      }
-    },
     "/v1/jobs/public": {
       "get": {
-        "operationId": "PublicJobsController_getPublicJobs[1]",
+        "operationId": "PublicJobsController_getPublicJobs[2]",
         "parameters": [
           {
             "name": "lat",
@@ -1480,16 +1425,41 @@
         ]
       }
     },
-    "/v2/jobs/public/company/{companyId}": {
+    "/v2/jobs/public": {
       "get": {
-        "operationId": "PublicJobsController_getCompanyJobs[0]_v2",
+        "operationId": "PublicJobsController_getPublicJobs[1]_v2",
         "parameters": [
           {
-            "name": "companyId",
-            "required": true,
-            "in": "path",
+            "name": "lat",
+            "required": false,
+            "in": "query",
             "schema": {
               "type": "number"
+            }
+          },
+          {
+            "name": "lng",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "term",
+            "required": false,
+            "in": "query",
+            "description": "Supports repeated query params or a comma-separated string. Defaults to one_time.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "one_time",
+                  "long_term",
+                  "full_time"
+                ]
+              }
             }
           }
         ],
@@ -1499,7 +1469,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CompanyJobsListResponseDto"
+                  "$ref": "#/components/schemas/PublicJobsListResponseDto"
                 }
               }
             }
@@ -1512,7 +1482,7 @@
     },
     "/v1/jobs/public/company/{companyId}": {
       "get": {
-        "operationId": "PublicJobsController_getCompanyJobs[1]",
+        "operationId": "PublicJobsController_getCompanyJobs[2]",
         "parameters": [
           {
             "name": "companyId",
@@ -1540,9 +1510,39 @@
         ]
       }
     },
-    "/v2/jobs/public/{id}": {
+    "/v2/jobs/public/company/{companyId}": {
       "get": {
-        "operationId": "PublicJobsController_getPublicJobDetail[0]_v2",
+        "operationId": "PublicJobsController_getCompanyJobs[1]_v2",
+        "parameters": [
+          {
+            "name": "companyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyJobsListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Jobs"
+        ]
+      }
+    },
+    "/v1/jobs/public/{id}": {
+      "get": {
+        "operationId": "PublicJobsController_getPublicJobDetail[2]",
         "parameters": [
           {
             "name": "id",
@@ -1579,9 +1579,9 @@
         ]
       }
     },
-    "/v1/jobs/public/{id}": {
+    "/v2/jobs/public/{id}": {
       "get": {
-        "operationId": "PublicJobsController_getPublicJobDetail[1]",
+        "operationId": "PublicJobsController_getPublicJobDetail[1]_v2",
         "parameters": [
           {
             "name": "id",
@@ -1748,9 +1748,9 @@
         ]
       }
     },
-    "/v2/jobs/available": {
+    "/v1/jobs/available": {
       "get": {
-        "operationId": "AvailableJobsController_getAvailableJobs[0]_v2",
+        "operationId": "AvailableJobsController_getAvailableJobs[2]",
         "parameters": [
           {
             "name": "term",
@@ -1811,9 +1811,9 @@
         ]
       }
     },
-    "/v1/jobs/available": {
+    "/v2/jobs/available": {
       "get": {
-        "operationId": "AvailableJobsController_getAvailableJobs[1]",
+        "operationId": "AvailableJobsController_getAvailableJobs[1]_v2",
         "parameters": [
           {
             "name": "term",
@@ -4435,7 +4435,7 @@
             "in": "query",
             "schema": {
               "type": "integer",
-              "minimum": 1,
+              "minimum": 0,
               "maximum": 10000000
             }
           }
@@ -4512,7 +4512,7 @@
             "in": "query",
             "schema": {
               "type": "integer",
-              "minimum": 1,
+              "minimum": 0,
               "maximum": 10000000
             }
           }
@@ -4536,6 +4536,143 @@
         ],
         "tags": [
           "Admin Analytics"
+        ]
+      }
+    },
+    "/admin/kpis/traffic": {
+      "get": {
+        "operationId": "AdminKpisController_getTraffic",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "timezone",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Europe/Prague"
+              ],
+              "default": "Europe/Prague"
+            }
+          },
+          {
+            "name": "groupBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "day"
+              ],
+              "default": "day"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminKpisTrafficResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin KPIs"
+        ]
+      }
+    },
+    "/admin/kpis/jobs/performance": {
+      "get": {
+        "operationId": "AdminKpisController_getJobsPerformance",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "visits"
+              ],
+              "default": "visits"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminKpisJobsPerformanceResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin KPIs"
         ]
       }
     }
@@ -10297,6 +10434,173 @@
           "criteria",
           "items",
           "pageInfo"
+        ]
+      },
+      "AdminKpisTrafficSeriesPointDto": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "format": "date"
+          },
+          "visits": {
+            "type": "number"
+          },
+          "uniqueVisitors": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bucket",
+          "visits",
+          "uniqueVisitors"
+        ]
+      },
+      "AdminKpisTrafficTermDto": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string"
+          },
+          "visits": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "term",
+          "visits"
+        ]
+      },
+      "AdminKpisTrafficDataDto": {
+        "type": "object",
+        "properties": {
+          "totalVisits": {
+            "type": "number"
+          },
+          "uniqueVisitors": {
+            "type": "number"
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminKpisTrafficSeriesPointDto"
+            }
+          },
+          "byTerm": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminKpisTrafficTermDto"
+            }
+          }
+        },
+        "required": [
+          "totalVisits",
+          "uniqueVisitors",
+          "series",
+          "byTerm"
+        ]
+      },
+      "AdminKpisTrafficResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminKpisTrafficDataDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "AdminKpisTopVisitedJobDto": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "visits": {
+            "type": "number"
+          },
+          "applications": {
+            "type": "number"
+          },
+          "conversionRate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "jobId",
+          "title",
+          "companyName",
+          "visits",
+          "applications",
+          "conversionRate"
+        ]
+      },
+      "AdminKpisJobPerformanceItemDto": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "visits": {
+            "type": "number"
+          },
+          "applications": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "jobId",
+          "title",
+          "companyName",
+          "visits",
+          "applications"
+        ]
+      },
+      "AdminKpisJobsPerformanceDataDto": {
+        "type": "object",
+        "properties": {
+          "topVisited": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminKpisTopVisitedJobDto"
+            }
+          },
+          "withoutVisits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminKpisJobPerformanceItemDto"
+            }
+          }
+        },
+        "required": [
+          "topVisited",
+          "withoutVisits"
+        ]
+      },
+      "AdminKpisJobsPerformanceResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminKpisJobsPerformanceDataDto"
+          }
+        },
+        "required": [
+          "data"
         ]
       }
     }

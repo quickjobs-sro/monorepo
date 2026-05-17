@@ -420,22 +420,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v2/jobs/public": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["PublicJobsController_getPublicJobs[0]_v2"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/jobs/public": {
         parameters: {
             query?: never;
@@ -443,7 +427,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["PublicJobsController_getPublicJobs[1]"];
+        get: operations["PublicJobsController_getPublicJobs[2]"];
         put?: never;
         post?: never;
         delete?: never;
@@ -452,14 +436,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v2/jobs/public/company/{companyId}": {
+    "/v2/jobs/public": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["PublicJobsController_getCompanyJobs[0]_v2"];
+        get: operations["PublicJobsController_getPublicJobs[1]_v2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -475,7 +459,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["PublicJobsController_getCompanyJobs[1]"];
+        get: operations["PublicJobsController_getCompanyJobs[2]"];
         put?: never;
         post?: never;
         delete?: never;
@@ -484,14 +468,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v2/jobs/public/{id}": {
+    "/v2/jobs/public/company/{companyId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["PublicJobsController_getPublicJobDetail[0]_v2"];
+        get: operations["PublicJobsController_getCompanyJobs[1]_v2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -507,7 +491,23 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["PublicJobsController_getPublicJobDetail[1]"];
+        get: operations["PublicJobsController_getPublicJobDetail[2]"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/jobs/public/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicJobsController_getPublicJobDetail[1]_v2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -564,14 +564,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v2/jobs/available": {
+    "/v1/jobs/available": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["AvailableJobsController_getAvailableJobs[0]_v2"];
+        get: operations["AvailableJobsController_getAvailableJobs[2]"];
         put?: never;
         post?: never;
         delete?: never;
@@ -580,14 +580,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/jobs/available": {
+    "/v2/jobs/available": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["AvailableJobsController_getAvailableJobs[1]"];
+        get: operations["AvailableJobsController_getAvailableJobs[1]_v2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1324,6 +1324,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["AdminAnalyticsController_listJobsUnderperforming"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/kpis/traffic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminKpisController_getTraffic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/kpis/jobs/performance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminKpisController_getJobsPerformance"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2895,6 +2927,47 @@ export interface components {
             items: components["schemas"]["AdminAnalyticsJobItemDto"][];
             pageInfo: components["schemas"]["AdminAnalyticsPageInfoDto"];
         };
+        AdminKpisTrafficSeriesPointDto: {
+            /** Format: date */
+            bucket: string;
+            visits: number;
+            uniqueVisitors: number;
+        };
+        AdminKpisTrafficTermDto: {
+            term: string;
+            visits: number;
+        };
+        AdminKpisTrafficDataDto: {
+            totalVisits: number;
+            uniqueVisitors: number;
+            series: components["schemas"]["AdminKpisTrafficSeriesPointDto"][];
+            byTerm: components["schemas"]["AdminKpisTrafficTermDto"][];
+        };
+        AdminKpisTrafficResponseDto: {
+            data: components["schemas"]["AdminKpisTrafficDataDto"];
+        };
+        AdminKpisTopVisitedJobDto: {
+            jobId: number;
+            title: string;
+            companyName: string | null;
+            visits: number;
+            applications: number;
+            conversionRate: number;
+        };
+        AdminKpisJobPerformanceItemDto: {
+            jobId: number;
+            title: string;
+            companyName: string | null;
+            visits: number;
+            applications: number;
+        };
+        AdminKpisJobsPerformanceDataDto: {
+            topVisited: components["schemas"]["AdminKpisTopVisitedJobDto"][];
+            withoutVisits: components["schemas"]["AdminKpisJobPerformanceItemDto"][];
+        };
+        AdminKpisJobsPerformanceResponseDto: {
+            data: components["schemas"]["AdminKpisJobsPerformanceDataDto"];
+        };
     };
     responses: never;
     parameters: never;
@@ -3706,7 +3779,7 @@ export interface operations {
             };
         };
     };
-    "PublicJobsController_getPublicJobs[0]_v2": {
+    "PublicJobsController_getPublicJobs[2]": {
         parameters: {
             query?: {
                 lat?: number;
@@ -3730,7 +3803,7 @@ export interface operations {
             };
         };
     };
-    "PublicJobsController_getPublicJobs[1]": {
+    "PublicJobsController_getPublicJobs[1]_v2": {
         parameters: {
             query?: {
                 lat?: number;
@@ -3754,7 +3827,7 @@ export interface operations {
             };
         };
     };
-    "PublicJobsController_getCompanyJobs[0]_v2": {
+    "PublicJobsController_getCompanyJobs[2]": {
         parameters: {
             query?: never;
             header?: never;
@@ -3775,7 +3848,7 @@ export interface operations {
             };
         };
     };
-    "PublicJobsController_getCompanyJobs[1]": {
+    "PublicJobsController_getCompanyJobs[1]_v2": {
         parameters: {
             query?: never;
             header?: never;
@@ -3796,7 +3869,7 @@ export interface operations {
             };
         };
     };
-    "PublicJobsController_getPublicJobDetail[0]_v2": {
+    "PublicJobsController_getPublicJobDetail[2]": {
         parameters: {
             query?: never;
             header?: {
@@ -3820,7 +3893,7 @@ export interface operations {
             };
         };
     };
-    "PublicJobsController_getPublicJobDetail[1]": {
+    "PublicJobsController_getPublicJobDetail[1]_v2": {
         parameters: {
             query?: never;
             header?: {
@@ -3913,7 +3986,7 @@ export interface operations {
             };
         };
     };
-    "AvailableJobsController_getAvailableJobs[0]_v2": {
+    "AvailableJobsController_getAvailableJobs[2]": {
         parameters: {
             query?: {
                 /** @description Supports repeated query params or a comma-separated string. Defaults to one_time. */
@@ -3939,7 +4012,7 @@ export interface operations {
             };
         };
     };
-    "AvailableJobsController_getAvailableJobs[1]": {
+    "AvailableJobsController_getAvailableJobs[1]_v2": {
         parameters: {
             query?: {
                 /** @description Supports repeated query params or a comma-separated string. Defaults to one_time. */
@@ -5216,6 +5289,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminAnalyticsJobsResponseDto"];
+                };
+            };
+        };
+    };
+    AdminKpisController_getTraffic: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                timezone?: "Europe/Prague";
+                groupBy?: "day";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminKpisTrafficResponseDto"];
+                };
+            };
+        };
+    };
+    AdminKpisController_getJobsPerformance: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                sort?: "visits";
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminKpisJobsPerformanceResponseDto"];
                 };
             };
         };

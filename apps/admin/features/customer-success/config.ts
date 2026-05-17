@@ -147,7 +147,7 @@ export function toJobQuery(draft: JobFilterDraft): JobAnalyticsQuery {
     case "low_detail_visits":
       return {
         view: draft.view,
-        maxDetailVisits: parseIntegerInput(draft.maxDetailVisits, 50, 1),
+        maxDetailVisits: parseIntegerInput(draft.maxDetailVisits, 50, 0),
         limit,
       };
     case "underperforming":
@@ -155,7 +155,7 @@ export function toJobQuery(draft: JobFilterDraft): JobAnalyticsQuery {
         view: draft.view,
         maxApplied: parseIntegerInput(draft.maxApplied, 5, 1),
         minAgeDays: parseIntegerInput(draft.minAgeDays, 14, 1),
-        maxDetailVisits: parseIntegerInput(draft.maxDetailVisits, 50, 1),
+        maxDetailVisits: parseIntegerInput(draft.maxDetailVisits, 50, 0),
         limit,
       };
   }

@@ -13,7 +13,6 @@ import { Button } from "@ui/components/core/button";
 import { Card, CardContent } from "@ui/components/core/card";
 import { MetricCard } from "@/components/admin-shell/MetricCard";
 import { PageHeader } from "@/components/admin-shell/PageHeader";
-import { getErrorMessage } from "@/lib/errors";
 import { formatCompactNumber } from "@/lib/formatting";
 import { fetchCompanyAnalytics, fetchJobAnalytics } from "./api";
 import {
@@ -24,8 +23,10 @@ import {
   toCompanyQuery,
   toJobQuery,
 } from "./config";
+import { CustomerSuccessExportPanel } from "./CustomerSuccessExportPanel";
 import { CompanyFilters, JobFilters } from "./CustomerSuccessFilters";
 import { CompanyTable, JobTable } from "./CustomerSuccessTables";
+import { getCustomerSuccessErrorMessage } from "./errors";
 import {
   customerSuccessCompaniesQueryKey,
   customerSuccessJobsQueryKey,
@@ -145,7 +146,9 @@ export function CustomerSuccessPage() {
         {companyQuery.isLoading ? (
           <StateCard>Načítám firmy v riziku...</StateCard>
         ) : companyQuery.isError ? (
-          <StateCard tone="danger">{getErrorMessage(companyQuery.error)}</StateCard>
+          <StateCard tone="danger">
+            {getCustomerSuccessErrorMessage(companyQuery.error)}
+          </StateCard>
         ) : (
           <>
             <CriteriaPills criteria={companyCriteria} />
@@ -186,7 +189,9 @@ export function CustomerSuccessPage() {
         {jobQuery.isLoading ? (
           <StateCard>Načítám slabé joby...</StateCard>
         ) : jobQuery.isError ? (
-          <StateCard tone="danger">{getErrorMessage(jobQuery.error)}</StateCard>
+          <StateCard tone="danger">
+            {getCustomerSuccessErrorMessage(jobQuery.error)}
+          </StateCard>
         ) : (
           <>
             <CriteriaPills criteria={jobCriteria} />
@@ -221,6 +226,11 @@ export function CustomerSuccessPage() {
           </CardContent>
         </Card>
       </section>
+
+      <CustomerSuccessExportPanel
+        companyParams={companyParams}
+        jobParams={jobParams}
+      />
     </div>
   );
 }

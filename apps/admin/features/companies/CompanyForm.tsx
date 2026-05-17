@@ -12,17 +12,22 @@ import type { AdminCompanyOfferType } from "../../lib/openapi/types";
 import {
   type CompanyContactFormValue,
   type CompanyFormValues,
+  type CompanySortOrderStats,
   type CompanyWebsiteFormValue,
   createEmptyContact,
   createEmptyWebsite,
+  getCompanySortOrderAutoFillValue,
+  getCompanySortOrderHelpText,
 } from "./companyFormData";
 
 type CompanyFormProps = {
+  autoFillSortOrder?: boolean;
   initialValues: CompanyFormValues;
   isSubmitting?: boolean;
   offerTypes: AdminCompanyOfferType[];
   onCancel?: () => void;
   onSubmit(values: CompanyFormValues): void;
+  sortOrderStats?: CompanySortOrderStats | null;
   submitLabel: string;
 };
 
@@ -35,18 +40,44 @@ function removeAt<T>(items: T[], index: number): T[] {
 }
 
 export function CompanyForm({
+  autoFillSortOrder = false,
   initialValues,
   isSubmitting = false,
   offerTypes,
   onCancel,
   onSubmit,
+  sortOrderStats,
   submitLabel,
 }: CompanyFormProps) {
   const [values, setValues] = useState(initialValues);
+  const [sortOrderTouched, setSortOrderTouched] = useState(false);
 
   useEffect(() => {
     setValues(initialValues);
+    setSortOrderTouched(false);
   }, [initialValues]);
+
+  useEffect(() => {
+    const nextSortOrder = getCompanySortOrderAutoFillValue({
+      autoFillSortOrder,
+      currentSortOrder: values.sortOrder,
+      sortOrderTouched,
+      stats: sortOrderStats,
+    });
+
+    if (nextSortOrder == null) {
+      return;
+    }
+
+    setValues((current) =>
+      current.sortOrder.trim()
+        ? current
+        : {
+            ...current,
+            sortOrder: nextSortOrder,
+          },
+    );
+  }, [autoFillSortOrder, sortOrderStats, sortOrderTouched, values.sortOrder]);
 
   function setField<Key extends keyof CompanyFormValues>(key: Key, value: CompanyFormValues[Key]) {
     setValues((current) => ({
@@ -75,10 +106,17 @@ export function CompanyForm({
     }));
   }
 
+  function handleSortOrderChange(value: string) {
+    setSortOrderTouched(true);
+    setField("sortOrder", value);
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onSubmit(values);
   }
+
+  const sortOrderHelpText = getCompanySortOrderHelpText(sortOrderStats);
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -106,12 +144,19 @@ export function CompanyForm({
           placeholder="Paid until"
           type="date"
         />
-        <Input
-          value={values.sortOrder}
-          onChange={(event) => setField("sortOrder", event.target.value)}
-          placeholder="Sort order"
-          type="number"
-        />
+        <div className="space-y-1">
+          <Input
+            value={values.sortOrder}
+            onChange={(event) => handleSortOrderChange(event.target.value)}
+            placeholder="Sort order"
+            type="number"
+          />
+          {sortOrderHelpText ? (
+            <p className="text-xs leading-5 text-slate-500">
+              {sortOrderHelpText}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <Textarea

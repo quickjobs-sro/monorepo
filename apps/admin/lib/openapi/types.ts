@@ -38,6 +38,12 @@ export type AdminFeedbackResponse = CamelizeDeep<
   Schemas["AdminFeedbackResponseDto"]
 >;
 export type AdminFeedbackItem = AdminFeedbackResponse["feedback"][number];
+export type AdminKpisTrafficResponse = CamelizeDeep<
+  Schemas["AdminKpisTrafficResponseDto"]
+>;
+export type AdminKpisJobsPerformanceResponse = CamelizeDeep<
+  Schemas["AdminKpisJobsPerformanceResponseDto"]
+>;
 
 export type PublicJobsResponse = CamelizeDeep<
   Schemas["PublicJobsListResponseDto"]

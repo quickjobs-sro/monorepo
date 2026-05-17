@@ -12,6 +12,7 @@ import type {
   UpdateAdminCompanyRequest,
 } from "@/lib/openapi/types";
 import { fetchJson } from "@/lib/api/fetchJson";
+import type { CompanySortOrderStats } from "./companyFormData";
 
 export type AdminCompaniesQueryParams = {
   limit?: number;
@@ -149,6 +150,15 @@ export async function fetchCompanyCandidateSearches(
 export async function fetchCompanyOfferTypes() {
   return fetchJson<AdminCompanyOfferTypesResponse>(
     "/admin/company-offer-types",
+    {
+      auth: true,
+    },
+  );
+}
+
+export async function fetchCompanySortOrderStats() {
+  return fetchJson<CompanySortOrderStats>(
+    "/admin/companies/sort-order-stats",
     {
       auth: true,
     },

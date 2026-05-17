@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -22,6 +23,7 @@ import {
   formatCompactNumber,
   formatDateTime,
   formatDecimal,
+  formatJobTerm,
   formatName,
   formatPercent,
   formatRelativeDateTime,
@@ -38,7 +40,16 @@ import { schoolsQueryKey } from "@/features/schools/queries";
 import { fetchHealth } from "@/features/system-health/api";
 import { healthQueryKey } from "@/features/system-health/queries";
 import { JOB_TERMS } from "@/lib/openapi/types";
+import { fetchJobsPerformanceKpis, fetchTrafficKpis } from "./api";
 import { buildDashboardKpiSnapshot, type DashboardRankedJob } from "./analytics";
+import {
+  buildJobsPerformanceKpiParams,
+  buildTrafficKpiParams,
+} from "./kpiParams";
+import {
+  dashboardJobsPerformanceQueryKey,
+  dashboardTrafficQueryKey,
+} from "./queries";
 
 const FEEDBACK_DASHBOARD_LIMIT = 20;
 const FEEDBACK_PREVIEW_LIMIT = 5;
@@ -129,18 +140,20 @@ function RankedJobsList({
   rows,
   primaryLabel,
   secondaryLabel,
+  emptyMessage = "V aktuálně načteném řezu není co porovnat.",
 }: {
   title: string;
   rows: DashboardRankedJob[];
   primaryLabel: string;
   secondaryLabel: string;
+  emptyMessage?: string;
 }) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{title}</p>
       <div className="mt-3 space-y-3">
         {rows.length === 0 ? (
-          <p className="text-sm text-slate-500">V aktuálně načteném řezu není co porovnat.</p>
+          <p className="text-sm text-slate-500">{emptyMessage}</p>
         ) : (
           rows.map((row) => (
             <Link
@@ -170,8 +183,18 @@ function RankedJobsList({
   );
 }
 
+function getCompanyLabel(value?: string | null): string {
+  return value?.trim() || "Bez firmy";
+}
+
 export function DashboardPage() {
   const { user } = useAdminSession();
+  const isRoot = (user?.roles ?? []).includes("root");
+  const trafficKpiParams = useMemo(() => buildTrafficKpiParams(), []);
+  const jobsPerformanceKpiParams = useMemo(
+    () => buildJobsPerformanceKpiParams(),
+    []
+  );
   const healthQuery = useQuery({
     queryKey: healthQueryKey,
     queryFn: fetchHealth,
@@ -193,6 +216,16 @@ export function DashboardPage() {
     queryKey: schoolsQueryKey,
     queryFn: fetchSchools,
   });
+  const trafficKpisQuery = useQuery({
+    queryKey: dashboardTrafficQueryKey(trafficKpiParams),
+    queryFn: () => fetchTrafficKpis(trafficKpiParams),
+    enabled: isRoot,
+  });
+  const jobsPerformanceKpisQuery = useQuery({
+    queryKey: dashboardJobsPerformanceQueryKey(jobsPerformanceKpiParams),
+    queryFn: () => fetchJobsPerformanceKpis(jobsPerformanceKpiParams),
+    enabled: isRoot,
+  });
 
   const kpis = buildDashboardKpiSnapshot({
     jobs: jobsQuery.data?.data ?? [],
@@ -200,6 +233,32 @@ export function DashboardPage() {
     schools: schoolsQuery.data?.schools ?? [],
     feedback: feedbackQuery.data?.feedback ?? [],
   });
+  const trafficKpis = trafficKpisQuery.data?.data;
+  const jobsPerformanceKpis = jobsPerformanceKpisQuery.data?.data;
+  const topVisitedRows: DashboardRankedJob[] =
+    isRoot
+      ? (jobsPerformanceKpis?.topVisited.map((job) => ({
+          jobId: job.jobId,
+          title: job.title,
+          companyLabel: getCompanyLabel(job.companyName),
+          value: job.visits,
+          secondaryValue: job.applications,
+        })) ?? [])
+      : kpis.jobs.topVisited;
+  const withoutVisitRows: DashboardRankedJob[] =
+    jobsPerformanceKpis?.withoutVisits.map((job) => ({
+      jobId: job.jobId,
+      title: job.title,
+      companyLabel: getCompanyLabel(job.companyName),
+      value: job.visits,
+      secondaryValue: job.applications,
+    })) ?? [];
+  const performanceEmptyMessage = jobsPerformanceKpisQuery.isLoading
+    ? "Načítám job performance KPI..."
+    : jobsPerformanceKpisQuery.isError
+      ? getErrorMessage(jobsPerformanceKpisQuery.error)
+      : "V aktuálním 30denním okně není co porovnat.";
+  const trafficRangeHint = `${formatDateTime(trafficKpiParams.from)} – ${formatDateTime(trafficKpiParams.to)}`;
   const previewFeedback = (feedbackQuery.data?.feedback ?? []).slice(0, FEEDBACK_PREVIEW_LIMIT);
   const liveLinks = navigationGroups.flatMap((group) => group.items.filter((item) => item.href));
 
@@ -208,7 +267,7 @@ export function DashboardPage() {
       <PageHeader
         eyebrow="Operations"
         title="Dashboard"
-        description="Interní snapshot nad aktuálně načteným řezem OpenAPI dat. Dashboard nepoužívá detail requesty v cyklu ani broad candidate search."
+        description="Interní snapshot nad OpenAPI daty. Root vidí server-side traffic KPI za 30 dní; ostatní role používají canonical fallback bez per-row detail requestů."
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -231,15 +290,25 @@ export function DashboardPage() {
           tone={jobsQuery.isError ? "danger" : "default"}
         />
         <MetricCard
-          title="Lifetime visits"
+          title={isRoot ? "Detail visits 30d" : "Lifetime visits"}
           value={getFormattedMetric({
-            isLoading: jobsQuery.isLoading,
-            isError: jobsQuery.isError,
-            value: formatCompactNumber(kpis.jobs.lifetimeVisits),
+            isLoading: isRoot ? trafficKpisQuery.isLoading : jobsQuery.isLoading,
+            isError: isRoot ? trafficKpisQuery.isError : jobsQuery.isError,
+            value: formatCompactNumber(
+              isRoot ? trafficKpis?.totalVisits : kpis.jobs.lifetimeVisits
+            ),
           })}
-          hint={jobsQuery.isError ? getErrorMessage(jobsQuery.error) : "Součet stats.jobVisits v načtených jobech"}
+          hint={
+            isRoot
+              ? trafficKpisQuery.isError
+                ? getErrorMessage(trafficKpisQuery.error)
+                : trafficRangeHint
+              : jobsQuery.isError
+                ? getErrorMessage(jobsQuery.error)
+                : "Součet stats.jobVisits v načtených jobech"
+          }
           icon={MousePointerClick}
-          tone={jobsQuery.isError ? "danger" : "default"}
+          tone={(isRoot ? trafficKpisQuery.isError : jobsQuery.isError) ? "danger" : "default"}
         />
         <MetricCard
           title="Catalog coverage"
@@ -315,52 +384,127 @@ export function DashboardPage() {
               <SectionTitle
                 eyebrow="Traffic & Conversion"
                 title="Návštěvnost a konverze"
-                description="Návštěvnost je lifetime `stats.jobVisits`; OpenAPI dnes neposkytuje visit timestamps ani date-range agregace."
+                description={
+                  isRoot
+                    ? "Server-side traffic KPI nad detail visits za rolling posledních 30 dní."
+                    : "Root-only date-range KPI nejsou pro tuhle roli dostupná; zobrazuje se lifetime fallback ze `stats.jobVisits`."
+                }
               />
-              <div className="grid gap-3 md:grid-cols-3">
-                <InlineStat
-                  label="Conversion proxy"
-                  value={getFormattedMetric({
-                    isLoading: jobsQuery.isLoading,
-                    isError: jobsQuery.isError,
-                    value: formatPercent(kpis.jobs.conversionRatio),
-                  })}
-                  hint="Apply total děleno visits"
-                  tone={kpis.jobs.conversionRatio == null ? "warning" : "default"}
-                />
-                <InlineStat
-                  label="Accepted rate"
-                  value={getFormattedMetric({
-                    isLoading: jobsQuery.isLoading,
-                    isError: jobsQuery.isError,
-                    value: formatPercent(kpis.jobs.acceptedRate),
-                  })}
-                  hint="Accepted děleno apply total"
-                  tone={kpis.jobs.acceptedRate == null ? "warning" : "default"}
-                />
-                <InlineStat
-                  label="Avg visits/job"
-                  value={getFormattedMetric({
-                    isLoading: jobsQuery.isLoading,
-                    isError: jobsQuery.isError,
-                    value: formatDecimal(kpis.jobs.total > 0 ? kpis.jobs.lifetimeVisits / kpis.jobs.total : null),
-                  })}
-                  hint="Průměr v aktuálním řezu"
-                />
-              </div>
+              {isRoot ? (
+                <>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <InlineStat
+                      label="Detail visits"
+                      value={getFormattedMetric({
+                        isLoading: trafficKpisQuery.isLoading,
+                        isError: trafficKpisQuery.isError,
+                        value: formatCompactNumber(trafficKpis?.totalVisits),
+                      })}
+                      hint={trafficKpisQuery.isError ? getErrorMessage(trafficKpisQuery.error) : trafficRangeHint}
+                      tone={trafficKpisQuery.isError ? "danger" : "default"}
+                    />
+                    <InlineStat
+                      label="Unique visitors"
+                      value={getFormattedMetric({
+                        isLoading: trafficKpisQuery.isLoading,
+                        isError: trafficKpisQuery.isError,
+                        value: formatCompactNumber(trafficKpis?.uniqueVisitors),
+                      })}
+                      hint="Distinct přihlášení + anonymní visits"
+                      tone={trafficKpisQuery.isError ? "danger" : "default"}
+                    />
+                    <InlineStat
+                      label="Avg visits/day"
+                      value={getFormattedMetric({
+                        isLoading: trafficKpisQuery.isLoading,
+                        isError: trafficKpisQuery.isError,
+                        value: formatDecimal(
+                          trafficKpis && trafficKpis.series.length > 0
+                            ? trafficKpis.totalVisits / trafficKpis.series.length
+                            : null
+                        ),
+                      })}
+                      hint="Průměr v server-side time series"
+                      tone={trafficKpisQuery.isError ? "danger" : "default"}
+                    />
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Visits by term</p>
+                    {trafficKpisQuery.isLoading ? (
+                      <p className="mt-3 text-sm text-slate-500">Načítám term breakdown...</p>
+                    ) : trafficKpisQuery.isError ? (
+                      <p className="mt-3 text-sm text-rose-700">{getErrorMessage(trafficKpisQuery.error)}</p>
+                    ) : trafficKpis?.byTerm.length ? (
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                        {trafficKpis.byTerm.map((item) => (
+                          <div key={item.term} className="rounded-2xl border border-white bg-white px-3 py-3">
+                            <p className="text-sm font-medium text-slate-900">{formatJobTerm(item.term)}</p>
+                            <p className="mt-1 text-sm text-slate-600">{formatCompactNumber(item.visits)} visits</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-slate-500">V aktuálním 30denním okně nejsou detail visits.</p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-3">
+                  <InlineStat
+                    label="Conversion proxy"
+                    value={getFormattedMetric({
+                      isLoading: jobsQuery.isLoading,
+                      isError: jobsQuery.isError,
+                      value: formatPercent(kpis.jobs.conversionRatio),
+                    })}
+                    hint="Apply total děleno visits"
+                    tone={kpis.jobs.conversionRatio == null ? "warning" : "default"}
+                  />
+                  <InlineStat
+                    label="Accepted rate"
+                    value={getFormattedMetric({
+                      isLoading: jobsQuery.isLoading,
+                      isError: jobsQuery.isError,
+                      value: formatPercent(kpis.jobs.acceptedRate),
+                    })}
+                    hint="Accepted děleno apply total"
+                    tone={kpis.jobs.acceptedRate == null ? "warning" : "default"}
+                  />
+                  <InlineStat
+                    label="Avg visits/job"
+                    value={getFormattedMetric({
+                      isLoading: jobsQuery.isLoading,
+                      isError: jobsQuery.isError,
+                      value: formatDecimal(kpis.jobs.total > 0 ? kpis.jobs.lifetimeVisits / kpis.jobs.total : null),
+                    })}
+                    hint="Průměr v aktuálním řezu"
+                  />
+                </div>
+              )}
               <div className="grid gap-4 lg:grid-cols-2">
                 <RankedJobsList
-                  title="Top visited"
-                  rows={kpis.jobs.topVisited}
+                  title={isRoot ? "Top visited 30d" : "Top visited"}
+                  rows={topVisitedRows}
                   primaryLabel="Visits"
                   secondaryLabel="Apply"
+                  emptyMessage={isRoot ? performanceEmptyMessage : undefined}
                 />
-                <RankedJobsList
-                  title="Top apply"
-                  rows={kpis.jobs.topApplied}
-                  primaryLabel="Apply"
-                  secondaryLabel="Visits"
-                />
+                {isRoot ? (
+                  <RankedJobsList
+                    title="Bez visits 30d"
+                    rows={withoutVisitRows}
+                    primaryLabel="Visits"
+                    secondaryLabel="Apply"
+                    emptyMessage={performanceEmptyMessage}
+                  />
+                ) : (
+                  <RankedJobsList
+                    title="Top apply"
+                    rows={kpis.jobs.topApplied}
+                    primaryLabel="Apply"
+                    secondaryLabel="Visits"
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
