@@ -152,12 +152,18 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
 
     const handleInterested = useCallback(() => {
         if (isDisabled) return;
+        if (!mounted || !tokenRestored) return;
+        if (!hasValidToken) {
+            router.push(`/login?returnUrl=${encodeURIComponent(jobDetailUrl)}`);
+            return;
+        }
+        if (!user) return;
         if (hasEmptyProfile) {
             setShowFillModal(true);
         } else {
             setShowCheckModal(true);
         }
-    }, [isDisabled, hasEmptyProfile]);
+    }, [isDisabled, hasEmptyProfile, mounted, tokenRestored, hasValidToken, user, router, jobDetailUrl]);
 
     const handleRevisit = useCallback(() => {
         if (jobUrl) window.open(jobUrl, "_blank", "noopener,noreferrer");
