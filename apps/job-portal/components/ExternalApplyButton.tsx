@@ -170,14 +170,17 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
     }, [jobUrl]);
 
     const buttonLabel = ctaText || "MÁM ZÁJEM";
+    const isLoggedIn = hasValidToken && !!user;
+    const effectiveHasApplied = isLoggedIn && hasApplied;
+    const effectiveHasIgnored = isLoggedIn && hasIgnored;
 
     return (
         <>
-            {hasApplied && (
+            {effectiveHasApplied && (
                 <Badge className="bg-blue-500 text-white border-0 w-fit mb-2">Navštíveno</Badge>
             )}
             <div className="flex flex-col gap-3 w-full">
-                {hasApplied ? (
+                {effectiveHasApplied ? (
                     isGrafton ? (
                         <Button
                             variant="default"
@@ -199,7 +202,7 @@ export function ExternalApplyButton({ jobId, jobUrl, feedName, ctaText }: Extern
                     )
                 ) : (
                     <>
-                        {(hasValidToken && !!user && !hasIgnored) && (
+                        {(isLoggedIn && !effectiveHasIgnored) && (
                             <Button
                                 variant="destructive"
                                 size="lg"
