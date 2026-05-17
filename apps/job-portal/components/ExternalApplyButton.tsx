@@ -22,7 +22,7 @@ import { EXTERNAL_JOB_TYPE } from "@ui/types/application_status";
 import { reportError } from "../lib/reportError";
 import { useRouterWithNavigationLoading } from "@ui/hooks/useRouterWithNavigationLoading";
 import { useExternalJobs } from "../hooks/useExternalJobs";
-import { savePendingJobAction } from "../lib/utils";
+import { savePendingJobAction, ensureAbsoluteUrl } from "../lib/utils";
 
 // localStorage keys — used only for optimistic post-action feedback while the backend query refetches
 const LS_APPLIED = "appliedExternalJobs";
@@ -144,9 +144,9 @@ export function ExternalApplyButton({ jobId, jobUrl, ctaText }: ExternalApplyBut
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
             if (jobUrl) {
                 if (pendingPopupRef.current) {
-                    pendingPopupRef.current.location.href = jobUrl;
+                    pendingPopupRef.current.location.href = ensureAbsoluteUrl(jobUrl);
                 } else {
-                    window.open(jobUrl, "_blank");
+                    window.open(ensureAbsoluteUrl(jobUrl), "_blank");
                 }
             }
             pendingPopupRef.current = null;
@@ -186,7 +186,7 @@ export function ExternalApplyButton({ jobId, jobUrl, ctaText }: ExternalApplyBut
     }, [isDisabled, hasEmptyProfile, mounted, tokenRestored, hasValidToken, user, router, jobDetailUrl]);
 
     const handleRevisit = useCallback(() => {
-        if (jobUrl) window.open(jobUrl, "_blank", "noopener,noreferrer");
+        if (jobUrl) window.open(ensureAbsoluteUrl(jobUrl), "_blank", "noopener,noreferrer");
     }, [jobUrl]);
 
     const buttonLabel = ctaText || "MÁM ZÁJEM";
