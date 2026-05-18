@@ -42,7 +42,7 @@ import { useGetProfile } from "../hooks/useGetProfile";
 import { API_KEYS } from "@ui/types/api_keys";
 import { useToast } from "@ui/hooks/use-toast";
 import { getSchoolStatusString } from "@ui/helpers/getSchoolStatusString";
-import { getPendingJobAction, clearPendingJobAction, type PendingJobAction } from "../lib/utils";
+import { getPendingJobAction, clearPendingJobAction, ensureAbsoluteUrl, type PendingJobAction } from "../lib/utils";
 import { Button } from "@ui/components/core/button";
 import { Input } from "@ui/components/core/input";
 import { Label } from "@ui/components/core/label";
@@ -256,9 +256,45 @@ export const Onboarding = ({
 
                 const executePendingJobAction = async () => {
                     try {
+                        if (pendingAction.action === "open_url") {
+                            clearPendingJobAction();
+                            if (pendingAction.url) {
+                                window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
+                            }
+                            try {
+                                await API.applications.createApplication(pendingAction.jobId, "apply");
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                            } catch {
+                                // non-fatal — URL already opened
+                            }
+                            toast({
+                                title: "Přihláška odeslána! ✅",
+                                description: "Tvůj životopis už míří ke správným lidem.",
+                                duration: 5000,
+                            });
+                            return;
+                        }
+
+                        if (pendingAction.action === "external_apply") {
+                            clearPendingJobAction();
+                            try {
+                                await API.applications.createExternalApplication({ action: "apply", externalJobId: pendingAction.jobId });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                                queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                                if (pendingAction.url) {
+                                    window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
+                                }
+                            } catch {
+                                // non-fatal
+                            }
+                            return;
+                        }
+
                         await API.applications.createApplication(pendingAction.jobId, pendingAction.action);
 
-                        // Invalidate queries - TanStack Query automatically marks them as stale 
+                        // Invalidate queries - TanStack Query automatically marks them as stale
                         // and refetches active queries in the background (refetchType: 'active' by default)
                         queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });
                         queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });

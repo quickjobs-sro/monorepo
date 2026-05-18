@@ -16,8 +16,14 @@ export const getSalaryString = (item: Partial<Job>) => {
         maximumFractionDigits: 0,
       })
     : null;
+  const salaryTypeLabel: Record<string, string> = {
+    hour: "hod",
+    month: "Měsíc",
+    total: "za práci",
+  };
+  const typeLabel = salaryTypeLabel[item.salaryType] ?? item.salaryType;
   if (to) {
-    return `${from} - ${to}`;
+    return `${from} - ${to}/${typeLabel}`;
   }
-  return `${from} / ${item.salaryType}`;
+  return `${from}/${typeLabel}`;
 };

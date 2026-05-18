@@ -133,9 +133,10 @@ export const getJobTypeInfo = (term: string | undefined) => {
  * Extract title from job description (first 8 words of first sentence)
  */
 export const extractJobTitle = (description: string): string => {
-    const sentences = description.split(/[.!?\n]/);
-    const firstSentence = sentences[0] || description;
-    const words = firstSentence.split(" ");
+    const plain = description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    const sentences = plain.split(/[.!?\n]/);
+    const firstSentence = sentences[0] || plain;
+    const words = firstSentence.split(" ").filter(Boolean);
     return words.slice(0, 8).join(" ") + (words.length > 8 ? "..." : "");
 };
 

@@ -14,6 +14,7 @@ import type {
     CompaniesResponse,
     CompanyDetailResponse,
     CompanyLookup,
+    ExternalJob,
     ExternalJobsResponse,
     FacultiesResponse,
     FacultyLookup,
@@ -193,7 +194,7 @@ export async function fetchExternalAppliedJobs(
     params: { limit?: number } = {},
     options: Pick<FetchOptions, "signal" | "token"> = {}
 ): Promise<ExternalJobsResponse> {
-    return fetchOpenApiJson<ExternalJobsResponse>("/jobs/external-applied", {
+    return fetchOpenApiJson<ExternalJobsResponse>("/v2/jobs/external-applied", {
         auth: true,
         signal: options.signal,
         token: options.token,
@@ -205,12 +206,69 @@ export async function fetchExternalIgnoredJobs(
     params: { limit?: number } = {},
     options: Pick<FetchOptions, "signal" | "token"> = {}
 ): Promise<ExternalJobsResponse> {
-    return fetchOpenApiJson<ExternalJobsResponse>("/jobs/external-ignored", {
+    return fetchOpenApiJson<ExternalJobsResponse>("/v2/jobs/external-ignored", {
         auth: true,
         signal: options.signal,
         token: options.token,
         query: { limit: params.limit },
     });
+}
+
+export async function fetchExternalJobsList(
+    options: Pick<FetchOptions, "signal" | "token"> = {}
+): Promise<ExternalJobsResponse> {
+    const raw = await fetchOpenApiJson<{ data: ExternalJob[] }>("/v1/external-jobs", {
+        auth: true,
+        signal: options.signal,
+        token: options.token,
+    });
+    return { jobs: raw.data ?? [] };
+}
+
+export async function fetchPublicExternalJobsList(
+    options: { lat?: number; lng?: number; signal?: AbortSignal } = {}
+): Promise<ExternalJobsResponse> {
+    const params = new URLSearchParams();
+    if (options.lat != null) params.set("lat", String(options.lat));
+    if (options.lng != null) params.set("lng", String(options.lng));
+    // Pass all terms — the public endpoint defaults to one_time only, but authenticated returns all
+    params.set("term", "one_time,long_term,full_time");
+    const raw = await fetchOpenApiJson<{ data: ExternalJob[] }>(`/v1/external-jobs/public?${params}`, {
+        auth: false,
+        signal: options.signal,
+    });
+    return { jobs: raw.data ?? [] };
+}
+
+export async function fetchExternalJobById(
+    id: string | number,
+    options: Pick<FetchOptions, "signal" | "token"> = {}
+): Promise<ExternalJob | null> {
+    try {
+        const raw = await fetchOpenApiJson<{ data: ExternalJob }>(`/v1/external-jobs/${id}`, {
+            auth: true,
+            signal: options.signal,
+            token: options.token,
+        });
+        return raw.data ?? null;
+    } catch {
+        return null;
+    }
+}
+
+export async function fetchPublicExternalJobById(
+    id: string | number,
+    options: Pick<FetchOptions, "signal"> = {}
+): Promise<ExternalJob | null> {
+    try {
+        const raw = await fetchOpenApiJson<{ data: ExternalJob }>(`/v1/external-jobs/public/${id}`, {
+            auth: false,
+            signal: options.signal,
+        });
+        return raw.data ?? null;
+    } catch {
+        return null;
+    }
 }
 
 export async function fetchMyApplications(

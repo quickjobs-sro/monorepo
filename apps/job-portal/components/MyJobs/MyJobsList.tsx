@@ -17,6 +17,7 @@ interface JobWithStats extends JobLike {
     applicationsStats?: any;
     stats?: any;
     isExternal?: boolean;
+    feedName?: string;
 }
 
 interface MyJobsListProps {
@@ -125,6 +126,7 @@ export const MyJobsList = ({
                     term: typeof job.term === "string" ? job.term : undefined,
                     status: typeof job.status === "string" ? job.status : undefined,
                     isExternal: true,
+                    feedName: (job as any).feedName || (job as any).feed_name,
                     applicationsStats: { status: externalJobApplicationStatus },
                 });
             }
@@ -191,7 +193,7 @@ export const MyJobsList = ({
         return (
             <div className="flex flex-col items-center justify-center py-12 px-4">
                 <p className="text-center text-red-600 mb-2 font-semibold">
-                    {isServerError ? "Backend není dostupný" : "Chyba při načítání"}
+                    {isServerError ? "Server není dostupný" : "Chyba při načítání"}
                 </p>
                 <p className="text-center text-gray-600 mb-4">
                     {isServerError ? FIVE_XX_USER_MESSAGE : "Nepodařilo se načíst nabídky. Zkus to prosím znovu."}
@@ -258,7 +260,7 @@ export const MyJobsList = ({
             <p className="text-center text-gray-600 mb-6">{description}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayedItems.map((job) => (
-                    <JobCard key={job.id} job={job} {...(showInactive && { isInactive: true })} />
+                    <JobCard key={job.isExternal ? `ext-${job.id}` : job.id} job={job} {...(showInactive && { isInactive: true })} />
                 ))}
             </div>
             {hasMoreItems && (

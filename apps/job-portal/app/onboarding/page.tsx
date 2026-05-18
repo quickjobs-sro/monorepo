@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouterWithNavigationLoading } from "@ui/hooks/useRouterWithNavigationLoading";
 import { getAuthToken } from "../../lib/constants";
 import { Onboarding } from "../../components/Onboarding";
-import { getPendingJobAction, clearPendingJobAction, type PendingJobAction } from "../../lib/utils";
+import { getPendingJobAction, clearPendingJobAction, ensureAbsoluteUrl, type PendingJobAction } from "../../lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@ui/hooks/use-toast";
 import { API_KEYS } from "@ui/types/api_keys";
@@ -44,6 +44,39 @@ export default function OnboardingPage() {
 
     const executePendingJobAction = async (pendingAction: PendingJobAction): Promise<void> => {
         try {
+            if (pendingAction.action === "open_url") {
+                clearPendingJobAction();
+                if (pendingAction.url) {
+                    window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
+                }
+                try {
+                    await API.applications.createApplication(pendingAction.jobId, "apply");
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                } catch {
+                    // non-fatal — URL already opened
+                }
+                setForcedStep(CONGRATULATIONS_STEP);
+                return;
+            }
+
+            if (pendingAction.action === "external_apply") {
+                clearPendingJobAction();
+                try {
+                    await API.applications.createExternalApplication({ action: "apply", externalJobId: pendingAction.jobId });
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS, "external"] });
+                    queryClient.invalidateQueries({ queryKey: [API_KEYS.JOB_APPLICATIONS, "myApplications"] });
+                    if (pendingAction.url) {
+                        window.open(ensureAbsoluteUrl(pendingAction.url), "_blank", "noopener,noreferrer");
+                    }
+                } catch {
+                    // non-fatal
+                }
+                setForcedStep(CONGRATULATIONS_STEP);
+                return;
+            }
+
             await API.applications.createApplication(pendingAction.jobId, pendingAction.action);
 
             queryClient.invalidateQueries({ queryKey: [API_KEYS.JOBS] });

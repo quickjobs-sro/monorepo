@@ -25,6 +25,7 @@ interface JobCardProps {
         createdAt?: string;
         starts_at?: string;
         ends_at?: string;
+        stats?: { appliedTotal?: number };
     };
     isInactive?: boolean;
     fromCompanySlug?: string;
@@ -47,6 +48,8 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
     const { jobTypeLabel, badgeBgColor } = getJobTypeInfo(job.term ?? undefined);
     const dateTimeString = formatJobDateTime(job);
     const salaryDisplay = formatJobSalary(job);
+    const feedName = (job as any).feedName as string | undefined;
+    const appliedTotal = job.stats?.appliedTotal ?? 0;
 
     return (
         <ConditionalWrapper
@@ -66,16 +69,21 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
             <Card
                 className={`h-full flex flex-col transition-shadow hover:shadow-lg border ${isInactive ? "bg-gray-100 opacity-75" : "bg-white cursor-pointer"
                     }`}
-                style={{ minHeight: 500, maxHeight: 500 }}
+                style={feedName ? undefined : { minHeight: 560, maxHeight: 560 }}
             >
                 <CardHeader className="pb-4 !px-6 !pt-6">
-                    <div className="mb-6">
+                    <div className="mb-6 flex flex-wrap gap-2 items-center">
                         <Badge
                             className="text-white text-xs font-semibold px-3 py-1.5 rounded-sm uppercase border-0"
                             style={{ backgroundColor: badgeBgColor }}
                         >
                             {jobTypeLabel}
                         </Badge>
+                        {feedName && (
+                            <Badge className="text-xs font-semibold px-3 py-1.5 rounded-sm uppercase border border-gray-300 bg-white text-gray-600">
+                                {feedName}
+                            </Badge>
+                        )}
                     </div>
 
                     {dateTimeString && (
@@ -88,8 +96,8 @@ export const JobCard = ({ job, isInactive = false, fromCompanySlug, fromCompanyN
                 </CardHeader>
 
                 <CardContent className="!px-6 !pt-0 ">
-                    <p className="text-md text-gray-700 whitespace-pre-wrap leading-relaxed h-full truncate max-h-[205px] line-clamp-7 overflow-hidden">
-                        {job.description}
+                    <p className={`text-md text-gray-700 whitespace-pre-wrap leading-relaxed h-full truncate overflow-hidden ${feedName ? "line-clamp-[12] max-h-[320px]" : "max-h-[205px] line-clamp-7"}`}>
+                        {job.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()}
                     </p>
                 </CardContent>
 

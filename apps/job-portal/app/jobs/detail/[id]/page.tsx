@@ -1,14 +1,30 @@
 import dynamic from "next/dynamic";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { cache, Suspense } from "react";
+import Script from "next/script";
+import Image from "next/image";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Header } from "../../../../components/Header";
+import { NavigationLink } from "@ui/components/core/navigation-link";
+import { Button } from "@ui/components/core/button";
 import { fetchPublicJobById, fetchPublicJobs } from "../../../../lib/api";
+import { fetchExternalJobById, fetchPublicExternalJobById } from "../../../../lib/migratedQueries";
 import { generateAISEO, generateJobSEO } from "../../../../lib/seo";
 import { safeJsonLd } from "../../../../lib/utils";
-import Image from "next/image";
-import { NavigationLink } from "@ui/components/core/navigation-link";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import { Button } from "@ui/components/core/button";
-import type { JobLike } from "../../../../lib/openapi/types";
+import { getApplicationStatusForJob, getJobsListCached, withAuthContext, getAuthTokenFromCookies } from "../../../../lib/serverApi";
+import { JobBreadcrumb } from "./JobBreadcrumb";
+import { JobLoadNetworkError } from "../../../../lib/apiErrors";
+import { extractJobTitle, calculateTimeLeft } from "../../../../lib/jobHelpers";
+import { JobVisitTracker } from "../../../../components/JobVisitTracker";
+import type { ExternalJob, JobLike } from "../../../../lib/openapi/types";
+
+type ExternalJobRuntime = Omit<ExternalJob, "place" | "term" | "status" | "author"> & {
+    place?: { address?: string; latitude?: number; longitude?: number };
+    term?: string;
+    status?: string;
+    author?: { url?: string; name?: string; avatarImageUrl?: string };
+};
 
 const Footer = dynamic(
     () => import("../../../../components/Footer").then((m) => ({ default: m.Footer })),
@@ -21,13 +37,6 @@ const FeaturesCard = dynamic(
 const ShareButtons = dynamic(
     () => import("../../../../components/ShareButtons").then((m) => ({ default: m.ShareButtons }))
 );
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { cache, Suspense } from "react";
-import Script from "next/script";
-import { getApplicationStatusForJob, getJobsListCached, withAuthContext } from "../../../../lib/serverApi";
-import { JobBreadcrumb } from "./JobBreadcrumb";
-import { JobLoadNetworkError } from "../../../../lib/apiErrors";
-import { extractJobTitle, calculateTimeLeft } from "../../../../lib/jobHelpers";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -52,7 +61,10 @@ export async function generateMetadata({
 
     try {
         // Use same cached fetch as page content to avoid duplicate request
-        const jobDetail = await getJobDetailCached(id);
+        let jobDetail = await getJobDetailCached(id);
+        if (!jobDetail?.job) {
+            jobDetail = await getExternalJobDetail(id);
+        }
         if (!jobDetail?.job) {
             return {
                 title: "Nabídka nenalezena | QuickJOBS.cz",
@@ -73,6 +85,7 @@ export async function generateMetadata({
             job,
             jobTypeLabel,
             location: job.place?.address || "Praha",
+            title: jobDetail.title ?? undefined,
         });
 
         const url = `https://jobs.quickjobs.cz/jobs/detail/${id}`;
@@ -154,12 +167,12 @@ async function getJobDetail(id: string) {
         const job: JobLike | undefined = publicResult.data;
         const stats = publicResult.stats;
         const applicationStatus: "applied" | "ignored" | "accepted" | "rejected" | null = null;
-        const title = extractJobTitle(job.description);
+        const title = (job as any).title || extractJobTitle(job.description);
         const expiresAt = (job as any).offer_expires_at || job.offerExpiresAt;
         const { days: timeLeftDays, hours: timeLeftHour } = calculateTimeLeft(expiresAt);
         return { job, stats, title, timeLeftDays, timeLeftHour, applicationStatus };
     } catch (error) {
-        if (process.env.NODE_ENV === "development") {
+        if (process.env.NODE_ENV === "development" && (error as { status?: number })?.status !== 404) {
             console.error("Error fetching job:", error);
         }
         if (isTimeoutOrNetworkError(error)) {
@@ -170,6 +183,46 @@ async function getJobDetail(id: string) {
 }
 
 const getJobDetailCached = cache(getJobDetail);
+
+async function getExternalJobDetail(id: string) {
+    const jobId = Number(id);
+    if (isNaN(jobId) || jobId <= 0 || !Number.isInteger(jobId)) return null;
+    try {
+        const token = await getAuthTokenFromCookies();
+        // Try authenticated fetch first; fall back to public if unavailable or auth fails
+        const raw = token
+            ? (await fetchExternalJobById(jobId, { token })) ?? await fetchPublicExternalJobById(jobId)
+            : await fetchPublicExternalJobById(jobId);
+        if (!raw) return null;
+        const job = raw as unknown as ExternalJobRuntime;
+
+        const jobLike: JobLike = {
+            id: job.id,
+            description: job.description,
+            url: job.url,
+            term: job.term,
+            status: job.status,
+            place: job.place as JobLike["place"],
+            createdAt: job.createdAt,
+            // External author shape differs from internal; mapped in JobDetailNavAndContent
+            author: job.author as unknown as JobLike["author"],
+        };
+
+        return {
+            job: jobLike,
+            stats: { jobId: job.id, appliedTotal: 0, updatedAt: "", jobVisits: 0 },
+            title: job.title,
+            timeLeftDays: 0,
+            timeLeftHour: 0,
+            applicationStatus: null as null,
+            isExternal: true,
+            externalUrl: job.url,
+            feedName: job.feedName,
+        };
+    } catch {
+        return null;
+    }
+}
 
 async function getNavigationJobs(currentJobId: number, currentTerm: string) {
     try {
@@ -240,6 +293,10 @@ async function JobDetailNavAndContent({
     titleRes,
     fromCompanySlug,
     fromCompanyName,
+    isExternal,
+    externalUrl,
+    feedName,
+    navigationPromise,
 }: {
     job: JobLike;
     stats: any;
@@ -253,8 +310,12 @@ async function JobDetailNavAndContent({
     titleRes: string;
     fromCompanySlug?: string;
     fromCompanyName?: string;
+    isExternal?: boolean;
+    externalUrl?: string;
+    feedName?: string;
+    navigationPromise: Promise<{ prev: number | null; next: number | null; currentJobIndex: number; lastJobIndex: number }>;
 }) {
-    const navigation = await getNavigationJobs(job.id, typeof job.term === "string" ? job.term : "one_time");
+    const navigation = await navigationPromise;
 
     const companyQuery = (() => {
         if (!fromCompanySlug) return "";
@@ -313,19 +374,15 @@ async function JobDetailNavAndContent({
                     place={job.place}
                     startsAt={(job as any).starts_at || job.startsAt}
                     endsAt={(job as any).ends_at || job.endsAt}
-                    author={
-                        (job as any).author
-                            ? {
-                                avatarImage: {
-                                    url: (job as any).author.avatarImage?.url || (job as any).author.avatar_image?.url,
-                                },
-                                givenName: (job as any).author.givenName || (job as any).author.given_name,
-                                familyName: (job as any).author.familyName || (job as any).author.family_name,
-                                rating: (job as any).author.rating,
-                                description: (job as any).author.description,
-                            }
-                            : undefined
-                    }
+                    author={(() => {
+                        const a = (job as any).author;
+                        if (!a) return undefined;
+                        const avatarUrl = a.avatarImage?.url || a.avatar_image?.url || a.avatarImageUrl;
+                        const givenName = a.givenName || a.given_name || a.name;
+                        const familyName = a.familyName || a.family_name;
+                        if (!avatarUrl && !givenName && !familyName) return undefined;
+                        return { avatarImage: { url: avatarUrl }, givenName, familyName, rating: a.rating, description: a.description };
+                    })()}
                     stats={{
                         appliedTotal: stats?.applied_total || stats?.applications || 0,
                     }}
@@ -365,6 +422,11 @@ async function JobDetailNavAndContent({
                     applicationStatus={applicationStatus || undefined}
                     applicationStatusResolvedOnServer={applicationStatusResolvedOnServer}
                     employerStatement={employerStatement}
+                    isExternal={isExternal}
+                    externalUrl={externalUrl}
+                    feedName={feedName}
+                    url={job.url}
+                    ctaText={job.ctaText}
                 />
 
                 <div className="flex flex-col gap-4 w-full mt-6 lg:hidden">
@@ -483,6 +545,9 @@ export default async function JobDetailPage({ params }: PageProps) {
         const applicationDetailPromise = getApplicationStatusForJob(Number(id));
 
         let jobDetail;
+        let isExternalJob = false;
+        let externalJobExtra: { externalUrl: string; feedName?: string } | null = null;
+
         try {
             jobDetail = await getJobDetailCached(id);
         } catch (e) {
@@ -499,11 +564,40 @@ export default async function JobDetailPage({ params }: PageProps) {
             throw e;
         }
 
+        const publicJobNotFound = !jobDetail;
+
         if (!jobDetail) {
+            const externalDetail = await getExternalJobDetail(id);
+            if (externalDetail) {
+                jobDetail = externalDetail;
+                isExternalJob = true;
+                externalJobExtra = {
+                    externalUrl: externalDetail.externalUrl,
+                    feedName: externalDetail.feedName,
+                };
+            }
+        }
+
+        if (!jobDetail) {
+            if (publicJobNotFound) {
+                return (
+                    <div className="flex flex-col items-center justify-center min-h-[50vh] px-4">
+                        <p className="text-center text-gray-800 font-semibold mb-2">Nabídka již není dostupná</p>
+                        <p className="text-center text-muted-foreground mb-6">Tato nabídka byla pravděpodobně odstraněna nebo vypršela.</p>
+                        <NavigationLink href="/jobs">Zpět na nabídky</NavigationLink>
+                    </div>
+                );
+            }
             notFound();
         }
 
         const { job, stats, title, timeLeftDays, timeLeftHour, applicationStatus: applicationStatusFromJob } = jobDetail;
+
+        // Start navigation fetch here (inside withAuthContext) so it runs with the correct auth context,
+        // not inside the Suspense boundary where AsyncLocalStorage may not propagate.
+        const navigationPromise = isExternalJob
+            ? Promise.resolve({ prev: null, next: null, currentJobIndex: 0, lastJobIndex: 0 })
+            : getNavigationJobs(job.id, typeof job.term === "string" ? job.term : "one_time");
 
         const jobTypeLabel =
             job.term === "one_time"
@@ -698,9 +792,14 @@ export default async function JobDetailPage({ params }: PageProps) {
                             applicationStatusResolvedOnServer={applicationStatus !== null}
                             desc={desc}
                             titleRes={titleRes}
+                            isExternal={isExternalJob}
+                            externalUrl={externalJobExtra?.externalUrl}
+                            feedName={externalJobExtra?.feedName}
+                            navigationPromise={navigationPromise}
                         />
                     </Suspense>
                 </main>
+                {!isExternalJob && <JobVisitTracker />}
                 <Footer />
             </>
         );

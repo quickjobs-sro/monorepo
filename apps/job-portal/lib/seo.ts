@@ -14,6 +14,7 @@ interface JobSEOParams {
   job: JobLike;
   jobTypeLabel: string;
   location?: string;
+  title?: string;
 }
 
 /**
@@ -24,6 +25,7 @@ export async function generateJobSEO({
   job,
   jobTypeLabel,
   location = "Praha",
+  title: titleOverride,
 }: JobSEOParams): Promise<SEOContent> {
   // Extract key information
   const salary = job.salary
@@ -32,29 +34,44 @@ export async function generateJobSEO({
   const salaryType = job.salaryType === "hour" ? "hod." : job.salaryType === "total" ? "práci" : "měsíc";
   const address = job.place?.address || location;
   
-  // Extract title from description (first sentence, max 60 chars for SEO)
-  const sentences = job.description.split(/[.!?\n]/);
-  const firstSentence = sentences[0] || job.description;
-  const words = firstSentence.split(" ");
-  const rawTitle = words.slice(0, 10).join(" ").substring(0, 60);
-  const title = rawTitle.endsWith("...") ? rawTitle : rawTitle + (words.length > 10 ? "..." : "");
-  
-  // Generate SEO-optimized title
-  const seoTitle = `${title} | ${jobTypeLabel} | ${address} | QuickJOBS.cz`;
-  
+  // Strip HTML tags for plain-text title/description extraction
+  const plainDescription = job.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+  // Use explicit title override, otherwise extract from description
+  let title: string;
+  if (titleOverride) {
+    title = titleOverride;
+  } else {
+    const sentences = plainDescription.split(/[.!?\n]/);
+    const firstSentence = sentences[0] || plainDescription;
+    const words = firstSentence.split(" ").filter(Boolean);
+    const rawTitle = words.slice(0, 10).join(" ").substring(0, 60);
+    title = rawTitle.endsWith("...") ? rawTitle : rawTitle + (words.length > 10 ? "..." : "");
+  }
+
+  // Build company name from author for a unique title
+  const author = (job as any).author;
+  const companyName = author
+    ? [author.givenName, author.familyName].filter(Boolean).join(" ").trim() || null
+    : null;
+
+  // Generate SEO-optimized title: Job Title | Company | Location | Site (max ~60 chars before site suffix)
+  const titleParts = [title, companyName, address].filter(Boolean);
+  const seoTitle = `${titleParts.join(" | ")} | QuickJOBS.cz`;
+
   // Generate comprehensive meta description (150-160 chars optimal for SEO)
   const metaDescriptionParts: string[] = [];
-  
+
   // Add job type and location
   metaDescriptionParts.push(`${jobTypeLabel} v ${address}`);
-  
+
   // Add salary if available
   if (salary) {
     metaDescriptionParts.push(`plat ${salary} Kč/${salaryType}`);
   }
-  
+
   // Add key details from description (first 80 chars)
-  const descriptionPreview = job.description.substring(0, 80).replace(/\n/g, " ").trim();
+  const descriptionPreview = plainDescription.substring(0, 80).replace(/\n/g, " ").trim();
   if (descriptionPreview) {
     metaDescriptionParts.push(descriptionPreview);
   }

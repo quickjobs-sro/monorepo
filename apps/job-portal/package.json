@@ -28,7 +28,7 @@
         "fast-deep-equal": "3.1.3",
         "js-cookie": "^3.0.5",
         "lucide-react": "0.525.0",
-        "next": "15.5.12",
+        "next": "15.5.18",
         "quickjobs-api-wrapper": "git+https://bitbucket.org/quickjobs/api-js.git#c37a4f9e404e53e33dc976ebf7b623165f42b58f",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",

@@ -1,7 +1,7 @@
 "use client";
 
 import { ConditionalWrapper } from "@ui/helpers/ConditionalWrapper";
-import { Avatar, AvatarImage } from "@ui/components/core/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@ui/components/core/avatar";
 import { Badge } from "@ui/components/core/badge";
 import { Card, CardContent, CardHeader, CardFooter } from "@ui/components/core/card";
 import { CommentRatings } from "@ui/components/core/rating";
@@ -35,13 +35,25 @@ import {
 } from "@ui/components/core/dialog";
 import { API_KEYS } from "@ui/types/api_keys";
 import { APPLICATION_STATUS, EXTERNAL_JOB_TYPE } from "@ui/types/application_status";
-import { savePendingJobAction } from "../lib/utils";
+import { savePendingJobAction, ensureAbsoluteUrl } from "../lib/utils";
 import { ApplicationStatusProvider } from "./ApplicationStatusProvider";
 import { reportError } from "../lib/reportError";
 import { ShareButtons } from "./ShareButtons";
+import { ExternalApplyButton } from "./ExternalApplyButton";
 import type { JobLike } from "../lib/openapi/types";
 
 const JOB_VALIDITY_DAYS = 30;
+
+function sanitizeJobHtml(html: string): string {
+    return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+        .replace(/<iframe\b[^>]*>.*?<\/iframe>/gi, "")
+        .replace(/\s+on\w+="[^"]*"/gi, "")
+        .replace(/\s+on\w+='[^']*'/gi, "")
+        .replace(/href="javascript:[^"]*"/gi, "")
+        .replace(/href='javascript:[^']*'/gi, "");
+}
 
 const INDEFINITE_VALUES = ["indefinite", "neurončité", "neurončitá", "neuroncita", "permanent", "permanentni"];
 const FLEXIBLE_VALUES = ["flexible", "flexibilní", "flexibilni"];
@@ -98,6 +110,11 @@ interface FeaturesCardProps {
     /** When true, server already resolved status (even if null); client should not fetch. */
     applicationStatusResolvedOnServer?: boolean;
     employerStatement?: "saved" | "rejected" | "waiting_for_response" | "invited_for_next_round" | "employed" | null;
+    isExternal?: boolean;
+    externalUrl?: string;
+    feedName?: string;
+    url?: string | null;
+    ctaText?: string | null;
 }
 
 export default function FeaturesCard({
@@ -133,6 +150,11 @@ export default function FeaturesCard({
     applicationStatus,
     applicationStatusResolvedOnServer = false,
     employerStatement,
+    isExternal = false,
+    externalUrl,
+    feedName,
+    url,
+    ctaText,
 }: FeaturesCardProps) {
     const expiresAt = offerExpiresAt || offer_expires_at || "";
     const createdDate = created_at || createdAt || "";
@@ -200,6 +222,9 @@ export default function FeaturesCard({
         }
     }, [id, applicationStatus, employerStatement]);
 
+    const currentApplicationStatus = dynamicApplicationStatus ?? applicationStatus;
+    const currentEmployerStatement = dynamicEmployerStatement ?? employerStatement;
+
     const hasStatusFromServer =
         applicationStatus === "applied" || applicationStatus === "ignored" || applicationStatus === "accepted" || applicationStatus === "rejected";
     useEffect(() => {
@@ -240,7 +265,7 @@ export default function FeaturesCard({
             mutationInProgressRef.current = true;
 
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Application API timeout")), 5000)
+                setTimeout(() => reject(new Error("Application API timeout")), 10000)
             );
 
             return (Promise.race([
@@ -257,14 +282,13 @@ export default function FeaturesCard({
         mutationKey: ["jobApplication", id],
         onSuccess: async (data, variables) => {
             mutationInProgressRef.current = false;
-            // Safety net: reset ref after 10s in case of edge cases (align with RN)
-            setTimeout(() => {
-                mutationInProgressRef.current = false;
-            }, 10000);
 
             if (variables.status === "apply") {
+                setDynamicApplicationStatus("applied");
                 setShowCheckModal(false);
                 setShowInterested(true);
+            } else if (variables.status === "ignore") {
+                setDynamicApplicationStatus("ignored");
             }
 
             // Invalidate queries - use prefix matching to invalidate all related queries
@@ -315,6 +339,20 @@ export default function FeaturesCard({
     }, [user]);
 
     const handleApply = useCallback(() => {
+        if (url) {
+            const fullUrl = ensureAbsoluteUrl(url);
+            if (!isLoggedIn) {
+                savePendingJobAction({ jobId: id, action: "open_url", url: fullUrl, returnUrl: currentUrl });
+                router.push(`/login?returnUrl=${encodeURIComponent(currentUrl)}`);
+                return;
+            }
+            window.open(fullUrl, "_blank", "noopener,noreferrer");
+            if (currentApplicationStatus !== "applied" && currentApplicationStatus !== "accepted") {
+                jobMutation.mutate({ status: "apply" });
+            }
+            return;
+        }
+
         if (!isLoggedIn) {
             const returnUrl = encodeURIComponent(currentUrl);
             savePendingJobAction({ jobId: id, action: "apply", returnUrl: currentUrl });
@@ -350,7 +388,7 @@ export default function FeaturesCard({
         } else {
             setShowCheckModal(true);
         }
-    }, [isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, user, router, id]);
+    }, [url, isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, user, router, id, currentUrl, jobMutation, currentApplicationStatus]);
 
     const handleNotInterested = useCallback(() => {
         if (!isLoggedIn) {
@@ -383,7 +421,7 @@ export default function FeaturesCard({
             title: "Status: Nemám zájem",
             duration: 3000,
         });
-    }, [isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, router, toast, jobMutation, id]);
+    }, [isLoggedIn, hasCompletedOnboarding, lastClickTime, isDisabled, router, toast, jobMutation, id, currentUrl]);
 
     const startAt = jobStartsAt ? new Date(jobStartsAt) : null;
     const endsAtDate = jobEndsAt ? new Date(jobEndsAt) : null;
@@ -433,10 +471,6 @@ export default function FeaturesCard({
                 : "dnů"
         : "dnů"
         } ${timeLeftHourNum} hod.`;
-
-    // Use dynamic status if available, otherwise fall back to prop
-    const currentApplicationStatus = dynamicApplicationStatus ?? applicationStatus;
-    const currentEmployerStatement = dynamicEmployerStatement ?? employerStatement;
 
     return (
         <>
@@ -543,6 +577,9 @@ export default function FeaturesCard({
                                             src={author.avatarImage?.url}
                                             alt={`Foto ${author.givenName || ""} ${author.familyName || ""}`.trim() || "Foto zaměstnavatele"}
                                         />
+                                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                            {(author.givenName?.[0] || author.familyName?.[0] || "?").toUpperCase()}
+                                        </AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col gap-0" itemProp="name">
                                         <span className="font-medium">
@@ -607,19 +644,27 @@ export default function FeaturesCard({
                                 </>
                             )}
 
-                            <p
-                                className={`text-base text-gray-900 whitespace-pre-wrap ${isDetail
-                                    ? ""
-                                    : "line-clamp-8 max-h-[205px] overflow-hidden"
-                                    }`}
-                                itemProp={isDetail ? "description" : undefined}
-                            >
-                                {isDetail
-                                    ? description
-                                    : description.length > 200
-                                        ? description.substring(0, 200) + "..."
-                                        : description}
-                            </p>
+                            {isDetail && description.includes("<") ? (
+                                <div
+                                    className="text-base text-gray-900 break-words [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_strong]:font-semibold"
+                                    dangerouslySetInnerHTML={{ __html: sanitizeJobHtml(description) }}
+                                    itemProp="description"
+                                />
+                            ) : (
+                                <p
+                                    className={`text-base text-gray-900 whitespace-pre-wrap break-words ${isDetail
+                                        ? ""
+                                        : "line-clamp-8 max-h-[205px] overflow-hidden"
+                                        }`}
+                                    itemProp={isDetail ? "description" : undefined}
+                                >
+                                    {isDetail
+                                        ? description
+                                        : description.length > 200
+                                            ? description.substring(0, 200) + "..."
+                                            : description}
+                                </p>
+                            )}
                         </div>
                     </CardHeader>
 
@@ -707,7 +752,7 @@ export default function FeaturesCard({
                     </CardContent>
 
                     <CardFooter className="flex flex-col gap-2">
-                        {!isInactive && (
+                        {!isInactive && !!expiresAt && (
                             <div className="w-full">
                                 <div className="w-full bg-gray-200 rounded-full mb-2">
                                     <div
@@ -748,32 +793,35 @@ export default function FeaturesCard({
 
                         {!isInactive && (
                             <div className="flex flex-col gap-2 w-full">
-                                <div className="flex  justify-end gap-2 w-full">
-                                    <meta
-                                        itemProp="validThrough"
-                                        content={expiresAt ? format(new Date(expiresAt), "yyyy-MM-dd") : ""}
-                                    />
-                                    <meta
-                                        itemProp="datePosted"
-                                        content={
-                                            expiresAt
-                                                ? format(
-                                                    new Date(
-                                                        new Date(expiresAt).getTime() -
-                                                        JOB_VALIDITY_DAYS * 24 * 60 * 60 * 1000
-                                                    ),
-                                                    "yyyy-MM-dd"
-                                                )
-                                                : ""
-                                        }
-                                    />
-                                    <p className="text-sm sm:text-base text-blue-900 font-medium">
-                                        Nabídka končí za
-                                    </p>
-                                    <p className="text-sm sm:text-base font-bold">{timeLeftText}</p>
-                                </div>
-                                <div className="flex justify-between gap-4 w-full mt-4">
-                                    {currentApplicationStatus === "applied" ? (
+                                {!!expiresAt && (
+                                    <div className="flex  justify-end gap-2 w-full">
+                                        <meta
+                                            itemProp="validThrough"
+                                            content={format(new Date(expiresAt), "yyyy-MM-dd")}
+                                        />
+                                        <meta
+                                            itemProp="datePosted"
+                                            content={format(
+                                                new Date(new Date(expiresAt).getTime() - JOB_VALIDITY_DAYS * 24 * 60 * 60 * 1000),
+                                                "yyyy-MM-dd"
+                                            )}
+                                        />
+                                        <p className="text-sm sm:text-base text-blue-900 font-medium">
+                                            Nabídka končí za
+                                        </p>
+                                        <p className="text-sm sm:text-base font-bold">{timeLeftText}</p>
+                                    </div>
+                                )}
+                                <div className="flex flex-col gap-3 w-full mt-4">
+                                    {isExternal ? (
+                                        <div className="w-full">
+                                            <ExternalApplyButton
+                                                jobId={id}
+                                                jobUrl={externalUrl}
+                                                ctaText={ctaText}
+                                            />
+                                        </div>
+                                    ) : currentApplicationStatus === "applied" && !url ? (
                                         <Button
                                             variant='default'
                                             size='lg'
@@ -811,11 +859,11 @@ export default function FeaturesCard({
                                         </Button>
                                     ) : (
                                         <>
-                                            {isLoggedIn && (
+                                            {(hasValidToken && !!user && !url) && (
                                                 <TrackedButton
                                                     variant='destructive'
                                                     size='lg'
-                                                    className="uppercase w-full min-w-[130px]"
+                                                    className="uppercase w-full"
                                                     onClick={handleNotInterested}
                                                     disabled={isDisabled}
                                                     gaCategory="Job card"
@@ -828,14 +876,14 @@ export default function FeaturesCard({
                                             <TrackedButton
                                                 variant='default'
                                                 size='lg'
-                                                className="uppercase w-full min-w-[130px]"
+                                                className="uppercase w-full"
                                                 onClick={handleApply}
                                                 disabled={isDisabled}
                                                 gaCategory="Job card"
-                                                gaAction="Mám zájem"
+                                                gaAction={url ? (ctaText || "Více info") : "Mám zájem"}
                                                 gaLabel={String(id)}
                                             >
-                                                Mám zájem
+                                                {url ? (ctaText || "Více info") : "Mám zájem"}
                                             </TrackedButton>
                                         </>
                                     )}

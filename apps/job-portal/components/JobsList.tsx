@@ -18,6 +18,8 @@ export interface JobWithStats extends JobLike {
     ends_at?: string;
     salary_to?: number | null;
     salary_type?: string;
+    isExternal?: boolean;
+    feedName?: string;
 }
 
 interface JobsListProps {
@@ -48,9 +50,9 @@ const JobsSection = ({ jobs, isInactive = false }: JobsSectionProps) => {
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-center mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch mb-12">
                 {displayedItems.map((job) => (
-                    <JobCard key={job.id} job={job} {...(isInactive && { isInactive: true })} />
+                    <JobCard key={job.isExternal ? `ext-${job.id}` : job.id} job={job} {...(isInactive && { isInactive: true })} />
                 ))}
             </div>
 
@@ -104,7 +106,10 @@ export const JobsList = ({ initialJobs, allJobs, subscribedJobTypes, onFilterNot
 
     const filteredJobs = useMemo(() => {
         const enabledTerms = new Set(effectiveEnabledTypes.map((t) => JOB_TYPE_TO_TERM[t]));
-        return initialJobs.filter((job) => job.term && enabledTerms.has(job.term));
+        return initialJobs.filter((job) => {
+            if (job.isExternal) return true;
+            return job.term && enabledTerms.has(job.term as string);
+        });
     }, [initialJobs, effectiveEnabledTypes]);
 
     const inactiveJobs = useMemo(() => {

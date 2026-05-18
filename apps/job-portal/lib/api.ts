@@ -230,7 +230,10 @@ export async function fetchPublicJobById(id: string | number): Promise<PublicJob
             },
         });
     } catch (error) {
-        reportError(error, { location: "api.fetchPublicJobById", jobId: String(id) });
+        const status = (error as { status?: number })?.status;
+        if (status !== 404) {
+            reportError(error, { location: "api.fetchPublicJobById", jobId: String(id) });
+        }
 
         if (isTimeoutError(error)) {
             throw new Error(`Request timeout: API did not respond within ${PUBLIC_JOBS_TIMEOUT_MS / 1000} seconds`);

@@ -46,6 +46,10 @@ function JobsGrid({ jobs, isInactive, slug, companyName }: { jobs: Job[]; isInac
 export function CompanyJobsSection({ activeJobs, inactiveJobs, slug, companyName }: CompanyJobsSectionProps) {
     const [showInactive, setShowInactive] = useState(false);
 
+    if (activeJobs.length === 0 && inactiveJobs.length === 0) {
+        return null;
+    }
+
     return (
         <>
             <section className="mt-10">
@@ -55,11 +59,7 @@ export function CompanyJobsSection({ activeJobs, inactiveJobs, slug, companyName
                 <p className="text-sm sm:text-base text-gray-600 mb-6 pl-2.5">
                     U těchto nabídek ti stačí jedno kliknutí na „Mám zájem" k přihlášení se na nabídku.
                 </p>
-                {activeJobs.length === 0 && inactiveJobs.length === 0 ? (
-                    <p className="text-gray-500 text-sm py-6 text-center">
-                        Tato firma zatím nemá žádné nabídky.
-                    </p>
-                ) : activeJobs.length === 0 ? (
+                {activeJobs.length === 0 ? (
                     <p className="text-gray-500 text-sm py-6 text-center">
                         Tato firma momentálně nemá žádné aktivní nabídky.
                     </p>

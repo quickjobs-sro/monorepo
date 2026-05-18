@@ -8,7 +8,6 @@ import { AnalyticsUserIdSync } from "../components/AnalyticsUserIdSync";
 import "@ui/styles/globals.css";
 import { GoogleAnalytics } from "../components/GoogleAnalytics";
 import { AppQueryProvider } from "../components/AppQueryProvider";
-import { JobVisitTracker } from "../components/JobVisitTracker";
 
 export default function RootLayout({
   children,
@@ -46,7 +45,6 @@ export default function RootLayout({
       </head>
       <body className="font-sans">
         <GoogleAnalytics />
-        <JobVisitTracker />
           <AnalyticsProvider track={eventGA}>
             <AppQueryProvider>
               <TokenRestoreProvider>

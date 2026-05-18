@@ -12,6 +12,10 @@ export const safeJsonLd = (data: object): string => {
         .replace(/&/g, '\\u0026');
 };
 
+/** Ensures a URL has an absolute scheme. Bare domains like "quickjobs.cz" become "https://quickjobs.cz". */
+export const ensureAbsoluteUrl = (url: string): string =>
+    url.startsWith("http") ? url : `https://${url}`;
+
 /**
  * Pending job action storage utilities
  */
@@ -19,8 +23,9 @@ const PENDING_JOB_ACTION_KEY = "quickjobs_pending_job_action";
 
 export interface PendingJobAction {
     jobId: number;
-    action: "apply" | "ignore";
+    action: "apply" | "ignore" | "open_url" | "external_apply";
     returnUrl?: string;
+    url?: string;
 }
 
 export const savePendingJobAction = (action: PendingJobAction): void => {

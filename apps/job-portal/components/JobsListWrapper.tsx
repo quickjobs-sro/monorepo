@@ -18,10 +18,16 @@ import { differenceInDays, differenceInHours } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useJobs } from "../hooks/useJobs";
 import { useGetProfile } from "../hooks/useGetProfile";
+import { useExternalJobsList } from "../hooks/useExternalJobs";
 import { getSubscribedJobTypes } from "../lib/subscribedJobTypes";
+
+function stripHtml(html: string): string {
+    return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
 
 interface JobsListWrapperProps {
     initialPublicJobs: JobWithStats[];
+    initialPublicExternalJobs?: any[];
 }
 
 const LoadingSkeleton = () => (
@@ -70,7 +76,7 @@ const ErrorFallback = ({
     return (
         <div className="flex flex-col items-center justify-center py-12 px-4">
             <p className="text-center text-red-600 mb-2 font-semibold text-lg">
-                {normalized.isTimeout ? "Vypršel limit čekání" : isServerError ? "Backend není dostupný" : "Chyba při načítání"}
+                {normalized.isTimeout ? "Vypršel limit čekání" : isServerError ? "Server není dostupný" : "Chyba při načítání"}
             </p>
             <p className="text-center text-gray-600 mb-4">
                 {errorMessage}
@@ -79,7 +85,7 @@ const ErrorFallback = ({
     );
 };
 
-export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => {
+export const JobsListWrapper = ({ initialPublicJobs, initialPublicExternalJobs }: JobsListWrapperProps) => {
     const { mounted, tokenRestored } = useTokenRestore();
     const userToken = getAuthToken();
 
@@ -143,7 +149,9 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
 
     const queryClient = useQueryClient();
     const { data: jobsData, isLoading, isError, error } = useJobs(debouncedShouldFetch);
-    const hasValidToken = mounted && tokenRestored && !!userToken && isValidToken(userToken);
+    const isLoggedIn = mounted && tokenRestored && !!userToken && isValidToken(userToken);
+    const { data: externalJobsData } = useExternalJobsList(isLoggedIn, mounted);
+    const hasValidToken = isLoggedIn;
 
 
     const LOADING_GIVE_UP_MS = 20000;
@@ -249,8 +257,12 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
         if (debouncedShouldFetch && jobsData?.jobs && jobsData.jobs.length > 0 && !isError) {
             // Process authenticated jobs - calculate time left
             const now = new Date();
+            const statsById = new Map(
+                ((jobsData as any).stats ?? []).map((s: any) => [s.jobId ?? s.job_id, s])
+            );
             processedJobs = jobsData.jobs.map((job: any) => {
                 const expiresAt = new Date(job.offer_expires_at || job.offerExpiresAt);
+                const s = statsById.get(job.id) as any;
                 return {
                     ...job,
                     title: job.title,
@@ -263,6 +275,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
                     salary: job.salary,
                     salary_to: job.salary_to || job.salaryTo,
                     salary_type: job.salary_type || job.salaryType,
+                    stats: { jobId: job.id, appliedTotal: (s?.appliedTotal ?? s?.applied_total ?? 0), updatedAt: s?.updatedAt ?? s?.updated_at ?? "", jobVisits: s?.jobVisits ?? 0 },
                 } as JobWithStats;
             });
             processedJobs = processedJobs.sort((a, b) => {
@@ -275,11 +288,30 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
             processedJobs = initialPublicJobs;
         }
 
+        // Merge external jobs — use live client data when available, else fall back to server-pre-rendered
+        const externalSource = externalJobsData?.jobs ?? initialPublicExternalJobs ?? [];
+        if (externalSource.length > 0) {
+            const internalIds = new Set(processedJobs.map((j) => j.id));
+            const externalMapped: JobWithStats[] = (externalSource as any[]).map((job) => ({
+                id: job.id,
+                description: stripHtml(job.description || ""),
+                title: job.title,
+                term: typeof job.term === "string" ? job.term : undefined,
+                status: typeof job.status === "string" ? job.status : "active",
+                place: job.place,
+                url: job.url,
+                created_at: job.createdAt || job.created_at,
+                isExternal: true,
+                feedName: job.feedName || job.feed_name,
+                stats: undefined,
+            }));
+            const deduped = externalMapped.filter((j) => !internalIds.has(j.id));
+            processedJobs = [...processedJobs, ...deduped];
+        }
+
         const active = processedJobs.filter((job) => job.status === "active");
         return { activeJobs: active, allProcessedJobs: processedJobs };
-    }, [debouncedShouldFetch, jobsData, initialPublicJobs, isError, mounted, tokenRestored, userToken, isLoading]);
-
-    const isLoggedIn = mounted && tokenRestored && !!userToken && isValidToken(userToken);
+    }, [debouncedShouldFetch, jobsData, externalJobsData, initialPublicJobs, initialPublicExternalJobs, isError, mounted, tokenRestored, userToken, isLoading]);
 
     // When user has token: show loading until authenticated jobs are loaded, or give up after 20s so user isn't stuck.
     if (isLoggedIn && debouncedShouldFetch && isLoading && !loadingTimedOut) {
@@ -302,11 +334,7 @@ export const JobsListWrapper = ({ initialPublicJobs }: JobsListWrapperProps) => 
                 initialJobs={activeJobs}
                 allJobs={allProcessedJobs}
                 subscribedJobTypes={effectiveSubsForNotify}
-                onFilterNotify={
-                    hasValidToken
-                        ? handleFilterNotify
-                        : () => router.push(loginUrlWithReturn)
-                }
+                onFilterNotify={hasValidToken ? handleFilterNotify : undefined}
                 onOpenLocationFilter={
                     hasValidToken
                         ? () => router.push("/profile/edit#lokace")
